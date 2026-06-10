@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jotun Hunt - Admin Live Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0b0f19; color: #f1f5f9; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { color: #38bdf8; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+        .refresh-btn { background: #38bdf8; color: #0b0f19; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .refresh-btn:hover { background: #0ea5e9; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .team-card { background: #141b2d; border: 1px solid #1e293b; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative; }
+        .team-card.winner { border-color: #34d399; background: #064e3b; }
+        .team-name { font-size: 1.3rem; font-weight: bold; color: #f8fafc; margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .team-id { font-size: 0.8rem; color: #64748b; font-family: monospace; }
+        .stat-line { margin: 8px 0; font-size: 1rem; display: flex; justify-content: space-between; }
+        .label { color: #94a3b8; }
+        .val { font-weight: bold; }
+        .stage-val { color: #38bdf8; }
+        .strike-val { color: #f87171; }
+        .eliminated-tag { background: #7f1d1d; color: #fca5a5; text-align: center; padding: 5px; font-weight: bold; border-radius: 4px; margin-top: 15px; font-size: 0.9rem; }
+        .winner-tag { background: #047857; color: #a7f3d0; text-align: center; padding: 5px; font-weight: bold; border-radius: 4px; margin-top: 15px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Jotun Office Hunt Live Dashboard</h1>
+        <button class="refresh-btn" onclick="fetchLiveLeaderboard()">FORCE REFRESH</button>
+    </header>
+
+    <div id="leaderboard-grid" class="grid">Loading active room matrices...</div>
+</div>
+
+<script>
+    const DB_URL = "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/gameData/teams.json";
+
+    async function fetchLiveLeaderboard() {
+        const grid = document.getElementById('leaderboard-grid');
+        try {
+            const response = await fetch(DB_URL);
+            const teamsData = await response.json();
+
+            if (!teamsData) {
+                grid.innerHTML = "<div style='color:#94a3b8;'>Database reset complete. Waiting for teams to connect...</div>";
+                return;
+            }
+
+            grid.innerHTML = "";
+            
+            // Loop through all teams sorted dynamically by highest stage
+            Object.keys(teamsData).sort((a,b) => (teamsData[b].stage || 0) - (teamsData[a].stage || 0)).forEach(teamKey => {
+                const team = teamsData[teamKey];
+                const stage = team.stage || 0;
+                const strikes = team.strikes || 0;
+                
+                let cardClass = "team-card";
+                let statusTag = "";
+                
+                if (strikes >= 5) {
+                    cardClass += " eliminated";
+                    statusTag = `<div class="eliminated-tag">❌ ELIMINATED</div>`;
+                } else if (stage >= 5) {
+                    cardClass += " winner";
+                    statusTag = `<div class="winner-tag">🏆 FINISHED (VICTORY)</div>`;
+                }
+
+                grid.innerHTML += `
+                    <div class="${cardClass}">
+                        <div class="team-name">
+                            <span>Team ID:</span>
+                            <span class="team-id">${teamKey}</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="label">Current Stage:</span>
+                            <span class="val stage-val">${stage} / 5</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="label">Strikes Logged:</span>
+                            <span class="val strike-val">${strikes} / 5</span>
+                        </div>
+                        ${statusTag}
+                    </div>
+                `;
+            });
+        } catch (err) {
+            grid.innerHTML = "<div style='color:#f87171;'>Network sync delay. Re-establishing connection...</div>";
+        }
+    }
+
+    // Auto update every 5 seconds dynamically
+    setInterval(fetchLiveLeaderboard, 5000);
+    fetchLiveLeaderboard();
+</script>
+</body>
+</html>
