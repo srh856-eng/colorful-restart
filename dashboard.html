@@ -13,18 +13,20 @@
         .team-card { background: #141b2d; border: 1px solid #1e293b; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative; }
         .team-card.winner { border-color: #34d399; background: #064e3b; }
         .team-card.eliminated { border-color: #ef4444; background: #451a03; }
-        .team-name { font-size: 1.3rem; font-weight: bold; color: #f8fafc; margin-bottom: 15px; display: flex; justify-content: space-between; }
-        .team-id { font-size: 1.1rem; color: #38bdf8; font-family: monospace; font-weight: bold; }
+        .team-card.not-started { border-color: #334155; opacity: 0.6; }
+        .team-title { font-size: 1.4rem; font-weight: bold; color: #ffffff; margin-bottom: 5px; }
+        .team-id { font-size: 0.85rem; color: #64748b; font-family: monospace; letter-spacing: 0.5px; margin-bottom: 15px; }
         .stat-line { margin: 8px 0; font-size: 1rem; display: flex; justify-content: space-between; }
         .label { color: #94a3b8; }
         .val { font-weight: bold; }
         .stage-val { color: #38bdf8; }
         .strike-val { color: #f87171; }
-        .eliminated-tag { background: #7f1d1d; color: #fca5a5; text-align: center; padding: 5px; font-weight: bold; border-radius: 4px; margin-top: 15px; font-size: 0.9rem; }
-        .winner-tag { background: #047857; color: #a7f3d0; text-align: center; padding: 5px; font-weight: bold; border-radius: 4px; margin-top: 15px; font-size: 0.9rem; }
+        .status-tag { text-align: center; padding: 6px; font-weight: bold; border-radius: 4px; margin-top: 15px; font-size: 0.9rem; letter-spacing: 0.5px; }
+        .eliminated-tag { background: #7f1d1d; color: #fca5a5; }
+        .winner-tag { background: #047857; color: #a7f3d0; }
+        .ns-tag { background: #1e293b; color: #94a3b8; font-weight: normal; }
     </style>
 
-    <!-- Firebase App and Database SDK Modules -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
@@ -33,79 +35,100 @@
 <div class="container">
     <header>
         <h1>Jotun Office Hunt Live Dashboard</h1>
-        <div style="font-size: 0.9rem; color: #34d399; font-weight: bold; letter-spacing: 1px;">● LIVE CONNECTION ACTIVE</div>
+        <div style="font-size: 0.9rem; color: #34d399; font-weight: bold; letter-spacing: 1px;">● LIVE TRACKING WINDOW ACTIVE</div>
     </header>
 
-    <div id="leaderboard-grid" class="grid">Awaiting broadcast matrix from Firebase node...</div>
+    <div id="leaderboard-grid" class="grid">Connecting to live team tracking nodes...</div>
 </div>
 
 <script>
-    // Realtime connection config setup
+    // Master Mapping Registry for Official Team Identities
+    const TEAM_NAMES = {
+        "1fgx": "Team 1",   "2jkv": "Team 2",   "3bnd": "Team 3",
+        "4qws": "Team 4",   "5zxt": "Team 5",   "6mpl": "Team 6",
+        "7tyu": "Team 7",   "8vfr": "Team 8",   "9lkj": "Team 9",
+        "10pob": "Team 10", "11hgf": "Team 11", "12mnb": "Team 12",
+        "13cxz": "Team 13", "14oiu": "Team 14", "15ytg": "Team 15"
+    };
+
     const firebaseConfig = {
         databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
     
-    // Initialize application sequence
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Open a persistent websocket listener stream straight to gameData/teams
+    // Persistent listener stream
     db.ref("gameData/teams").on("value", (snapshot) => {
         const grid = document.getElementById('leaderboard-grid');
-        const teamsData = snapshot.val();
+        const dbTeams = snapshot.val() || {};
 
-        if (!teamsData) {
-            grid.innerHTML = "<div style='color:#94a3b8;'>Database listening actively. No team data records found yet.</div>";
-            return;
-        }
+        // Merge database scores with the master list so empty teams still show up
+        const compiledTeams = [];
+        
+        Object.keys(TEAM_NAMES).forEach(code => {
+            const liveData = dbTeams[code] || null;
+            compiledTeams.push({
+                code: code,
+                name: TEAM_NAMES[code],
+                stage: liveData ? (parseInt(liveData.stage) || 0) : 0,
+                strikes: liveData ? (parseInt(liveData.strikes) || 0) : 0,
+                hasStarted: liveData !== null
+            });
+        });
+
+        // Sort: Winners first -> active players ranked by highest stage -> not started -> eliminated last
+        compiledTeams.sort((a, b) => {
+            // Put eliminated teams at the bottom
+            const aElim = a.strikes >= 5 ? 1 : 0;
+            const bElim = b.strikes >= 5 ? 1 : 0;
+            if (aElim !== bElim) return aElim - bElim;
+
+            // Sort by stage performance
+            if (b.stage !== a.stage) return b.stage - a.stage;
+            
+            // Tie-breaker: lowest strikes first
+            if (a.strikes !== b.strikes) return a.strikes - b.strikes;
+            
+            // Put unstarted below active
+            return b.hasStarted - a.hasStarted;
+        });
 
         grid.innerHTML = "";
         
-        // Sort teams dynamically: Highest stage first, then lowest strikes break ties
-        Object.keys(teamsData)
-            .sort((a, b) => {
-                const stageA = teamsData[a].stage || 0;
-                const stageB = teamsData[b].stage || 0;
-                if (stageB !== stageA) return stageB - stageA;
-                return (teamsData[a].strikes || 0) - (teamsData[b].strikes || 0);
-            })
-            .forEach(teamKey => {
-                const team = teamsData[teamKey];
-                const stage = team.stage || 0;
-                const strikes = team.strikes || 0;
-                
-                let cardClass = "team-card";
-                let statusTag = "";
-                
-                if (strikes >= 5) {
-                    cardClass += " eliminated";
-                    statusTag = `<div class="eliminated-tag">❌ ELIMINATED (5/5 STRIKES)</div>`;
-                } else if (stage >= 5) {
-                    cardClass += " winner";
-                    statusTag = `<div class="winner-tag">🏆 FINISHED (VICTORY)</div>`;
-                }
+        compiledTeams.forEach(team => {
+            let cardClass = "team-card";
+            let statusTagHtml = "";
+            
+            if (!team.hasStarted) {
+                cardClass += " not-started";
+                statusTagHtml = `<div class="status-tag ns-tag">💤 Awaiting Login</div>`;
+            } else if (team.strikes >= 5) {
+                cardClass += " eliminated";
+                statusTagHtml = `<div class="status-tag eliminated-tag">❌ ELIMINATED</div>`;
+            } else if (team.stage >= 5) {
+                cardClass += " winner";
+                statusTagHtml = `<div class="status-tag winner-tag">🏆 FINISHED (VICTORY)</div>`;
+            } else {
+                statusTagHtml = `<div class="status-tag" style="background:#1e293b; color:#38bdf8;">🏃 Active Racing</div>`;
+            }
 
-                grid.innerHTML += `
-                    <div class="${cardClass}">
-                        <div class="team-name">
-                            <span>Team ID:</span>
-                            <span class="team-id">${teamKey.toUpperCase()}</span>
-                        </div>
-                        <div class="stat-line">
-                            <span class="label">Current Stage:</span>
-                            <span class="val stage-val">${stage} / 5</span>
-                        </div>
-                        <div class="stat-line">
-                            <span class="label">Strikes Registered:</span>
-                            <span class="val strike-val">${strikes} / 5</span>
-                        </div>
-                        ${statusTag}
+            grid.innerHTML += `
+                <div class="${cardClass}">
+                    <div class="team-title">${team.name}</div>
+                    <div class="team-id">Access Node Code: ${team.code}</div>
+                    <div class="stat-line">
+                        <span class="label">Current Stage:</span>
+                        <span class="val stage-val">${team.stage} / 5</span>
                     </div>
-                `;
-            });
-    }, (error) => {
-        document.getElementById('leaderboard-grid').innerHTML = 
-            `<div style='color:#f87171;'>Permission Denied: Ensure your Realtime Database Rules allow public reads.</div>`;
+                    <div class="stat-line">
+                        <span class="label">Strikes Logged:</span>
+                        <span class="val strike-val">${team.strikes} / 5</span>
+                    </div>
+                    ${statusTagHtml}
+                </div>
+            `;
+        });
     });
 </script>
 </body>
