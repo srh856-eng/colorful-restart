@@ -27,6 +27,7 @@
         .ns-tag { background: #1e293b; color: #94a3b8; font-weight: normal; }
     </style>
 
+    <!-- Firebase SDK Modules -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
@@ -42,28 +43,40 @@
 </div>
 
 <script>
-    // Master Mapping Registry for Official Team Identities
+    // Master Mapping Registry - Links Access Codes to Official Jotun Brand Team Names
     const TEAM_NAMES = {
-        "1fgx": "Team 1",   "2jkv": "Team 2",   "3bnd": "Team 3",
-        "4qws": "Team 4",   "5zxt": "Team 5",   "6mpl": "Team 6",
-        "7tyu": "Team 7",   "8vfr": "Team 8",   "9lkj": "Team 9",
-        "10pob": "Team 10", "11hgf": "Team 11", "12mnb": "Team 12",
-        "13cxz": "Team 13", "14oiu": "Team 14", "15ytg": "Team 15"
+        "1fgx": "Team 1 - Majestic Blue",
+        "2jkv": "Team 2 - Fenomastic Gold",
+        "3bnd": "Team 3 - Jotashield Green",
+        "4qws": "Team 4 - Lady Design Rose",
+        "5zxt": "Team 5 - Woodshield Amber",
+        "6mpl": "Team 6 - Royal Velvet",
+        "7tyu": "Team 7 - Desert Coral",
+        "8vfr": "Team 8 - Nordic Mist",
+        "9lkj": "Team 9 - Eternal Emerald",
+        "10pob": "Team 10 - Ocean Breeze",
+        "11hgf": "Team 11 - Amber Glow",
+        "12mnb": "Team 12 - Silk Touch Silver",
+        "13cxz": "Team 13 - Tuscan Sun",
+        "14oiu": "Team 14 - Urban Grey",
+        "15ytg": "Team 15 - Midnight Sapphire"
     };
 
+    // Firebase Database Reference Endpoint Configuration
     const firebaseConfig = {
         databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
     
+    // Initialize application sequence
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Persistent listener stream
+    // Persistent WebSocket connection listener stream to Firebase
     db.ref("gameData/teams").on("value", (snapshot) => {
         const grid = document.getElementById('leaderboard-grid');
         const dbTeams = snapshot.val() || {};
 
-        // Merge database scores with the master list so empty teams still show up
+        // Process data map structure across all 15 active teams
         const compiledTeams = [];
         
         Object.keys(TEAM_NAMES).forEach(code => {
@@ -77,23 +90,18 @@
             });
         });
 
-        // Sort: Winners first -> active players ranked by highest stage -> not started -> eliminated last
+        // Sorting Engine: Non-eliminated leaders top the board, unstarted sit mid, eliminated drop bottom
         compiledTeams.sort((a, b) => {
-            // Put eliminated teams at the bottom
             const aElim = a.strikes >= 5 ? 1 : 0;
             const bElim = b.strikes >= 5 ? 1 : 0;
             if (aElim !== bElim) return aElim - bElim;
 
-            // Sort by stage performance
             if (b.stage !== a.stage) return b.stage - a.stage;
-            
-            // Tie-breaker: lowest strikes first
             if (a.strikes !== b.strikes) return a.strikes - b.strikes;
-            
-            // Put unstarted below active
             return b.hasStarted - a.hasStarted;
         });
 
+        // Render layout updates to interface elements
         grid.innerHTML = "";
         
         compiledTeams.forEach(team => {
