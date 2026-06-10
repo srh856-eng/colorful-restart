@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Treasure Hunt</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+body { font-family: Arial; background:#111; color:#fff; padding:20px; }
+.container { max-width:600px; margin:auto; }
+button, input { width:100%; padding:12px; margin-top:10px; }
+button { background:#3b82f6; color:white; border:none; cursor:pointer; }
+.hidden { display:none; }
+</style>
+</head>
+
+<body>
+
+<div id="game" class="container hidden">
+  <h2 id="teamTitle"></h2>
+  <div id="info"></div>
+
+  <input id="answerInput" placeholder="Enter answer">
+  <button onclick="submitAnswer()">Submit</button>
+</div>
+
+<div id="admin" class="container hidden">
+  <h2>ADMIN DASHBOARD</h2>
+  <div id="board"></div>
+</div>
+
+<script>
+
+// 🔥 FIREBASE CONFIG (FIXED REGION)
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jotunhunt2026"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🌍 TEAM FROM URL
+const urlParams = new URLSearchParams(window.location.search);
+const team = urlParams.get("team");
+
+// 🔗 CLOUD FUNCTION URL
+const FUNCTION_URL =
+"https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer";
+
+// 🧠 CLUES
+const hints = ["Clue 1","Clue 2","Clue 3","Clue 4","Clue 5"];
+
+let state = { stage:0, strikes:0 };
+
+// LOAD STATE
+async function load() {
+  const snap = await db.ref("gameData/teams/" + team).get();
+  state = snap.val() || { stage:0, strikes:0 };
+  render();
+}
+
+// UI
+function render() {
+  document.getElementById("teamTitle").innerText = "Team " + team;
+
+  document.getElementById("info").innerHTML =
+    "Stage: " + (state.stage+1) +
+    "<br>Strikes: " + state.strikes +
+    "<br><br>" + hints[state.stage];
+}
+
+// SUBMIT ANSWER
+async function submitAnswer() {
+
+  const answer = document.getElementById("answerInput").value.trim();
+
+  const res = await fetch(FUNCTION_URL, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ team, answer })
+  });
+
+  const text = await res.text();
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch(e) {
+    alert("Server error: " + text);
+    return;
+  }
+
+  if(data.success) alert("Correct!");
+  else alert("Wrong! Strikes: " + (data.strikes || 0));
+
+  load();
+}
+
+// ADMIN PANEL
+async function adminPanel() {
+  const snap = await db.ref("gameData").get();
+  const data = snap.val() || {};
+
+  let html = "<table border='1' width='100%'>";
+  for(let t in (data.teams || {})) {
+    html += `<tr>
+      <td>${t}</td>
+      <td>${data.teams[t].stage}</td>
+      <td>${data.teams[t].strikes}</td>
+    </tr>`;
+  }
+  html += "</table>";
+
+  document.getElementById("board").innerHTML = html;
+}
+
+// INIT
+if(team === "admin") {
+  document.getElementById("admin").classList.remove("hidden");
+  adminPanel();
+  setInterval(adminPanel, 3000);
+} else {
+  document.getElementById("game").classList.remove("hidden");
+  load();
+}
+
+</script>
+
+</body>
+</html>
