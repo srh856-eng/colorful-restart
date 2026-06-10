@@ -1,324 +1,150 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Jotun Treasure Hunt 2026</title>
-
-<style>
-body{
-margin:0;
-font-family:Arial,Helvetica,sans-serif;
-background:#0f172a;
-color:white;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
-
-.card{
-background:#1e293b;
-padding:20px;
-border-radius:12px;
-margin-bottom:20px;
-}
-
-h1,h2,h3{
-margin-top:0;
-}
-
-input{
-width:100%;
-padding:14px;
-font-size:18px;
-border-radius:8px;
-border:none;
-box-sizing:border-box;
-background:#0f172a;
-color:white;
-border:1px solid #334155;
-}
-
-button{
-width:100%;
-padding:14px;
-font-size:18px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:#2563eb;
-color:white;
-font-weight:bold;
-}
-
-button:hover{
-opacity:.9;
-}
-
-.stat{
-display:inline-block;
-margin-right:20px;
-font-weight:bold;
-}
-
-.success{
-color:#22c55e;
-font-weight:bold;
-}
-
-.fail{
-color:#ef4444;
-font-weight:bold;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:12px;
-border-bottom:1px solid #334155;
-text-align:center;
-}
-
-th{
-background:#1e293b;
-color:#3b82f6;
-}
-
-.hidden{
-display:none !important;
-}
-
-.clue{
-font-size:20px;
-line-height:1.6;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jotun Live Hunt Engine</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0f1d; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { background: #141c2f; border: 1px solid #1e293b; border-radius: 12px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+        h2 { color: #38bdf8; margin-top: 0; letter-spacing: 1px; text-transform: uppercase; }
+        .box { background: #1e293b; border-left: 4px solid #38bdf8; padding: 15px; border-radius: 4px; text-align: left; margin: 20px 0; font-style: italic; font-size: 1.05rem; line-height: 1.5; }
+        input { width: 100%; padding: 12px; background: #0a0f1d; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 1.1rem; text-align: center; margin-bottom: 15px; box-sizing: border-box; text-transform: uppercase; }
+        input:focus { border-color: #38bdf8; outline: none; }
+        button { width: 100%; padding: 12px; background: #38bdf8; border: none; border-radius: 6px; color: #0a0f1d; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #0ea5e9; }
+        .status-banner { margin-top: 15px; padding: 10px; border-radius: 6px; font-weight: bold; display: none; }
+        .success { background: #065f46; color: #34d399; border: 1px solid #047857; }
+        .error { background: #991b1b; color: #fca5a5; border: 1px solid #b91c1c; }
+        .stats { display: flex; justify-content: space-between; font-size: 0.9rem; color: #94a3b8; margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 15px; }
+    </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<div id="teamPage" class="hidden">
 <div class="card">
-<h1 id="teamName">Loading Team Profile...</h1>
+    <h2>Jotun Hunt Engine</h2>
+    <div id="clue-box" class="box">Establishing connection with secure node deployment...</div>
+    
+    <div id="game-controls">
+        <input type="text" id="answer-input" placeholder="ENTER CLUE PASSWORD HERE" autocomplete="off">
+        <button id="submit-btn" onclick="submitAnswer()">SUBMIT ANSWER</button>
+    </div>
 
-<div class="stat">
-Stage: <span id="stage">1</span>/5
-</div>
+    <div id="banner" class="status-banner"></div>
 
-<div class="stat">
-Strikes: <span id="strikes">0</span>/5
-</div>
-</div>
-
-<div class="card">
-<h2>Current Clue</h2>
-<div id="clueText" class="clue">Establishing connection with secure node deployment...</div>
-</div>
-
-<div id="submissionCard" class="card">
-<h2>Submit Answer</h2>
-<input id="answerInput" placeholder="ENTER PASSWORD HERE" autocomplete="off" autocapitalize="characters" spellcheck="false">
-<button id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
-<p id="message"></p>
-</div>
-</div>
-
-<div id="adminPage" class="hidden">
-<div class="card">
-<h1>Jotun Live Leaderboard Dashboard</h1>
-</div>
-
-<div class="card">
-<table>
-<thead>
-<tr>
-<th>Team Unit</th>
-<th>Current Progress</th>
-<th>Active Penalty Strikes</th>
-</tr>
-</thead>
-<tbody id="leaderboard">
-<tr><td colspan="3">Synchronizing global matrix indices...</td></tr>
-</tbody>
-</table>
-</div>
-</div>
-
+    <div class="stats">
+        <div>STAGE: <span id="stage-lbl" style="color: #38bdf8; font-weight: bold;">0</span>/5</div>
+        <div>STRIKES: <span id="strikes-lbl" style="color: #f87171; font-weight: bold;">0</span>/5</div>
+    </div>
 </div>
 
 <script>
-window.addEventListener('DOMContentLoaded', () => {
-    // Verified Live Backend Gateways
-    const FUNCTION_URL = "https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer";
-    const DATABASE_URL = "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app";
+    const API_URL = "https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer";
+    
+    // Get team identity from URL path parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const teamId = urlParams.get('team');
 
-    const teamsConfig = {
-        "1fgx": "Team 1: Majestic Blue",
-        "2jkv": "Team 2: Fire Red",
-        "3bnd": "Team 3: Emerald Green",
-        "4qws": "Team 4: Crimson Veil",
-        "5zxt": "Team 5: Desert Sand",
-        "6mpl": "Team 6: Nordic Mist",
-        "7tyu": "Team 7: Amber Gold",
-        "8vfr": "Team 8: Shadow Grey",
-        "9lkj": "Team 9: Royal Velvet",
-        "10pob":"Team 10: Copper Glow",
-        "11hgf":"Team 11: Ocean Deep",
-        "12mnb":"Team 12: Polar Ice",
-        "13cxz":"Team 13: Safari Dusk",
-        "14oiu":"Team 14: Alpine Crest",
-        "15ytg":"Team 15: Midnight Sun"
-    };
-
-    const params = new URLSearchParams(window.location.search);
-    const team = params.get("team");
-
-    if(team === "admin"){
-        startAdmin();
-    }else{
-        startTeam();
-    }
-
-    async function startTeam(){
-        const friendlyName = teamsConfig[team];
-        if(!friendlyName){
-            document.getElementById("clueText").innerHTML = "<span class='fail'>Access Denied: Invalid parameters.</span>";
-            document.getElementById("teamPage").classList.remove("hidden");
-            document.getElementById("teamName").innerText = "Configuration Error";
-            document.getElementById("submissionCard").classList.add("hidden");
+    async function loadCurrentStatus() {
+        if (!teamId) {
+            document.getElementById('clue-box').innerText = "Access Denied: Missing team verification parameters.";
+            document.getElementById('game-controls').style.display = 'none';
             return;
         }
-        
-        document.getElementById("teamPage").classList.remove("hidden");
-        document.getElementById("teamName").innerText = friendlyName;
-        loadClue();
-    }
-
-    async function loadClue(){
-        try{
-            const response = await fetch(FUNCTION_URL + "?action=getClue&team=" + encodeURIComponent(team));
-            if(!response.ok) throw new Error("Endpoint returned connection breakdown.");
-            const data = await response.json();
-
-            document.getElementById("stage").innerText = (data.stage !== undefined) ? (data.stage + 1) : 1;
-            document.getElementById("strikes").innerText = data.strikes || 0;
-
-            if(data.status === "VICTORY" || data.stage >= 5){
-                document.getElementById("clueText").innerHTML = "<span class='success'>🏆 MISSION COMPLETE! YOU WON!</span>";
-                document.getElementById("stage").innerText = "5";
-                document.getElementById("submissionCard").classList.add("hidden");
-                return;
-            }
-
-            if(data.status === "ELIMINATED" || data.strikes >= 5){
-                document.getElementById("clueText").innerHTML = "<span class='fail'>❌ ACCESS LOCKED: TEAM ELIMINATED</span>";
-                document.getElementById("submissionCard").classList.add("hidden");
-                return;
-            }
-
-            document.getElementById("clueText").innerText = data.hint || "No clue text mapped to this sector.";
-        }
-        catch(e){
-            console.error(e);
-            document.getElementById("clueText").innerText = "Offline: Syncing with active secure backend engine node...";
-        }
-    }
-
-    window.submitAnswer = async function(){
-        const input = document.getElementById("answerInput");
-        const answer = input.value.trim().toUpperCase();
-        if(!answer) return;
-
-        document.getElementById("submitBtn").disabled = true;
-        const msg = document.getElementById("message");
-        msg.innerHTML = "Validating access signature...";
 
         try {
-            const response = await fetch(FUNCTION_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ team: team, answer: answer })
-            });
-
+            const response = await fetch(`${API_URL}?team=${teamId}&action=getClue`);
             const data = await response.json();
 
-            if(data.success){
-                msg.innerHTML = "<span class='success'>✓ Node cleared! Access granted.</span>";
+            if (data.status === "ELIMINATED") {
+                showState("ELIMINATED! Your team reached 5 strikes.", true);
+            } else if (data.status === "VICTORY") {
+                showState("VICTORY! You have completed the hunt!", false);
             } else {
-                msg.innerHTML = "<span class='fail'>✗ Validation failed. Incorrect signature entry.</span>";
+                document.getElementById('clue-box').innerText = data.hint;
+                document.getElementById('stage-lbl').innerText = data.stage;
+                document.getElementById('strikes-lbl').innerText = data.strikes;
             }
-        } catch(e) {
-            msg.innerHTML = "<span class='fail'>Endpoint link timeout error.</span>";
+        } catch (err) {
+            document.getElementById('clue-box').innerText = "Offline: Syncing with active secure backend engine node...";
         }
-
-        input.value = "";
-        document.getElementById("submitBtn").disabled = false;
-        loadClue();
     }
 
-    function startAdmin(){
-        document.getElementById("adminPage").classList.remove("hidden");
-        loadLeaderboard();
-        setInterval(loadLeaderboard, 3000);
-    }
+    async function submitAnswer() {
+        const inputField = document.getElementById('answer-input');
+        const btn = document.getElementById('submit-btn');
+        const banner = document.getElementById('banner');
+        const answerVal = inputField.value.trim();
 
-    async function loadLeaderboard(){
-        let teamsData = {};
-        let globalWinner = null;
+        if (!answerVal) return;
 
-        try{
-            const response = await fetch(DATABASE_URL + "/gameData.json?nocache=" + new Date().getTime());
-            if(response.ok) {
-                const data = await response.json();
-                if(data && typeof data === 'object') {
-                    teamsData = data.teams || {};
-                    globalWinner = data.winner || null;
+        btn.disabled = true;
+        btn.innerText = "VALIDATING...";
+        banner.style.display = 'none';
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ team: teamId, answer: answerVal })
+            });
+            
+            const data = await response.json();
+
+            if (data.success) {
+                banner.className = "status-banner success";
+                banner.innerText = "✓ Access Granted! Processing next stage matrix...";
+                banner.style.display = "block";
+                inputField.value = "";
+                
+                setTimeout(() => {
+                    if (data.stage >= 5) {
+                        showState("VICTORY! You have completed the hunt!", false);
+                    } else {
+                        document.getElementById('clue-box').innerText = data.hint;
+                        document.getElementById('stage-lbl').innerText = data.stage;
+                        document.getElementById('strikes-lbl').innerText = data.strikes;
+                        banner.style.display = 'none';
+                    }
+                    btn.disabled = false;
+                    btn.innerText = "SUBMIT ANSWER";
+                }, 2000);
+
+            } else {
+                banner.className = "status-banner error";
+                banner.innerText = data.message === "ELIMINATED" ? "✗ Team Eliminated" : "✗ Answer Incorrect. Strike Registered.";
+                banner.style.display = "block";
+                
+                document.getElementById('stage-lbl').innerText = data.stage || document.getElementById('stage-lbl').innerText;
+                document.getElementById('strikes-lbl').innerText = data.strikes || document.getElementById('strikes-lbl').innerText;
+
+                if (data.message === "ELIMINATED" || data.strikes >= 5) {
+                    setTimeout(() => showState("ELIMINATED! Your team reached 5 strikes.", true), 2000);
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = "SUBMIT ANSWER";
                 }
             }
+        } catch (err) {
+            banner.className = "status-banner error";
+            banner.innerText = "Network transmission error. Retry connection.";
+            banner.style.display = "block";
+            btn.disabled = false;
+            btn.innerText = "SUBMIT ANSWER";
         }
-        catch(e){
-            console.error("Leaderboard background sync hold: ", e);
-        }
-        
-        let html = "";
-
-        for(const key in teamsConfig){
-            const tData = teamsData[key] || { stage: 0, strikes: 0 };
-            let statusDisplay = `${tData.stage}/5`;
-            let rowStyle = "";
-
-            if(tData.strikes >= 5){
-                statusDisplay = "<span class='fail'>ELIMINATED</span>";
-                rowStyle = 'style="background: #311c1c; opacity: 0.7;"';
-            } else if(key === globalWinner || tData.stage >= 5){
-                statusDisplay = "<span class='success'>⭐ WINNER ⭐</span>";
-                rowStyle = 'style="background: #143a22; font-weight: bold; border: 2px solid #22c55e;"';
-            } else if(globalWinner) {
-                rowStyle = 'style="opacity: 0.4;"';
-            }
-
-            html += `
-            <tr ${rowStyle}>
-                <td style="text-align:left; padding-left:20px;"><b>${teamsConfig[key]}</b></td>
-                <td><b>${statusDisplay}</b></td>
-                <td><span class="${tData.strikes > 0 ? 'fail' : ''}">${tData.strikes}/5</span></td>
-            </tr>
-            `;
-        }
-
-        document.getElementById("leaderboard").innerHTML = html;
     }
-});
-</script>
 
+    function showState(msg, isEliminated) {
+        document.getElementById('clue-box').innerText = msg;
+        document.getElementById('game-controls').style.display = 'none';
+        const banner = document.getElementById('banner');
+        banner.className = isEliminated ? "status-banner error" : "status-banner success";
+        banner.innerText = isEliminated ? "GAME OVER" : "HUNT COMPLETED";
+        banner.style.display = "block";
+    }
+
+    // Initialize layout setup on page launch
+    loadCurrentStatus();
+</script>
 </body>
 </html>
