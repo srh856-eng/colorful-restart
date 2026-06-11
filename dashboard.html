@@ -3,134 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Hunt - Admin Live Dashboard</title>
+    <title>Jotun Hunts 2026 - Admin Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0b0f19; color: #f1f5f9; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e293b; padding-bottom: 20px; margin-bottom: 30px; }
-        h1 { color: #38bdf8; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .team-card { background: #141b2d; border: 1px solid #1e293b; border-radius: 8px; padding: 25px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); position: relative; }
-        .team-card.winner { border-color: #34d399; background: #064e3b; }
-        .team-card.eliminated { border-color: #ef4444; background: #451a03; }
-        .team-card.not-started { border-color: #334155; opacity: 0.6; }
-        .team-title { font-size: 1.4rem; font-weight: bold; color: #ffffff; margin-bottom: 15px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
-        .stat-line { margin: 10px 0; font-size: 1.05rem; display: flex; justify-content: space-between; }
-        .label { color: #94a3b8; }
-        .val { font-weight: bold; }
-        .stage-val { color: #38bdf8; }
-        .strike-val { color: #f87171; }
-        .status-tag { text-align: center; padding: 8px; font-weight: bold; border-radius: 4px; margin-top: 20px; font-size: 0.9rem; letter-spacing: 0.5px; }
-        .eliminated-tag { background: #7f1d1d; color: #fca5a5; }
-        .winner-tag { background: #047857; color: #a7f3d0; }
-        .ns-tag { background: #1e293b; color: #94a3b8; font-weight: normal; }
-    </style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- Firebase SDK Modules -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+        :root {
+            --navy:      #003087;
+            --yellow:    #F5C400;
+            --dark:      #0A1628;
+            --card-bg:   rgba(255, 255, 255, 0.04);
+            --text:      #E8EDF5;
+            --muted:     #8A9BBF;
+            --success:   #4CAF82;
+            --red:       #E3001B;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 40px 24px;
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 48, 135, 0.5) 0%, transparent 70%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ── Header Layout ── */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 6px;
+        }
+
+        .logo-bar { width: 48px; height: 4px; border-radius: 2px; }
+        .logo-bar:first-child { background: var(--yellow); }
+        .logo-bar:last-child  { background: var(--red); }
+
+        .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 42px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 30px rgba(255,204,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── Analytics Summary Display Grid ── */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 36px;
+            color: var(--yellow);
+            margin-top: 4px;
+        }
+
+        /* ── Leaderboard Tracking Surface ── */
+        .dashboard-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 16px;
+        }
+
+        .table-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .sync-badge {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--muted);
+            padding: 12px 16px;
+            border-bottom: 2px solid rgba(255,255,255,0.06);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .team-display-name {
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .id-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: monospace;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-online { background: rgba(76, 175, 130, 0.15); color: var(--success); border: 1px solid rgba(76, 175, 130, 0.3); }
+        .status-offline { background: rgba(138, 155, 191, 0.15); color: var(--muted); border: 1px solid rgba(138, 155, 191, 0.3); }
+
+        .progress-cell { width: 35%; }
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--yellow), var(--red));
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 4px;
+        }
+        .progress-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--yellow);
+        }
+        .winner-text {
+            color: var(--success) !important;
+            font-weight: 700;
+        }
+
+        .stage-txt {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+    </style>
+    
+    <!-- Realtime Core Firebase Infrastructure Bundles -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>Jotun Office Hunt Live Dashboard</h1>
-        <div style="font-size: 0.9rem; color: #34d399; font-weight: bold; letter-spacing: 1px;">● LIVE TRACKING WINDOW ACTIVE</div>
+    <header class="header">
+        <div class="logo-line">
+            <div class="logo-bar"></div>
+            <div class="logo-text"><span style="color:var(--yellow)">Jotun</span> <span style="color:#fff">Operations</span> <span style="color:var(--red)">Center</span></div>
+            <div class="logo-bar"></div>
+        </div>
+        <div class="subtitle">Live Administrative Monitoring Matrix</div>
     </header>
 
-    <div id="leaderboard-grid" class="grid">Connecting to live team tracking nodes...</div>
+    <div class="summary-row">
+        <div class="stat-card">
+            <div class="subtitle" style="font-size:11px;">Total Tracking Channels</div>
+            <div class="stat-val" id="stat-total-teams">20</div>
+        </div>
+        <div class="stat-card">
+            <div class="subtitle" style="font-size:11px;">Active Formations</div>
+            <div class="stat-val" id="stat-active-teams" style="color:#fff;">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="subtitle" style="font-size:11px;">Victories Recorded</div>
+            <div class="stat-val" id="stat-winners" style="color:var(--success);">0</div>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="table-header">
+            <div class="table-title">Deployment Manifest Logs</div>
+            <div class="sync-badge">
+                <div class="sync-dot"></div> Live Stream Synced
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Assigned Team Name</th>
+                    <th>Network Status</th>
+                    <th>Current Stage Location</th>
+                    <th>Linear Progress Bar Metric</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-rows">
+                <tr>
+                    <td colspan="4" style="text-align:center; color:var(--muted); padding:40px;">Opening secure database connection matrices...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // Master Mapping Registry
-    const TEAM_NAMES = {
-        "1fgx": "Team 1 - Majestic Blue",
-        "2jkv": "Team 2 - Fenomastic Gold",
-        "3bnd": "Team 3 - Jotashield Green",
-        "4qws": "Team 4 - Lady Design Rose",
-        "5zxt": "Team 5 - Woodshield Amber",
-        "6mpl": "Team 6 - Royal Velvet",
-        "7tyu": "Team 7 - Desert Coral",
-        "8vfr": "Team 8 - Nordic Mist",
-        "9lkj": "Team 9 - Eternal Emerald",
-        "10pob": "Team 10 - Ocean Breeze",
-        "11hgf": "Team 11 - Amber Glow",
-        "12mnb": "Team 12 - Silk Touch Silver",
-        "13cxz": "Team 13 - Tuscan Sun",
-        "14oiu": "Team 14 - Urban Grey",
-        "15ytg": "Team 15 - Midnight Sapphire"
-    };
-
+    // ⚠️ TODO: Update this line with your exact Firebase database link if it differs!
     const firebaseConfig = {
-        databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
+        databaseURL: "https://jotunhunt2026.firebaseio.com" 
     };
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    db.ref("gameData/teams").on("value", (snapshot) => {
-        const grid = document.getElementById('leaderboard-grid');
-        const dbTeams = snapshot.val() || {};
-        const compiledTeams = [];
-        
-        Object.keys(TEAM_NAMES).forEach(code => {
-            const liveData = dbTeams[code] || null;
-            compiledTeams.push({
-                code: code,
-                name: TEAM_NAMES[code],
-                stage: liveData ? (parseInt(liveData.stage) || 0) : 0,
-                strikes: liveData ? (parseInt(liveData.strikes) || 0) : 0,
-                hasStarted: liveData !== null
-            });
-        });
+    // 20 Official Color Identity Enclaves 
+    const masterRoster = {
+      "t1_rbl": "ROYAL BLUE", "t2_mbz": "MINTY BREEZE", "t3_mms": "MOROCCAN MIST", "t4_wdk": "WOODSMOKE",
+      "t5_mol": "MEDITERRANEAN OLIVE", "t6_tcr": "TRAVERTINE CAIRO", "t7_tls": "TIMELESS", "t8_poc": "PURE OCEAN",
+      "t9_fjl": "FOREVER JUNGLE", "t10_dds": "DREAMY DESERT", "t11_ivt": "IVORY TOAST", "t12_sgy": "STONE GREY",
+      "t13_pmt": "PASTEL MINT", "t14_ums": "URBAN MIST", "t15_ppl": "PERSIAN PEARL", "t16_dgy": "DOVE GREY",
+      "t17_gly": "GOLDEN LILY", "t18_esc": "EARTHSCAPE", "t19_bsn": "BRIGHT SIENNA", "t20_mnl": "MINIMALIST"
+    };
 
-        // Sorting Engine
-        compiledTeams.sort((a, b) => {
-            const aElim = a.strikes >= 5 ? 1 : 0;
-            const bElim = b.strikes >= 5 ? 1 : 0;
-            if (aElim !== bElim) return aElim - bElim;
+    // Live Socket Connection Loop
+    db.ref('teams').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        renderDashboard(data);
+    });
 
-            if (b.stage !== a.stage) return b.stage - a.stage;
-            if (a.strikes !== b.strikes) return a.strikes - b.strikes;
-            return b.hasStarted - a.hasStarted;
-        });
+    function renderDashboard(firebaseData) {
+        const tbody = document.getElementById('leaderboard-rows');
+        tbody.innerHTML = '';
 
-        grid.innerHTML = "";
-        
-        compiledTeams.forEach(team => {
-            let cardClass = "team-card";
-            let statusTagHtml = "";
+        let activeCount = 0;
+        let winnerCount = 0;
+
+        Object.keys(masterRoster).forEach(token => {
+            const teamInfo = firebaseData[token] || {};
+            const isRegistered = teamInfo.isLoggedIn || false;
             
-            if (!team.hasStarted) {
-                cardClass += " not-started";
-                statusTagHtml = `<div class="status-tag ns-tag">💤 Awaiting Login</div>`;
-            } else if (team.strikes >= 5) {
-                cardClass += " eliminated";
-                statusTagHtml = `<div class="status-tag eliminated-tag">❌ ELIMINATED</div>`;
-            } else if (team.stage >= 5) {
-                cardClass += " winner";
-                statusTagHtml = `<div class="status-tag winner-tag">🏆 FINISHED (VICTORY)</div>`;
-            } else {
-                statusTagHtml = `<div class="status-tag" style="background:#1e293b; color:#38bdf8;">🏃 Active Racing</div>`;
+            let displayName = masterRoster[token];
+            let statusMarkup = `<span class="status-badge status-offline">Standby</span>`;
+            let stageText = `<span class="stage-txt" style="color:var(--muted)">—</span>`;
+            let progressPct = 0;
+            let isWinner = false;
+
+            if (isRegistered) {
+                activeCount++;
+                statusMarkup = `<span class="status-badge status-online">Active</span>`;
+                
+                const currentStage = teamInfo.currentStage || 1;
+                
+                // Pure Linear Steps: 20% Baseline instantly up to Winner status
+                if (currentStage === 1) {
+                    progressPct = 20; 
+                    stageText = `<span class="stage-txt" style="color:var(--yellow)">Stage 1</span>`;
+                } else if (currentStage === 2) {
+                    progressPct = 40;
+                    stageText = `<span class="stage-txt">Stage 2</span>`;
+                } else if (currentStage === 3) {
+                    progressPct = 60;
+                    stageText = `<span class="stage-txt">Stage 3</span>`;
+                } else if (currentStage === 4) {
+                    progressPct = 80;
+                    stageText = `<span class="stage-txt">Stage 4</span>`;
+                } else {
+                    progressPct = 100;
+                    isWinner = true;
+                    winnerCount++;
+                    stageText = `<span class="stage-txt" style="color:var(--success)">WINNER</span>`;
+                }
             }
 
-            // Clean layout rendering with the internal access code entirely removed
-            grid.innerHTML += `
-                <div class="${cardClass}">
-                    <div class="team-title">${team.name}</div>
-                    <div class="stat-line">
-                        <span class="label">Current Stage:</span>
-                        <span class="val stage-val">${team.stage} / 5</span>
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <span class="team-display-name">${displayName}</span>
+                    <span class="id-label">${token}</span>
+                </td>
+                <td>${statusMarkup}</td>
+                <td>${stageText}</td>
+                <td class="progress-cell">
+                    <div class="progress-track">
+                        <div class="progress-bar" style="width: ${progressPct}%;"></div>
                     </div>
-                    <div class="stat-line">
-                        <span class="label">Strikes Logged:</span>
-                        <span class="val strike-val">${team.strikes} / 5</span>
+                    <div class="progress-text ${isWinner ? 'winner-text' : ''}">
+                        ${isWinner ? '★ Mission Clear ★' : progressPct + '%'}
                     </div>
-                    ${statusTagHtml}
-                </div>
+                </td>
             `;
+            tbody.appendChild(tr);
         });
-    });
+
+        document.getElementById('stat-active-teams').innerText = activeCount;
+        document.getElementById('stat-winners').innerText = winnerCount;
+    }
 </script>
+
 </body>
 </html>
