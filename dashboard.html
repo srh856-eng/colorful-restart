@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Hunts 2026 - Admin Command Center</title>
+    <title>Jotun Hunts 2026 - Control Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,7 +34,6 @@
             margin: 0 auto;
         }
 
-        /* ── Header Layout ── */
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -67,7 +66,6 @@
             color: var(--muted);
         }
 
-        /* ── Analytics Summary Display Grid ── */
         .summary-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -91,7 +89,6 @@
             margin-top: 4px;
         }
 
-        /* ── Leaderboard Tracking Surface ── */
         .dashboard-card {
             background: var(--card-bg);
             border: 1px solid rgba(255,255,255,0.08);
@@ -222,7 +219,6 @@
         }
     </style>
     
-    <!-- Realtime Core Firebase Infrastructure Bundles -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
@@ -280,7 +276,6 @@
 </div>
 
 <script>
-    // ⚠️ TODO: Update this line with your exact Firebase database link if it differs!
     const firebaseConfig = {
         databaseURL: "https://jotunhunt2026.firebaseio.com" 
     };
@@ -288,7 +283,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 20 Official Color Identity Enclaves 
     const masterRoster = {
       "t1_rbl": "ROYAL BLUE", "t2_mbz": "MINTY BREEZE", "t3_mms": "MOROCCAN MIST", "t4_wdk": "WOODSMOKE",
       "t5_mol": "MEDITERRANEAN OLIVE", "t6_tcr": "TRAVERTINE CAIRO", "t7_tls": "TIMELESS", "t8_poc": "PURE OCEAN",
@@ -297,7 +291,6 @@
       "t17_gly": "GOLDEN LILY", "t18_esc": "EARTHSCAPE", "t19_bsn": "BRIGHT SIENNA", "t20_mnl": "MINIMALIST"
     };
 
-    // Live Socket Connection Loop
     db.ref('teams').on('value', (snapshot) => {
         const data = snapshot.val() || {};
         renderDashboard(data);
@@ -326,7 +319,7 @@
                 
                 const currentStage = teamInfo.currentStage || 1;
                 
-                // Pure Linear Steps: 20% Baseline instantly up to Winner status
+                // Pure Linear Steps: 20% on entering team name -> 40 -> 60 -> 80 -> Winner!
                 if (currentStage === 1) {
                     progressPct = 20; 
                     stageText = `<span class="stage-txt" style="color:var(--yellow)">Stage 1</span>`;
