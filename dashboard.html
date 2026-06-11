@@ -200,9 +200,6 @@
             50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(245,196,0,0.5); }
         }
     </style>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 </head>
 <body>
 
@@ -234,7 +231,7 @@
             </thead>
             <tbody id="leaderboard-rows">
                 <tr>
-                    <td colspan="4" style="text-align:center; color:var(--muted); padding:40px;">Connecting to Jotun Realtime Matrix...</td>
+                    <td colspan="4" style="text-align:center; color:var(--muted); padding:40px;">Syncing data stream metrics...</td>
                 </tr>
             </tbody>
         </table>
@@ -242,14 +239,8 @@
 </div>
 
 <script>
-    const firebaseConfig = {
-        databaseURL: "https://jotunhunt2026.firebaseio.com" 
-    };
-
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
+    // Direct, unblocked REST API Endpoint mapping targeting your direct JSON tree structure
+    const jsonEndpoint = "https://jotunhunt2026.firebaseio.com/gameData/teams.json";
 
     const masterRoster = {
       "t1_rbl": "ROYAL BLUE", "t2_mbz": "MINTY BREEZE", "t3_mms": "MOROCCAN MIST", "t4_wdk": "WOODSMOKE",
@@ -259,18 +250,22 @@
       "t17_gly": "GOLDEN LILY", "t18_esc": "EARTHSCAPE", "t19_bsn": "BRIGHT SIENNA", "t20_mnl": "MINIMALIST"
     };
 
-    // 🎯 PATH MODIFIED: Changed from 'teams' to 'gameData/teams' to precisely align with your database structure and rules
-    db.ref('gameData/teams').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            renderDashboard(data);
+    async function fetchDatabaseUpdates() {
+        try {
+            const response = await fetch(jsonEndpoint);
+            if (!response.ok) throw new Error("Network response error");
+            const data = await response.json();
+            if (data) {
+                renderDashboard(data);
+            }
+        } catch (error) {
+            console.error("REST connection drop fallback tracking:", error);
         }
-    }, (error) => {
-        console.error("Database connection blocked or failed:", error);
-    });
+    }
 
     function renderDashboard(firebaseData) {
         const tbody = document.getElementById('leaderboard-rows');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         let structuralWinnerFound = false;
@@ -333,6 +328,10 @@
             document.getElementById('main-dashboard-ui').style.display = 'block';
         }
     }
+
+    // Run engine on rapid intervals to maintain immediate sync speeds without script freezes
+    fetchDatabaseUpdates();
+    setInterval(fetchDatabaseUpdates, 3000);
 </script>
 
 </body>
