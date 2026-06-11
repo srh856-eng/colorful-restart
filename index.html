@@ -58,6 +58,7 @@
             font-family: 'Bebas Neue', sans-serif;
             font-size: 36px;
             letter-spacing: 4px;
+            color: var(--yellow);
             text-shadow: 0 0 30px rgba(255,204,0,0.3);
         }
 
@@ -82,9 +83,6 @@
             overflow: hidden;
         }
 
-        .view-panel { display: none; }
-        .view-panel.active { display: block; animation: fadeIn 0.4s ease-in-out; }
-
         .stage-ghost {
             position: absolute;
             top: -20px;
@@ -95,6 +93,7 @@
             line-height: 1;
             pointer-events: none;
             user-select: none;
+            transition: color 0.4s;
         }
 
         .stage-badge {
@@ -111,7 +110,14 @@
         .stage-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
         .stage-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
 
-        .form-label { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+        .clue-label, .input-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
 
         .clue-box {
             background: var(--parchment);
@@ -126,7 +132,18 @@
             position: relative;
             min-height: 80px;
             border-left: 4px solid var(--yellow);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+
+        .clue-box::before {
+            content: '"';
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 60px;
+            color: rgba(0,45,98,0.1);
+            position: absolute;
+            top: -4px;
+            left: 10px;
+            line-height: 1;
         }
 
         .input-wrap { position: relative; margin-bottom: 16px; }
@@ -137,26 +154,35 @@
             border-radius: 10px;
             padding: 14px 18px;
             font-size: 18px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 4px;
             color: var(--text);
+            text-transform: uppercase;
             transition: border-color 0.2s, background 0.2s;
             outline: none;
         }
-        
-        /* Font swap specifically layout optimized for tracking clues */
-        .game-input { font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 4px; font-size: 22px !important; text-transform: uppercase; }
-
+        .input-wrap input::placeholder { color: rgba(255,255,255,0.2); font-size: 14px; letter-spacing: 2px; font-family: 'Inter', sans-serif;}
         .input-wrap input:focus { border-color: var(--yellow); background: rgba(255,204,0,0.04); }
 
         .submit-btn {
-            width: 100%; background: var(--red); color: #fff; border: none; border-radius: 10px; padding: 15px;
-            font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(227, 0, 27, 0.25);
+            width: 100%;
+            background: var(--red);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+            box-shadow: 0 4px 20px rgba(227, 0, 27, 0.25);
         }
         .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(227, 0, 27, 0.4); }
+        .submit-btn:active:not(:disabled) { transform: translateY(0); }
         .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .message { margin-top: 16px; font-size: 13px; font-weight: 600; min-height: 20px; text-align: center; }
+        .message { margin-top: 16px; font-size: 13px; font-weight: 600; min-height: 20px; text-align: center; letter-spacing: 0.5px; }
         .success { color: var(--success); }
         .error   { color: var(--error); }
         .loading { color: var(--muted); }
@@ -164,13 +190,17 @@
         .team-chip { margin-top: 28px; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
         .team-chip span { color: var(--text); font-weight: 600; }
 
+        /* View display gates */
+        .view-panel { display: none; }
+        .view-active { display: block; }
+
         @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0.6; } 60% { transform: scale(1.03); } 100% { transform: scale(1); opacity: 1; } }
         .shake { animation: shake 0.4s ease; }
-        .pop { animation: fadeUp 0.35s ease; }
+        .pop   { animation: popIn 0.35s ease; }
     </style>
 </head>
 <body>
@@ -186,205 +216,197 @@
 
     <div class="card">
         
-        <div id="view-login" class="view-panel">
-            <span class="form-label">Identity Access Registration</span>
-            <div class="clue-box" style="background: rgba(255,255,255,0.02); color: var(--text); border-left-color: var(--yellow); min-height: auto; margin-bottom: 20px; font-style: normal;">
-                Welcome to Jotun Operations Hub. Please input your official assigned Team Color Name to unlock your deployment logs.
-            </div>
-            <div class="form-label">Your Assigned Team Name</div>
+        <!-- 🚪 VIEW 1: REGISTRATION / LOGIN -->
+        <div id="view-login" class="view-panel view-active">
+            <div class="clue-label" style="text-align: center; margin-bottom: 20px; font-size: 12px; color: #fff;">Identity Verification Required</div>
+            <div class="input-label">Enter Assigned Team Name</div>
             <div class="input-wrap">
-                <input type="text" id="login-input" placeholder="e.g. ROYAL BLUE" autocomplete="off" spellcheck="false">
+                <input type="text" id="team-name-input" placeholder="E.G. MAJESTIC BLUE" autocomplete="off" spellcheck="false">
             </div>
-            <button class="submit-btn" id="login-btn" onclick="submitLogin()">Initialize Deployment</button>
+            <button class="submit-btn" id="login-btn" onclick="registerTeamName()">Start Hunt</button>
         </div>
 
+        <!-- 🗺️ VIEW 2: ACTIVE GAME PANEL -->
         <div id="view-game" class="view-panel">
-            <div class="stage-ghost" id="stage-ghost"></div>
+            <div class="stage-ghost" id="stage-ghost">1</div>
             <div class="stage-badge">
                 <div class="stage-dot"></div>
                 <div class="stage-label">Stage <span id="current-stage-display">—</span></div>
             </div>
-            <span class="form-label">Active Scenario Clue</span>
-            <div class="clue-box" id="hint-display">Syncing connection matrices…</div>
-            <span class="form-label">Enter Cryptic Answer Key</span>
+            <div class="clue-label">Active Clue</div>
+            <div class="clue-box" id="hint-display">Syncing with base camp…</div>
+            <div class="input-label">Enter Secret Code</div>
             <div class="input-wrap">
-                <input type="text" class="game-input" id="answer-input" placeholder="TYPE DECRYPTION CODE" autocomplete="off" spellcheck="false">
+                <input type="text" id="answer-input" placeholder="TYPE CODE HERE" autocomplete="off" spellcheck="false">
             </div>
-            <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Verify Code Matrix</button>
+            <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
         </div>
 
+        <!-- Shared feedback tracking message block -->
         <div id="response-message" class="message"></div>
-        <div class="team-chip" id="team-chip" style="display:none;">Active Connection: <span id="team-name-span">—</span></div>
+        <div class="team-chip" id="team-chip" style="display:none;">Team — <span></span></div>
     </div>
 
 <script>
     const BACKEND_URL = 'https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer';
     const urlParams = new URLSearchParams(window.location.search);
-    const teamId = urlParams.get('team') || null;
+    const teamToken = urlParams.get('team') || null;
 
     let currentStage = 1;
 
     function showView(viewId) {
-        document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(viewId).classList.add('active');
+        document.getElementById('view-login').classList.remove('view-active');
+        document.getElementById('view-game').classList.remove('view-active');
+        document.getElementById(viewId).classList.add('view-active');
     }
 
-    function setStageState(stageNumber, clueText) {
-        currentStage = stageNumber;
-        document.getElementById('current-stage-display').innerText = stageNumber;
-        document.getElementById('stage-ghost').innerText = stageNumber;
+    function setStage(n, hint) {
+        currentStage = n;
+        document.getElementById('current-stage-display').innerText = n;
+        document.getElementById('stage-ghost').innerText = n;
         
-        const hintBox = document.getElementById('hint-display');
-        hintBox.innerText = clueText;
-        hintBox.classList.remove('pop');
-        void hintBox.offsetWidth; // Force CSS reflow animation trigger
-        hintBox.classList.add('pop');
+        const hintEl = document.getElementById('hint-display');
+        hintEl.innerText = hint;
+        hintEl.classList.remove('pop');
+        void hintEl.offsetWidth; 
+        hintEl.classList.add('pop');
     }
 
     async function initializeGame() {
         const msgDiv = document.getElementById('response-message');
-        
-        if (!teamId) {
-            showView('view-login');
-            document.getElementById('view-login').innerHTML = `
-                <span class="form-label" style="color:var(--red)">Access Revoked</span>
-                <div class="clue-box" style="background:#2C1315; color:#F59E9E; border-left-color:var(--red);">
-                    CRITICAL ERROR: No secure link parameters detected. Please scan your designated team QR code matrix to gain system entry.
-                </div>`;
+        if (!teamToken) {
+            document.getElementById('view-login').style.display = 'none';
+            showView('view-game');
+            document.getElementById('current-stage-display').innerText = '—';
+            document.getElementById('hint-display').innerText = 'Access Denied. Unique URL token mapping parameter missing.';
             return;
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}?team=${teamId}`);
+            // Check if token already registered on database previously
+            const response = await fetch(`${BACKEND_URL}?team=${teamToken}`);
             const data = await response.json();
 
-            if (data.success) {
-                if (data.needsLogin) {
-                    // Show Login Input Screen
-                    showView('view-login');
-                } else {
-                    // Already authenticated, bypass login straight to active clue stage
-                    document.getElementById('team-chip').style.display = 'block';
-                    document.getElementById('team-name-span').innerText = data.officialName || teamId;
-                    setStageState(data.stage, data.hint);
-                    showView('view-game');
-                }
-            } else {
-                msgDiv.className = 'message error';
-                msgDiv.innerText = 'Could not establish connection link. Reload page.';
+            if (data.success && data.registered) {
+                // Already checked in before, jump directly over to active clue panel
+                setStage(data.stage, data.hint);
+                document.getElementById('team-chip').style.display = 'block';
+                document.getElementById('team-chip').innerHTML = `Active Session Token &mdash; <span>${teamToken}</span>`;
+                showView('view-game');
             }
         } catch (err) {
-            console.error(err);
-            msgDiv.className = 'message loading';
-            msgDiv.innerText = 'Connecting to corporate command servers…';
+            console.error('Init error:', err);
+            msgDiv.className = 'message error';
+            msgDiv.innerText = 'Sync pipeline error. Checking network connection stability...';
         }
     }
 
-    async function submitLogin() {
-        const loginField = document.getElementById('login-input');
-        const loginBtn   = document.getElementById('login-btn');
-        const msgDiv     = document.getElementById('response-message');
-        const typedName  = loginField.value.trim().toUpperCase();
+    // 🔒 SCREEN 1 ACTION: MATCH TYPED NAME WITH URL LINK TOKEN
+    async function registerTeamName() {
+        const nameInput = document.getElementById('team-name-input');
+        const loginBtn = document.getElementById('login-btn');
+        const msgDiv = document.getElementById('response-message');
+        const typedName = nameInput.value.trim().toUpperCase();
 
         if (!typedName) {
             msgDiv.className = 'message error';
-            msgDiv.innerText = 'Please input your official Team Name.';
-            loginField.focus();
+            msgDiv.innerText = 'Please enter your team name to authenticate.';
+            nameInput.focus();
             return;
         }
 
         loginBtn.disabled = true;
-        msgDiv.className  = 'message loading';
-        msgDiv.innerText  = 'Checking team mapping roster...';
+        msgDiv.className = 'message loading';
+        msgDiv.innerText = 'Validating signature credentials…';
 
         try {
-            const response = await fetch(BACKEND_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ team: teamId, action: 'login', teamName: typedName })
-            });
-            const result = await response.json();
+            const response = await fetch(`${BACKEND_URL}?team=${teamToken}&checkName=${encodeURIComponent(typedName)}`);
+            const data = await response.json();
 
-            if (result.success && result.correct) {
+            if (data.success && data.validTeam) {
                 msgDiv.className = 'message success';
-                msgDiv.innerText = '✓ INITIALIZATION SUCCESSFUL. LOADING SCENARIOS...';
+                msgDiv.innerText = '✓ IDENTITY VERIFIED. Initializing matrix profile...';
                 
                 setTimeout(() => {
+                    setStage(data.stage, data.hint);
                     msgDiv.innerText = '';
-                    setStageState(result.stage, result.hint);
+                    loginBtn.disabled = false;
                     document.getElementById('team-chip').style.display = 'block';
-                    document.getElementById('team-name-span').innerText = typedName;
+                    document.getElementById('team-chip').innerHTML = `Team &mdash; <span>${typedName}</span>`;
                     showView('view-game');
                 }, 1500);
             } else {
                 msgDiv.className = 'message error';
-                msgDiv.innerText = `❌ ${result.error || 'Identity mapping mismatch.'}`;
-                loginField.classList.remove('shake');
-                void loginField.offsetWidth;
-                loginField.classList.add('shake');
+                msgDiv.innerText = '❌ Access Denied: Mismatched team name for this profile link.';
+                nameInput.classList.remove('shake');
+                void nameInput.offsetWidth;
+                nameInput.classList.add('shake');
                 loginBtn.disabled = false;
             }
         } catch (err) {
-            console.error(err);
+            console.error('Registration error:', err);
             msgDiv.className = 'message error';
-            msgDiv.innerText = 'System transmission offline. Retry.';
+            msgDiv.innerText = 'Verification submission failed. Retry connection execution.';
             loginBtn.disabled = false;
         }
     }
 
+    // 🗺️ SCREEN 2 ACTION: VERIFY ACTIVE GAME ANSWERS WITH INFINITE ATTEMPTS
     async function submitAnswer() {
         const inputField = document.getElementById('answer-input');
         const submitBtn  = document.getElementById('submit-btn');
         const msgDiv     = document.getElementById('response-message');
-        const submission = inputField.value.trim().toUpperCase();
+        const answer     = inputField.value.trim().toUpperCase();
 
-        if (!submission) {
+        if (!answer) {
             msgDiv.className = 'message error';
-            msgDiv.innerText = 'Field empty. Input key solution.';
+            msgDiv.innerText = 'Enter a code sequence before checking.';
             inputField.focus();
             return;
         }
 
         submitBtn.disabled = true;
         msgDiv.className   = 'message loading';
-        msgDiv.innerText   = 'Analyzing encryption codes...';
+        msgDiv.innerText   = 'Checking target code parameters…';
 
         try {
             const response = await fetch(BACKEND_URL, {
-                method: 'POST',
+                method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ team: teamId, action: 'verifyCode', stage: currentStage, submission: submission })
+                body:    JSON.stringify({ team: teamToken, stage: currentStage, submission: answer })
             });
+
             const result = await response.json();
 
             if (result.correct) {
                 msgDiv.className = 'message success';
-                msgDiv.innerText = '✓ ACCESS CODE VALId. OPENING NEXT VECTOR LOG...';
+                msgDiv.innerText = '✓ Code accepted — loading next stage…';
                 inputField.value = '';
 
                 setTimeout(() => {
-                    setStageState(result.nextStage, result.nextHint);
+                    setStage(result.nextStage, result.nextHint);
                     msgDiv.innerText = '';
                     submitBtn.disabled = false;
                 }, 2000);
             } else {
+                // Wrong answer triggers shake animation, but loops seamlessly without counting strikes
                 msgDiv.className = 'message error';
-                msgDiv.innerText = '❌ CODE INACCURATE. Scenario locks remaining open.';
+                msgDiv.innerText = '❌ Mismatched code footprint. Scan objective criteria again.';
                 inputField.classList.remove('shake');
                 void inputField.offsetWidth;
                 inputField.classList.add('shake');
                 submitBtn.disabled = false;
             }
         } catch (err) {
-            console.error(err);
+            console.error('Submit execution error:', err);
             msgDiv.className = 'message error';
-            msgDiv.innerText = 'Server processing error. Try again.';
+            msgDiv.innerText = 'Server processing failure. Resubmit answer token.';
             submitBtn.disabled = false;
         }
     }
 
-    // Capture Enter keystrokes to fire submit paths seamlessly
-    document.getElementById('login-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(); });
+    // Capture entry shortcuts across input fields
+    document.getElementById('team-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') registerTeamName(); });
     document.getElementById('answer-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); });
 
     window.onload = initializeGame;

@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jotun Hunts 2026 - Control Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Load the Firebase client library directly in frontend -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+        
         :root {
             --navy:      #003087;
             --yellow:    #F5C400;
             --dark:      #0A1628;
-            --card-bg:   rgba(255, 255, 255, 0.04);
+            --surface:   rgba(255, 255, 255, 0.04);
+            --border:    rgba(255, 255, 255, 0.08);
             --text:      #E8EDF5;
             --muted:     #8A9BBF;
-            --success:   #4CAF82;
             --red:       #E3001B;
         }
 
@@ -24,214 +27,85 @@
             background-color: var(--dark);
             color: var(--text);
             min-height: 100vh;
-            padding: 40px 24px;
-            background-image: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 48, 135, 0.5) 0%, transparent 70%);
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo-line {
+            padding: 40px 20px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-bottom: 6px;
-        }
-
-        .logo-bar { width: 48px; height: 4px; border-radius: 2px; }
-        .logo-bar:first-child { background: var(--yellow); }
-        .logo-bar:last-child  { background: var(--red); }
-
-        .logo-text {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 42px;
-            letter-spacing: 5px;
-            text-shadow: 0 0 30px rgba(255,204,0,0.2);
-        }
-
-        .subtitle {
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .dashboard-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 32px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--muted);
-            padding: 12px 16px;
-            border-bottom: 2px solid rgba(255,255,255,0.06);
-        }
-
-        td {
-            padding: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 14px;
-            vertical-align: middle;
-        }
-
-        .team-display-name {
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.5px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .status-online { background: rgba(76, 175, 130, 0.15); color: var(--success); border: 1px solid rgba(76, 175, 130, 0.3); }
-        .status-offline { background: rgba(138, 155, 191, 0.15); color: var(--muted); border: 1px solid rgba(138, 155, 191, 0.3); }
-
-        .progress-cell { width: 40%; }
-        .progress-track {
-            width: 100%;
-            height: 8px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 6px;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--yellow), var(--red));
-            width: 0%;
-            transition: width 0.6s ease;
-            border-radius: 4px;
-        }
-        .progress-text {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--yellow);
-        }
-
-        .stage-txt {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 1px;
-        }
-
-        /* 👑 Winner Takeover Overlay */
-        #winner-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #040912;
-            z-index: 9999;
-            display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            text-align: center;
         }
 
-        .crown {
-            font-size: 120px;
-            margin-bottom: 10px;
-            animation: float 3s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
+        .dashboard-container { width: 100%; max-width: 900px; }
+
+        .title-panel { text-align: center; margin-bottom: 40px; }
+        .title-text { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; color: var(--yellow); }
+        .subtitle { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 4px; text-transform: uppercase; margin-top: 4px;}
+
+        .control-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
         }
 
-        .winner-title {
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 80px;
-            letter-spacing: 4px;
-            color: var(--yellow);
-            text-shadow: 0 0 20px rgba(245,196,0,0.4);
-            margin-bottom: 20px;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            color: var(--muted);
+            padding: 14px;
+            border-bottom: 2px solid var(--border);
+            text-transform: uppercase;
+        }
+        td { padding: 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; vertical-align: middle;}
+
+        .team-display-name { font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+        .team-token-label { font-size: 11px; color: var(--muted); font-family: monospace; }
+
+        .badge-stage {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 48, 135, 0.3);
+            border: 1px solid rgba(0, 48, 135, 0.6);
+            color: #afc9ff;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
         }
 
-        .winner-name {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 54px;
-            color: #FFFFFF;
-            letter-spacing: 2px;
-            padding: 15px 50px;
-            border-radius: 100px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
-            border: 2px solid var(--yellow);
-            box-shadow: 0 0 40px rgba(245,196,0,0.3);
-            animation: pulse-grow 2s infinite ease-in-out;
-        }
+        .progress-track-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 260px; }
+        .progress-bar-outer { flex-grow: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; position: relative;}
+        .progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--yellow), var(--red)); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .progress-text { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--yellow); width: 65px; text-align: right;}
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(3deg); }
-        }
-        @keyframes glow {
-            0% { filter: drop-shadow(0 0 10px rgba(245,196,0,0.4)); }
-            100% { filter: drop-shadow(0 0 30px rgba(245,196,0,0.8)); }
-        }
-        @keyframes pulse-grow {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(245,196,0,0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(245,196,0,0.5); }
-        }
+        .timestamp-label { font-size: 12px; color: var(--muted); }
+
+        .empty-row { text-align: center; color: var(--muted); padding: 40px 0; font-style: italic; }
     </style>
 </head>
 <body>
 
-<div id="winner-screen">
-    <div class="crown">👑</div>
-    <div class="winner-title">CAMPAIGN CHAMPION</div>
-    <div id="champion-team-box" class="winner-name">TEAM NAME</div>
-</div>
+<div class="dashboard-container">
+    <div class="title-panel">
+        <div class="title-text">JOTUN WAR ROOM</div>
+        <div class="subtitle">Live Scavenger Tracking Metrics</div>
+    </div>
 
-<div class="container" id="main-dashboard-ui">
-    <header class="header">
-        <div class="logo-line">
-            <div class="logo-bar"></div>
-            <div class="logo-text"><span style="color:var(--yellow)">Jotun</span> <span style="color:#fff">Operations</span> <span style="color:var(--red)">Center</span></div>
-            <div class="logo-bar"></div>
-        </div>
-        <div class="subtitle">Live Administrative Monitoring Matrix</div>
-    </header>
-
-    <div class="dashboard-card">
+    <div class="control-card">
         <table>
             <thead>
                 <tr>
                     <th>Assigned Team Name</th>
-                    <th>Network Status</th>
-                    <th>Current Stage Location</th>
-                    <th>Linear Progress Bar Metric</th>
+                    <th>Current Station</th>
+                    <th>Hunt Completion Progress</th>
+                    <th>Last Active Signature</th>
                 </tr>
             </thead>
             <tbody id="leaderboard-rows">
                 <tr>
-                    <td colspan="4" style="text-align:center; color:var(--muted); padding:40px;">Syncing data stream metrics...</td>
+                    <td colspan="4" class="empty-row">Establishing downstream data synchronization...</td>
                 </tr>
             </tbody>
         </table>
@@ -239,99 +113,77 @@
 </div>
 
 <script>
-    // Direct, unblocked REST API Endpoint mapping targeting your direct JSON tree structure
-    const jsonEndpoint = "https://jotunhunt2026.firebaseio.com/gameData/teams.json";
-
-    const masterRoster = {
-      "t1_rbl": "ROYAL BLUE", "t2_mbz": "MINTY BREEZE", "t3_mms": "MOROCCAN MIST", "t4_wdk": "WOODSMOKE",
-      "t5_mol": "MEDITERRANEAN OLIVE", "t6_tcr": "TRAVERTINE CAIRO", "t7_tls": "TIMELESS", "t8_poc": "PURE OCEAN",
-      "t9_fjl": "FOREVER JUNGLE", "t10_dds": "DREAMY DESERT", "t11_ivt": "IVORY TOAST", "t12_sgy": "STONE GREY",
-      "t13_pmt": "PASTEL MINT", "t14_ums": "URBAN MIST", "t15_ppl": "PERSIAN PEARL", "t16_dgy": "DOVE GREY",
-      "t17_gly": "GOLDEN LILY", "t18_esc": "EARTHSCAPE", "t19_bsn": "BRIGHT SIENNA", "t20_mnl": "MINIMALIST"
+    // ⚙️ REPLACE THIS CONFIG WITH YOUR EXACT FIREBASE PROJECT PROPERTIES
+    const firebaseConfig = {
+        databaseURL: "https://jotunhunt2026-default-rtdb.firebaseio.com" 
     };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    async function fetchDatabaseUpdates() {
-        try {
-            const response = await fetch(jsonEndpoint);
-            if (!response.ok) throw new Error("Network response error");
-            const data = await response.json();
-            if (data) {
-                renderDashboard(data);
-            }
-        } catch (error) {
-            console.error("REST connection drop fallback tracking:", error);
+    // Dynamically listen to live value changes stream in Firebase Realtime Database
+    db.ref('teams').on('value', (snapshot) => {
+        const rowsContainer = document.getElementById('leaderboard-rows');
+        rowsContainer.innerHTML = '';
+
+        const data = snapshot.val();
+
+        if (!data) {
+            rowsContainer.innerHTML = `<tr><td colspan="4" class="empty-row">No teams registered. Waiting for teams to enter their name details.</td></tr>`;
+            return;
         }
-    }
 
-    function renderDashboard(firebaseData) {
-        const tbody = document.getElementById('leaderboard-rows');
-        if (!tbody) return;
-        tbody.innerHTML = '';
+        // Parse and sort teams based on their activity timestamp
+        const recordsList = Object.keys(data).map(key => ({
+            token: key,
+            ...data[key]
+        })).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
 
-        let structuralWinnerFound = false;
-        let winningTeamName = "";
+        recordsList.forEach(team => {
+            const tr = document.createElement('tr');
 
-        Object.keys(masterRoster).forEach(token => {
-            const teamInfo = firebaseData[token] || {};
-            const isRegistered = teamInfo.isLoggedIn || false;
-            
-            let displayName = masterRoster[token];
-            let statusMarkup = `<span class="status-badge status-offline">Standby</span>`;
-            let stageText = `<span class="stage-txt" style="color:var(--muted)">—</span>`;
-            let progressPct = 0;
+            // Render safe format fallback patterns if metrics arrive incomplete initially
+            const displayName = team.teamName ? team.teamName : "INITIALIZING IDENTITY...";
+            const currentStage = team.stage ? team.stage : "1";
+            const rawProgress = team.progress ? team.progress : "20%";
+            const numericPercent = parseInt(rawProgress) || 20;
 
-            if (isRegistered) {
-                statusMarkup = `<span class="status-badge status-online">Active</span>`;
-                const currentStage = parseInt(teamInfo.currentStage || 1);
-                
-                if (currentStage === 1) {
-                    progressPct = 20; 
-                    stageText = `<span class="stage-txt" style="color:var(--yellow)">Stage 1</span>`;
-                } else if (currentStage === 2) {
-                    progressPct = 40;
-                    stageText = `<span class="stage-txt">Stage 2</span>`;
-                } else if (currentStage === 3) {
-                    progressPct = 60;
-                    stageText = `<span class="stage-txt">Stage 3</span>`;
-                } else if (currentStage === 4) {
-                    progressPct = 80;
-                    stageText = `<span class="stage-txt">Stage 4</span>`;
-                } else if (currentStage >= 5) {
-                    progressPct = 100;
-                    structuralWinnerFound = true;
-                    winningTeamName = displayName;
-                    stageText = `<span class="stage-txt" style="color:var(--success)">WINNER</span>`;
+            // Generate clean human-readable relative time string loops
+            let activityString = "Just now";
+            if (team.lastActive) {
+                const diffSeconds = Math.floor((Date.now() - team.lastActive) / 1000);
+                if (diffSeconds > 60) {
+                    const diffMinutes = Math.floor(diffSeconds / 60);
+                    activityString = `${diffMinutes}m ago`;
+                } else if (diffSeconds > 5) {
+                    activityString = `${diffSeconds}s ago`;
                 }
             }
 
-            const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><span class="team-display-name">${displayName}</span></td>
-                <td>${statusMarkup}</td>
-                <td>${stageText}</td>
-                <td class="progress-cell">
-                    <div class="progress-track">
-                        <div class="progress-bar" style="width: ${progressPct}%;"></div>
+                <td>
+                    <div class="team-display-name">${displayName}</div>
+                    <div class="team-token-label">Access ID: ${team.token}</div>
+                </td>
+                <td>
+                    <span class="badge-stage">Stage ${currentStage}</span>
+                </td>
+                <td>
+                    <div class="progress-track-wrapper">
+                        <div class="progress-bar-outer">
+                            <div class="progress-bar-inner" style="width: ${numericPercent}%"></div>
+                        </div>
+                        <div class="progress-text">${rawProgress}</div>
                     </div>
-                    <div class="progress-text">${progressPct}%</div>
+                </td>
+                <td>
+                    <span class="timestamp-label">${activityString}</span>
                 </td>
             `;
-            tbody.appendChild(tr);
+
+            rowsContainer.appendChild(tr);
         });
-
-        if (structuralWinnerFound) {
-            document.getElementById('champion-team-box').innerText = winningTeamName;
-            document.getElementById('winner-screen').style.display = 'flex';
-            document.getElementById('main-dashboard-ui').style.display = 'none';
-        } else {
-            document.getElementById('winner-screen').style.display = 'none';
-            document.getElementById('main-dashboard-ui').style.display = 'block';
-        }
-    }
-
-    // Run engine on rapid intervals to maintain immediate sync speeds without script freezes
-    fetchDatabaseUpdates();
-    setInterval(fetchDatabaseUpdates, 3000);
+    });
 </script>
 
 </body>
