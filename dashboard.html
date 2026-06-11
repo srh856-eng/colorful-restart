@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jotun Hunts 2026 - Control Center</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Load the Firebase client library directly in frontend -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -113,7 +112,7 @@
 </div>
 
 <script>
-    // 🔥 FIXED: Custom regional endpoint routing target
+    // 🔥 CONFIG: Region-specific Southeast Asia Database Target
     const firebaseConfig = {
         databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/" 
     };
@@ -121,8 +120,8 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Dynamically listen to live value changes stream in Firebase Realtime Database
-    db.ref('teams').on('value', (snapshot) => {
+    // 🔒 PATH CORRECTED: Aligned exactly with gameData/teams structural rule mapping folder
+    db.ref('gameData/teams').on('value', (snapshot) => {
         const rowsContainer = document.getElementById('leaderboard-rows');
         rowsContainer.innerHTML = '';
 
@@ -137,54 +136,4 @@
         const recordsList = Object.keys(data).map(key => ({
             token: key,
             ...data[key]
-        })).sort((a, b) => (b.lastActive || 0) - (a.lastActive || 0));
-
-        recordsList.forEach(team => {
-            const tr = document.createElement('tr');
-
-            // Render safe format fallback patterns if metrics arrive incomplete initially
-            const displayName = team.teamName ? team.teamName : "INITIALIZING IDENTITY...";
-            const currentStage = team.stage ? team.stage : "1";
-            const rawProgress = team.progress ? team.progress : "20%";
-            const numericPercent = parseInt(rawProgress) || 20;
-
-            // Generate clean human-readable relative time string loops
-            let activityString = "Just now";
-            if (team.lastActive) {
-                const diffSeconds = Math.floor((Date.now() - team.lastActive) / 1000);
-                if (diffSeconds > 60) {
-                    const diffMinutes = Math.floor(diffSeconds / 60);
-                    activityString = `${diffMinutes}m ago`;
-                } else if (diffSeconds > 5) {
-                    activityString = `${diffSeconds}s ago`;
-                }
-            }
-
-            tr.innerHTML = `
-                <td>
-                    <div class="team-display-name">${displayName}</div>
-                    <div class="team-token-label">Access ID: ${team.token}</div>
-                </td>
-                <td>
-                    <span class="badge-stage">Stage ${currentStage}</span>
-                </td>
-                <td>
-                    <div class="progress-track-wrapper">
-                        <div class="progress-bar-outer">
-                            <div class="progress-bar-inner" style="width: ${numericPercent}%"></div>
-                        </div>
-                        <div class="progress-text">${rawProgress}</div>
-                    </div>
-                </td>
-                <td>
-                    <span class="timestamp-label">${activityString}</span>
-                </td>
-            `;
-
-            rowsContainer.appendChild(tr);
-        });
-    });
-</script>
-
-</body>
-</html>
+        })).sort((a, b) => (b.lastActive ||
