@@ -1,98 +1,173 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+admin.initializeApp();
 
-admin.initializeApp({
-  databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
+const db = admin.database();
 
-const P_A_HINT = "Booklet Clue: Find the missing phrase hidden at CSD First Floor, Row 5.";
-const P_B_HINT = "Office Floor Investigation: Follow the logical employee movements to discover the hidden route sequence.";
-const P_C_HINT = "Find a team huddle space. Solve the Corporate Murder Mystery logic grid in your booklet.";
-const P_D_HINT = "Run to the Server Room window on the Ground Floor and check the active network logs.";
-const P_E_HINT = "Final Sprint! Solve the Shipping Container logistics routing grid at your desks.";
-
-const TEAM_MAP = {
-  "1fgx":  { hints: [P_A_HINT, P_B_HINT, P_C_HINT, P_D_HINT, P_E_HINT] },
-  "2jkv":  { hints: [P_B_HINT, P_C_HINT, P_D_HINT, P_E_HINT, P_A_HINT] },
-  "3bnd":  { hints: [P_C_HINT, P_D_HINT, P_E_HINT, P_A_HINT, P_B_HINT] },
-  "4qws":  { hints: [P_D_HINT, P_E_HINT, P_A_HINT, P_B_HINT, P_C_HINT] },
-  "5zxt":  { hints: [P_E_HINT, P_A_HINT, P_B_HINT, P_C_HINT, P_D_HINT] },
-  "6mpl":  { hints: [P_A_HINT, P_B_HINT, P_C_HINT, P_D_HINT, P_E_HINT] },
-  "7tyu":  { hints: [P_B_HINT, P_C_HINT, P_D_HINT, P_E_HINT, P_A_HINT] },
-  "8vfr":  { hints: [P_C_HINT, P_D_HINT, P_E_HINT, P_A_HINT, P_B_HINT] },
-  "9lkj":  { hints: [P_D_HINT, P_E_HINT, P_A_HINT, P_B_HINT, P_C_HINT] },
-  "10pob": { hints: [P_E_HINT, P_A_HINT, P_B_HINT, P_C_HINT, P_D_HINT] },
-  "11hgf": { hints: [P_A_HINT, P_B_HINT, P_C_HINT, P_D_HINT, P_E_HINT] },
-  "12mnb": { hints: [P_B_HINT, P_C_HINT, P_D_HINT, P_E_HINT, P_A_HINT] },
-  "13cxz": { hints: [P_C_HINT, P_D_HINT, P_E_HINT, P_A_HINT, P_B_HINT] },
-  "14oiu": { hints: [P_D_HINT, P_E_HINT, P_A_HINT, P_B_HINT, P_C_HINT] },
-  "15ytg": { hints: [P_E_HINT, P_A_HINT, P_B_HINT, P_C_HINT, P_D_HINT] }
+// 1. Master Team Registry Map (Secure Link ID -> Official Name Entry)
+const authorizedTeams = {
+  "t1_rbl": "ROYAL BLUE",
+  "t2_mbz": "MINTY BREEZE",
+  "t3_mms": "MOROCCAN MIST",
+  "t4_wdk": "WOODSMOKE",
+  "t5_mol": "MEDITERRANEAN OLIVE",
+  "t6_tcr": "TRAVERTINE CAIRO",
+  "t7_tls": "TIMELESS",
+  "t8_poc": "PURE OCEAN",
+  "t9_fjl": "FOREVER JUNGLE",
+  "t10_dds": "DREAMY DESERT",
+  "t11_ivt": "IVORY TOAST",
+  "t12_sgy": "STONE GREY",
+  "t13_pmt": "PASTEL MINT",
+  "t14_ums": "URBAN MIST",
+  "t15_ppl": "PERSIAN PEARL",
+  "t16_dgy": "DOVE GREY",
+  "t17_gly": "GOLDEN LILY",
+  "t18_esc": "EARTHSCAPE",
+  "t19_bsn": "BRIGHT SIENNA",
+  "t20_mnl": "MINIMALIST"
 };
 
+// 2. Master Game Stages (Clues & Answers Configuration)
+const gameStages = {
+  1: { answer: "BRIGHTSTART", hint: "Look near the reception desk under the blue frame..." },
+  2: { answer: "MAJESTIC", hint: "Where the coffee brews, a secret color lies..." },
+  3: { answer: "INNOVATE", hint: "Check behind the main display lounge panel..." },
+  4: { answer: "FINALE2026", hint: "The final puzzle rests where the history timeline wall meets the floor..." }
+};
+
+const TOTAL_STAGES = Object.keys(gameStages).length;
+
 exports.checkAnswer = functions.https.onRequest(async (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  // Handle CORS Preflight Options Request
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
   
-  if (req.method === 'OPTIONS') return res.status(204).send('');
+  if (req.method === "OPTIONS") {
+    return res.status(200).send("");
+  }
 
   try {
-    const db = admin.database();
-    const team = String(req.body.team || req.query.team || "").trim();
-    const action = String(req.body.action || req.query.action || "check");
-    const rawAnswer = String(req.body.answer || req.query.answer || "").trim().toUpperCase();
+    const method = req.method;
 
-    if (!TEAM_MAP[team]) {
-      return res.status(400).json({ error: "Access Denied: Invalid team identity." });
+    // ── HANDLING GET REQUESTS (Initial Load & Login Sync Check) ──
+    if (method === "GET") {
+      const token = req.query.team;
+      if (!token || !authorizedTeams[token]) {
+        return res.status(400).json({ success: false, error: "Invalid team token." });
+      }
+
+      const officialName = authorizedTeams[token];
+      const teamRef = db.ref(`teams/${token}`);
+      const snapshot = await teamRef.once("value");
+      const data = snapshot.val();
+
+      // If team hasn't logged in yet, tell frontend to show Screen 1 (Login View)
+      if (!data || !data.isLoggedIn) {
+        return res.json({ success: true, needsLogin: true, officialName: officialName });
+      }
+
+      // If already logged in, return current live game state
+      const currentStage = data.currentStage || 1;
+      return res.json({
+        success: true,
+        needsLogin: false,
+        stage: currentStage,
+        hint: gameStages[currentStage] ? gameStages[currentStage].hint : "Congratulations! You have completed the hunt."
+      });
     }
 
-    const ref = db.ref(`gameData/teams/${team}`);
-    const snap = await ref.get();
-    const state = snap.val() || { stage: 0, strikes: 0 };
-    let stage = parseInt(state.stage) || 0;
-    let strikes = parseInt(state.strikes) || 0;
+    // ── HANDLING POST REQUESTS (Login Form Submissions & Game Code Verifications) ──
+    if (method === "POST") {
+      const body = req.body;
+      const token = body.team;
+      const actionType = body.action; // Can be 'login' or 'verifyCode'
 
-    if (action === "getClue") {
-      if (strikes >= 5) return res.json({ status: "ELIMINATED", hint: "" });
-      if (stage >= 5) return res.json({ status: "VICTORY", hint: "" });
-      return res.json({ status: "RUNNING", stage, strikes, hint: TEAM_MAP[team].hints[stage] });
+      if (!token || !authorizedTeams[token]) {
+        return res.status(400).json({ success: false, error: "Invalid team token." });
+      }
+
+      const teamRef = db.ref(`teams/${token}`);
+
+      // ACTION A: Handle Team Name Login Verification
+      if (actionType === "login") {
+        const inputName = body.teamName ? body.teamName.trim().toUpperCase() : "";
+        const correctName = authorizedTeams[token];
+
+        if (inputName !== correctName) {
+          return res.json({ success: false, correct: false, error: "Wrong team name for this link!" });
+        }
+
+        // Initialize team data dynamically inside database on match
+        await teamRef.update({
+          teamName: correctName,
+          isLoggedIn: true,
+          currentStage: 1,
+          progress: "20%", // Hardcoded 20% baseline progress instantly upon logging in
+          lastUpdated: admin.database.ServerValue.TIMESTAMP
+        });
+
+        return res.json({
+          success: true,
+          correct: true,
+          needsLogin: false,
+          stage: 1,
+          hint: gameStages[1].hint
+        });
+      }
+
+      // ACTION B: Handle Code Submissions (Infinite Attempts, No Elimination)
+      if (actionType === "verifyCode") {
+        const snapshot = await teamRef.once("value");
+        const data = snapshot.val();
+
+        if (!data || !data.isLoggedIn) {
+          return res.status(403).json({ success: false, error: "Team must log in first." });
+        }
+
+        const currentStage = data.currentStage || 1;
+        const playerSubmission = body.submission ? body.submission.trim().toUpperCase() : "";
+
+        // Check if game is already completely finished
+        if (!gameStages[currentStage]) {
+          return res.json({ correct: false, error: "Game already completed!" });
+        }
+
+        const targetAnswer = gameStages[currentStage].answer.toUpperCase();
+
+        if (playerSubmission === targetAnswer) {
+          const nextStage = currentStage + 1;
+          const isFinished = !gameStages[nextStage];
+          
+          // Calculate linear dashboard metric scaling up past the 20% mark
+          let dynamicProgress = "100%";
+          if (!isFinished) {
+            const fraction = 0.2 + ((nextStage - 1) / (TOTAL_STAGES)) * 0.8;
+            dynamicProgress = `${Math.min(Math.round(fraction * 100), 100)}%`;
+          }
+
+          const updates = {
+            currentStage: nextStage,
+            progress: dynamicProgress,
+            lastUpdated: admin.database.ServerValue.TIMESTAMP
+          };
+
+          await teamRef.update(updates);
+
+          return res.json({
+            correct: true,
+            nextStage: nextStage,
+            nextHint: isFinished ? "Congratulations! You have completed the hunt." : gameStages[nextStage].hint
+          });
+        } else {
+          // Wrong answers just return correct:false. No strike penalties incrementing!
+          return res.json({ correct: false });
+        }
+      }
     }
-
-    if (strikes >= 5) return res.json({ success: false, message: "ELIMINATED" });
-    if (stage >= 5) return res.json({ success: true, message: "VICTORY" });
-
-    const answersOrder = ["FENOMASTIC", "7", "MARKETING", "4582", "JOTASHIELD"];
-    let isCorrect = false;
-
-    if (team === "1fgx" || team === "6mpl" || team === "11hgf") {
-      isCorrect = (rawAnswer === answersOrder[stage]);
-    } else if (team === "2jkv" || team === "7tyu" || team === "12mnb") {
-      const rotationalAnswers = ["7", "MARKETING", "4582", "JOTASHIELD", "FENOMASTIC"];
-      isCorrect = (rawAnswer === rotationalAnswers[stage]);
-    } else if (team === "3bnd" || team === "8vfr" || team === "13cxz") {
-      const rotationalAnswers = ["MARKETING", "4582", "JOTASHIELD", "FENOMASTIC", "7"];
-      isCorrect = (rawAnswer === rotationalAnswers[stage]);
-    } else if (team === "4qws" || team === "9lkj" || team === "14oiu") {
-      const rotationalAnswers = ["4582", "JOTASHIELD", "FENOMASTIC", "7", "MARKETING"];
-      isCorrect = (rawAnswer === rotationalAnswers[stage]);
-    } else {
-      const rotationalAnswers = ["JOTASHIELD", "FENOMASTIC", "7", "MARKETING", "4582"];
-      isCorrect = (rawAnswer === rotationalAnswers[stage]);
-    }
-
-    if (isCorrect) {
-      stage++;
-      await ref.update({ stage });
-      if (stage >= 5) await db.ref("gameData/winner").set(team);
-      return res.json({ success: true, stage, strikes, hint: TEAM_MAP[team].hints[stage] || "" });
-    }
-
-    strikes++;
-    await ref.update({ strikes });
-    return res.json({ success: false, stage, strikes, hint: TEAM_MAP[team].hints[stage] });
-
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Internal Error" });
+  } catch (error) {
+    console.error("Global routing exception:", error);
+    return res.status(500).json({ success: false, error: "Internal Server Matrix Error." });
   }
 });

@@ -3,148 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Live Hunt Engine</title>
+    <title>Jotun Hunts 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0a0f1d; color: #e2e8f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .card { background: #141c2f; border: 1px solid #1e293b; border-radius: 12px; padding: 30px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
-        h2 { color: #38bdf8; margin-top: 0; letter-spacing: 1px; text-transform: uppercase; }
-        .box { background: #1e293b; border-left: 4px solid #38bdf8; padding: 15px; border-radius: 4px; text-align: left; margin: 20px 0; font-style: italic; font-size: 1.05rem; line-height: 1.5; }
-        input { width: 100%; padding: 12px; background: #0a0f1d; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 1.1rem; text-align: center; margin-bottom: 15px; box-sizing: border-box; text-transform: uppercase; }
-        input:focus { border-color: #38bdf8; outline: none; }
-        button { width: 100%; padding: 12px; background: #38bdf8; border: none; border-radius: 6px; color: #0a0f1d; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-        button:hover { background: #0ea5e9; }
-        .status-banner { margin-top: 15px; padding: 10px; border-radius: 6px; font-weight: bold; display: none; }
-        .success { background: #065f46; color: #34d399; border: 1px solid #047857; }
-        .error { background: #991b1b; color: #fca5a5; border: 1px solid #b91c1c; }
-        .stats { display: flex; justify-content: space-between; font-size: 0.9rem; color: #94a3b8; margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 15px; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy:      #003087;
+            --yellow:    #F5C400;
+            --dark:      #0A1628;
+            --parchment: #FFF8E7;
+            --text:      #E8EDF5;
+            --muted:     #8A9BBF;
+            --success:   #4CAF82;
+            --red:       #E3001B;
+            --error:     #E3001B;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 48, 135, 0.7) 0%, transparent 70%),
+                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px),
+                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .logo-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .logo-bar { width: 36px; height: 4px; border-radius: 2px; }
+        .logo-bar:first-child { background: var(--yellow); }
+        .logo-bar:last-child  { background: var(--red); }
+
+        .logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 36px;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(255,204,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 460px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(12px);
+            animation: fadeUp 0.6s ease 0.1s both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-panel { display: none; }
+        .view-panel.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+
+        .stage-ghost {
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 180px;
+            color: rgba(227, 0, 27, 0.04);
+            line-height: 1;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .stage-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(227, 0, 27, 0.10);
+            border: 1px solid rgba(227, 0, 27, 0.3);
+            border-radius: 100px;
+            padding: 6px 14px;
+            margin-bottom: 24px;
+        }
+
+        .stage-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+        .stage-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
+
+        .form-label { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: block; }
+
+        .clue-box {
+            background: var(--parchment);
+            color: #2C1A00;
+            border-radius: 12px;
+            padding: 20px 22px;
+            margin-bottom: 28px;
+            font-size: 15px;
+            font-style: italic;
+            line-height: 1.7;
+            font-weight: 500;
+            position: relative;
+            min-height: 80px;
+            border-left: 4px solid var(--yellow);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .input-wrap { position: relative; margin-bottom: 16px; }
+        .input-wrap input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 18px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            transition: border-color 0.2s, background 0.2s;
+            outline: none;
+        }
+        
+        /* Font swap specifically layout optimized for tracking clues */
+        .game-input { font-family: 'Bebas Neue', sans-serif !important; letter-spacing: 4px; font-size: 22px !important; text-transform: uppercase; }
+
+        .input-wrap input:focus { border-color: var(--yellow); background: rgba(255,204,0,0.04); }
+
+        .submit-btn {
+            width: 100%; background: var(--red); color: #fff; border: none; border-radius: 10px; padding: 15px;
+            font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 20px rgba(227, 0, 27, 0.25);
+        }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(227, 0, 27, 0.4); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .message { margin-top: 16px; font-size: 13px; font-weight: 600; min-height: 20px; text-align: center; }
+        .success { color: var(--success); }
+        .error   { color: var(--error); }
+        .loading { color: var(--muted); }
+
+        .team-chip { margin-top: 28px; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
+        .team-chip span { color: var(--text); font-weight: 600; }
+
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+        .shake { animation: shake 0.4s ease; }
+        .pop { animation: fadeUp 0.35s ease; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Jotun Hunt Engine</h2>
-    <div id="clue-box" class="box">Establishing connection with secure node deployment...</div>
-    
-    <div id="game-controls">
-        <input type="text" id="answer-input" placeholder="ENTER CLUE PASSWORD HERE" autocomplete="off">
-        <button id="submit-btn" onclick="submitAnswer()">SUBMIT ANSWER</button>
-    </div>
+    <header class="header">
+        <div class="logo-line">
+            <div class="logo-bar"></div>
+            <div class="logo-text"><span style="color:var(--yellow)">Jotun</span> <span style="color:#fff">Hunts</span> <span style="color:var(--red)">2026</span></div>
+            <div class="logo-bar"></div>
+        </div>
+        <div class="subtitle">Inauguration Scavenger Challenge</div>
+    </header>
 
-    <div id="banner" class="status-banner"></div>
+    <div class="card">
+        
+        <div id="view-login" class="view-panel">
+            <span class="form-label">Identity Access Registration</span>
+            <div class="clue-box" style="background: rgba(255,255,255,0.02); color: var(--text); border-left-color: var(--yellow); min-height: auto; margin-bottom: 20px; font-style: normal;">
+                Welcome to Jotun Operations Hub. Please input your official assigned Team Color Name to unlock your deployment logs.
+            </div>
+            <div class="form-label">Your Assigned Team Name</div>
+            <div class="input-wrap">
+                <input type="text" id="login-input" placeholder="e.g. ROYAL BLUE" autocomplete="off" spellcheck="false">
+            </div>
+            <button class="submit-btn" id="login-btn" onclick="submitLogin()">Initialize Deployment</button>
+        </div>
 
-    <div class="stats">
-        <div>STAGE: <span id="stage-lbl" style="color: #38bdf8; font-weight: bold;">0</span>/5</div>
-        <div>STRIKES: <span id="strikes-lbl" style="color: #f87171; font-weight: bold;">0</span>/5</div>
+        <div id="view-game" class="view-panel">
+            <div class="stage-ghost" id="stage-ghost"></div>
+            <div class="stage-badge">
+                <div class="stage-dot"></div>
+                <div class="stage-label">Stage <span id="current-stage-display">—</span></div>
+            </div>
+            <span class="form-label">Active Scenario Clue</span>
+            <div class="clue-box" id="hint-display">Syncing connection matrices…</div>
+            <span class="form-label">Enter Cryptic Answer Key</span>
+            <div class="input-wrap">
+                <input type="text" class="game-input" id="answer-input" placeholder="TYPE DECRYPTION CODE" autocomplete="off" spellcheck="false">
+            </div>
+            <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Verify Code Matrix</button>
+        </div>
+
+        <div id="response-message" class="message"></div>
+        <div class="team-chip" id="team-chip" style="display:none;">Active Connection: <span id="team-name-span">—</span></div>
     </div>
-</div>
 
 <script>
-    const API_URL = "https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer";
-    
-    // Get team identity from URL path parameters
+    const BACKEND_URL = 'https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer';
     const urlParams = new URLSearchParams(window.location.search);
-    const teamId = urlParams.get('team');
+    const teamId = urlParams.get('team') || null;
 
-    async function loadCurrentStatus() {
+    let currentStage = 1;
+
+    function showView(viewId) {
+        document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+    }
+
+    function setStageState(stageNumber, clueText) {
+        currentStage = stageNumber;
+        document.getElementById('current-stage-display').innerText = stageNumber;
+        document.getElementById('stage-ghost').innerText = stageNumber;
+        
+        const hintBox = document.getElementById('hint-display');
+        hintBox.innerText = clueText;
+        hintBox.classList.remove('pop');
+        void hintBox.offsetWidth; // Force CSS reflow animation trigger
+        hintBox.classList.add('pop');
+    }
+
+    async function initializeGame() {
+        const msgDiv = document.getElementById('response-message');
+        
         if (!teamId) {
-            document.getElementById('clue-box').innerText = "Access Denied: Missing team verification parameters.";
-            document.getElementById('game-controls').style.display = 'none';
+            showView('view-login');
+            document.getElementById('view-login').innerHTML = `
+                <span class="form-label" style="color:var(--red)">Access Revoked</span>
+                <div class="clue-box" style="background:#2C1315; color:#F59E9E; border-left-color:var(--red);">
+                    CRITICAL ERROR: No secure link parameters detected. Please scan your designated team QR code matrix to gain system entry.
+                </div>`;
             return;
         }
 
         try {
-            const response = await fetch(`${API_URL}?team=${teamId}&action=getClue`);
+            const response = await fetch(`${BACKEND_URL}?team=${teamId}`);
             const data = await response.json();
 
-            if (data.status === "ELIMINATED") {
-                showState("ELIMINATED! Your team reached 5 strikes.", true);
-            } else if (data.status === "VICTORY") {
-                showState("VICTORY! You have completed the hunt!", false);
+            if (data.success) {
+                if (data.needsLogin) {
+                    // Show Login Input Screen
+                    showView('view-login');
+                } else {
+                    // Already authenticated, bypass login straight to active clue stage
+                    document.getElementById('team-chip').style.display = 'block';
+                    document.getElementById('team-name-span').innerText = data.officialName || teamId;
+                    setStageState(data.stage, data.hint);
+                    showView('view-game');
+                }
             } else {
-                document.getElementById('clue-box').innerText = data.hint;
-                document.getElementById('stage-lbl').innerText = data.stage;
-                document.getElementById('strikes-lbl').innerText = data.strikes;
+                msgDiv.className = 'message error';
+                msgDiv.innerText = 'Could not establish connection link. Reload page.';
             }
         } catch (err) {
-            document.getElementById('clue-box').innerText = "Offline: Syncing with active secure backend engine node...";
+            console.error(err);
+            msgDiv.className = 'message loading';
+            msgDiv.innerText = 'Connecting to corporate command servers…';
+        }
+    }
+
+    async function submitLogin() {
+        const loginField = document.getElementById('login-input');
+        const loginBtn   = document.getElementById('login-btn');
+        const msgDiv     = document.getElementById('response-message');
+        const typedName  = loginField.value.trim().toUpperCase();
+
+        if (!typedName) {
+            msgDiv.className = 'message error';
+            msgDiv.innerText = 'Please input your official Team Name.';
+            loginField.focus();
+            return;
+        }
+
+        loginBtn.disabled = true;
+        msgDiv.className  = 'message loading';
+        msgDiv.innerText  = 'Checking team mapping roster...';
+
+        try {
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ team: teamId, action: 'login', teamName: typedName })
+            });
+            const result = await response.json();
+
+            if (result.success && result.correct) {
+                msgDiv.className = 'message success';
+                msgDiv.innerText = '✓ INITIALIZATION SUCCESSFUL. LOADING SCENARIOS...';
+                
+                setTimeout(() => {
+                    msgDiv.innerText = '';
+                    setStageState(result.stage, result.hint);
+                    document.getElementById('team-chip').style.display = 'block';
+                    document.getElementById('team-name-span').innerText = typedName;
+                    showView('view-game');
+                }, 1500);
+            } else {
+                msgDiv.className = 'message error';
+                msgDiv.innerText = `❌ ${result.error || 'Identity mapping mismatch.'}`;
+                loginField.classList.remove('shake');
+                void loginField.offsetWidth;
+                loginField.classList.add('shake');
+                loginBtn.disabled = false;
+            }
+        } catch (err) {
+            console.error(err);
+            msgDiv.className = 'message error';
+            msgDiv.innerText = 'System transmission offline. Retry.';
+            loginBtn.disabled = false;
         }
     }
 
     async function submitAnswer() {
         const inputField = document.getElementById('answer-input');
-        const btn = document.getElementById('submit-btn');
-        const banner = document.getElementById('banner');
-        const answerVal = inputField.value.trim();
+        const submitBtn  = document.getElementById('submit-btn');
+        const msgDiv     = document.getElementById('response-message');
+        const submission = inputField.value.trim().toUpperCase();
 
-        if (!answerVal) return;
+        if (!submission) {
+            msgDiv.className = 'message error';
+            msgDiv.innerText = 'Field empty. Input key solution.';
+            inputField.focus();
+            return;
+        }
 
-        btn.disabled = true;
-        btn.innerText = "VALIDATING...";
-        banner.style.display = 'none';
+        submitBtn.disabled = true;
+        msgDiv.className   = 'message loading';
+        msgDiv.innerText   = 'Analyzing encryption codes...';
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(BACKEND_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ team: teamId, answer: answerVal })
+                body: JSON.stringify({ team: teamId, action: 'verifyCode', stage: currentStage, submission: submission })
             });
-            
-            const data = await response.json();
+            const result = await response.json();
 
-            if (data.success) {
-                banner.className = "status-banner success";
-                banner.innerText = "✓ Access Granted! Processing next stage matrix...";
-                banner.style.display = "block";
-                inputField.value = "";
-                
+            if (result.correct) {
+                msgDiv.className = 'message success';
+                msgDiv.innerText = '✓ ACCESS CODE VALId. OPENING NEXT VECTOR LOG...';
+                inputField.value = '';
+
                 setTimeout(() => {
-                    if (data.stage >= 5) {
-                        showState("VICTORY! You have completed the hunt!", false);
-                    } else {
-                        document.getElementById('clue-box').innerText = data.hint;
-                        document.getElementById('stage-lbl').innerText = data.stage;
-                        document.getElementById('strikes-lbl').innerText = data.strikes;
-                        banner.style.display = 'none';
-                    }
-                    btn.disabled = false;
-                    btn.innerText = "SUBMIT ANSWER";
+                    setStageState(result.nextStage, result.nextHint);
+                    msgDiv.innerText = '';
+                    submitBtn.disabled = false;
                 }, 2000);
-
             } else {
-                banner.className = "status-banner error";
-                banner.innerText = data.message === "ELIMINATED" ? "✗ Team Eliminated" : "✗ Answer Incorrect. Strike Registered.";
-                banner.style.display = "block";
-                
-                document.getElementById('stage-lbl').innerText = data.stage || document.getElementById('stage-lbl').innerText;
-                document.getElementById('strikes-lbl').innerText = data.strikes || document.getElementById('strikes-lbl').innerText;
-
-                if (data.message === "ELIMINATED" || data.strikes >= 5) {
-                    setTimeout(() => showState("ELIMINATED! Your team reached 5 strikes.", true), 2000);
-                } else {
-                    btn.disabled = false;
-                    btn.innerText = "SUBMIT ANSWER";
-                }
+                msgDiv.className = 'message error';
+                msgDiv.innerText = '❌ CODE INACCURATE. Scenario locks remaining open.';
+                inputField.classList.remove('shake');
+                void inputField.offsetWidth;
+                inputField.classList.add('shake');
+                submitBtn.disabled = false;
             }
         } catch (err) {
-            banner.className = "status-banner error";
-            banner.innerText = "Network transmission error. Retry connection.";
-            banner.style.display = "block";
-            btn.disabled = false;
-            btn.innerText = "SUBMIT ANSWER";
+            console.error(err);
+            msgDiv.className = 'message error';
+            msgDiv.innerText = 'Server processing error. Try again.';
+            submitBtn.disabled = false;
         }
     }
 
-    function showState(msg, isEliminated) {
-        document.getElementById('clue-box').innerText = msg;
-        document.getElementById('game-controls').style.display = 'none';
-        const banner = document.getElementById('banner');
-        banner.className = isEliminated ? "status-banner error" : "status-banner success";
-        banner.innerText = isEliminated ? "GAME OVER" : "HUNT COMPLETED";
-        banner.style.display = "block";
-    }
+    // Capture Enter keystrokes to fire submit paths seamlessly
+    document.getElementById('login-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitLogin(); });
+    document.getElementById('answer-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); });
 
-    // Initialize layout setup on page launch
-    loadCurrentStatus();
+    window.onload = initializeGame;
 </script>
+
 </body>
 </html>
