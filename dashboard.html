@@ -145,7 +145,7 @@
             letter-spacing: 1px;
         }
 
-        /* 👑 Winner Takeover Overlay 👑 */
+        /* 👑 Winner Takeover Overlay */
         #winner-screen {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -242,19 +242,10 @@
 </div>
 
 <script>
-    // 💡 AUTOMATIC CONFIGURATION RECOVERY
-    // Instead of guessing hardcoded values, we grab your frontend config parameters 
-    // directly from how your working login environment initializing configurations.
-    let firebaseConfig = {
+    const firebaseConfig = {
         databaseURL: "https://jotunhunt2026.firebaseio.com" 
     };
 
-    // If you have your full configuration block locally from your layout scripts, 
-    // it will merge here automatically to secure the channel.
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-        firebaseConfig.databaseURL = "https://jotunhunt2026.firebaseio.com";
-    }
-    
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
     }
@@ -268,25 +259,17 @@
       "t17_gly": "GOLDEN LILY", "t18_esc": "EARTHSCAPE", "t19_bsn": "BRIGHT SIENNA", "t20_mnl": "MINIMALIST"
     };
 
-    // Scrapes root level node directly to guarantee data retrieval
-    db.ref('teams').on('value', (snapshot) => {
+    // 🎯 PATH MODIFIED: Changed from 'teams' to 'gameData/teams' to precisely align with your database structure and rules
+    db.ref('gameData/teams').on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
             renderDashboard(data);
-        } else {
-            // Fallback strategy if data is stored loose at the root instead of under 'teams'
-            db.ref('/').once('value', (rootSnap) => {
-                const rootData = rootSnap.val() || {};
-                renderDashboard(rootData.teams || rootData);
-            });
         }
     }, (error) => {
-        console.error("Database initialization channel error:", error);
+        console.error("Database connection blocked or failed:", error);
     });
 
     function renderDashboard(firebaseData) {
-        if (!firebaseData || Object.keys(firebaseData).length === 0) return;
-        
         const tbody = document.getElementById('leaderboard-rows');
         tbody.innerHTML = '';
 
@@ -341,7 +324,6 @@
             tbody.appendChild(tr);
         });
 
-        // Toggle Fullscreen takeover screen instantly if a team reaches 100%
         if (structuralWinnerFound) {
             document.getElementById('champion-team-box').innerText = winningTeamName;
             document.getElementById('winner-screen').style.display = 'flex';
