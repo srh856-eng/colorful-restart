@@ -5,18 +5,18 @@ admin.initializeApp();
 const db = admin.database();
 
 // 🔒 THE MASTER AUTHORIZED TEAM LIST
-// Maps the secret URL token to your official Jotun team names
+// Supports both your explicit tokens and legacy tracking codes dynamically
 const AUTHORIZED_TEAMS = {
   "1fgx": "MAJESTIC BLUE",
   "2tkz": "ROYAL MATTE",
   "3wqp": "GLOSS SUPREME",
-  "4vby": "LADY DESIGN"
+  "4vby": "LADY DESIGN",
+  "t1_rbl": "TEAM RUBY", 
+  "t2_sapp": "TEAM SAPPHIRE"
 };
 
-// Total stages in your scavenger hunt (used to calculate progress after Stage 1)
 const TOTAL_STAGES = 5; 
 
-// Secure Clue Matrix
 const CLUES = {
   1: "Welcome to the hunt! Your first destination is where the global corporate history began. Find the founding year on the commemorative plaque.",
   2: "Look closely at the premium finish gallery. The answer is hidden beneath the brightest spotlight.",
@@ -26,7 +26,6 @@ const CLUES = {
 };
 
 exports.checkAnswer = functions.https.onRequest(async (req, res) => {
-  // Enable CORS so your GitHub Pages frontend can talk to this backend safely
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type");
@@ -36,7 +35,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
   }
 
   try {
-    // 🔍 HANDLE GET REQUEST: (When the page first loads or runs registration checks)
     if (req.method === "GET") {
       const token = req.query.team;
       const checkName = req.query.checkName ? req.query.checkName.trim().toUpperCase() : null;
@@ -46,26 +44,24 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
       }
 
       const expectedName = AUTHORIZED_TEAMS[token];
-      const teamRef = db.ref(`teams/${token}`);
+      // 🔥 FIXED: Writing inside the secure gameData layout path to align with rules
+      const teamRef = db.ref(`gameData/teams/${token}`);
       const snapshot = await teamRef.once("value");
       const teamData = snapshot.val();
 
-      // If checking a name submission during login/registration
       if (checkName) {
         if (checkName !== expectedName) {
           return res.json({ success: true, validTeam: false, message: "Wrong team name entered for this access link." });
         }
 
-        // Name matches! Initialize or fetch team tracking node in database
         let currentStage = 1;
         if (teamData && teamData.stage) {
           currentStage = teamData.stage;
         } else {
-          // New login registration: Force database initialization parameters
           await teamRef.set({
             teamName: expectedName,
             stage: 1,
-            progress: "20%", // Hardcoded 20% entry baseline achieved on name verification
+            progress: "20%", 
             lastActive: admin.database.ServerValue.TIMESTAMP
           });
         }
@@ -78,7 +74,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         });
       }
 
-      // Standard page reload status fetch
       if (teamData && teamData.stage) {
         return res.json({ success: true, registered: true, stage: teamData.stage, hint: CLUES[teamData.stage] });
       } else {
@@ -86,7 +81,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
       }
     }
 
-    // 📥 HANDLE POST REQUEST: (When verifying a stage challenge code)
     if (req.method === "POST") {
       const { team: token, stage, submission } = req.body;
 
@@ -97,7 +91,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
       const cleanSubmission = submission.trim().toUpperCase();
       const currentStageNum = parseInt(stage);
 
-      // Simple answers dictionary mapped to your stages
       const MASTER_ANSWERS = {
         1: "1926",
         2: "MATTE",
@@ -110,10 +103,8 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         const nextStage = currentStageNum + 1;
         const isGameFinished = nextStage > TOTAL_STAGES;
         
-        // Calculate progress percentage dynamically for higher levels
-        // Stage 1 correct moves them forward, scaling gracefully up to 100%
         let nextProgress = isGameFinished ? "100%" : `${Math.floor((nextStage / TOTAL_STAGES) * 100)}%`;
-        if (currentStageNum === 1) nextProgress = "40%"; // Custom incremental step up from baseline 20%
+        if (currentStageNum === 1) nextProgress = "40%"; 
 
         const updateData = {
           lastActive: admin.database.ServerValue.TIMESTAMP
@@ -126,7 +117,8 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
           updateData.progress = "100% - FINISHED";
         }
 
-        await db.ref(`teams/${token}`).update(updateData);
+        // 🔥 FIXED: Updating metrics cleanly inside the structural parent block
+        await db.ref(`gameData/teams/${token}`).update(updateData);
 
         return res.json({
           correct: true,
@@ -134,7 +126,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
           nextHint: isGameFinished ? "CONGRATULATIONS! You have successfully completed the Jotun Hunt!" : CLUES[nextStage]
         });
       } else {
-        // WRONG ANSWER: Returns incorrect without applying penalties or tracking strikes
         return res.json({ correct: false });
       }
     }
