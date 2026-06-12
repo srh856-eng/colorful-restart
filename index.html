@@ -49,12 +49,7 @@
             justify-content: space-between;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .brand { display: flex; align-items: center; gap: 10px; }
         .brand-mark {
             width: 36px;
             height: 36px;
@@ -64,9 +59,7 @@
             align-items: center;
             justify-content: center;
         }
-
         .brand-mark svg { display: block; }
-
         .brand-name {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 22px;
@@ -74,9 +67,7 @@
             color: var(--white);
             line-height: 1;
         }
-
         .brand-name span { color: var(--yellow); }
-
         .event-tag {
             font-size: 10px;
             font-weight: 700;
@@ -109,7 +100,6 @@
         }
 
         .input-wrap { margin-bottom: 16px; }
-
         .input-wrap input {
             width: 100%;
             background: var(--offwhite);
@@ -117,26 +107,15 @@
             border-radius: 10px;
             padding: 13px 16px;
             font-size: 16px;
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 3px;
             color: var(--text);
-            text-transform: uppercase;
-            transition: border-color 0.2s, background 0.2s;
             outline: none;
+            transition: border-color 0.2s;
         }
+        .input-wrap input::placeholder { color: #BEC8DB; font-size: 14px; }
+        .input-wrap input:focus { border-color: var(--blue); background: #EEF3FB; }
 
-        .input-wrap input::placeholder {
-            color: #BEC8DB;
-            font-size: 13px;
-            letter-spacing: 2px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-        }
-
-        .input-wrap input:focus {
-            border-color: var(--blue);
-            background: #EEF3FB;
-        }
+        #team-name-input { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; font-size: 18px; text-transform: uppercase; }
+        #answer-input { font-weight: 600; }
 
         .btn-primary {
             width: 100%;
@@ -149,286 +128,61 @@
             font-size: 19px;
             letter-spacing: 3px;
             cursor: pointer;
-            transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
             box-shadow: 0 4px 16px rgba(0,48,135,0.2);
+            transition: all 0.15s;
         }
+        .btn-primary:hover:not(:disabled) { background: var(--blue-lt); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-primary:hover:not(:disabled) {
-            background: var(--blue-lt);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(0,48,135,0.28);
-        }
-
-        .btn-primary:active:not(:disabled) { transform: translateY(0); }
-        .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-
-        .hint-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
+        .hint-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
         .btn-hint {
-            flex: 1;
-            background: transparent;
-            border: 1.5px solid var(--yellow);
-            color: var(--blue);
-            border-radius: 10px;
-            padding: 11px 16px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            transition: background 0.18s, color 0.18s;
+            flex: 1; background: transparent; border: 1.5px solid var(--yellow); color: var(--blue);
+            border-radius: 10px; padding: 11px 16px; font-size: 13px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
         }
+        .btn-hint:hover:not(:disabled) { background: var(--yellow); }
+        .btn-hint:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--border); color: var(--muted); }
+        .hint-counter { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 
-        .btn-hint:hover:not(:disabled) {
-            background: var(--yellow);
-            color: var(--blue);
-        }
+        .stage-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .stage-badge { display: inline-flex; align-items: center; gap: 8px; background: #EEF3FB; border: 1px solid #BDD0F5; border-radius: 100px; padding: 6px 14px; }
+        .stage-dot { width: 8px; height: 8px; background: var(--blue); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+        .stage-label { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--blue); }
+        .progress-pill { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
 
-        .btn-hint:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: var(--border);
-            color: var(--muted);
-        }
+        .clue-card { background: var(--blue); border-radius: 12px; padding: 22px; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .clue-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--yellow); margin-bottom: 10px; }
+        .clue-text { font-size: 15px; font-weight: 500; line-height: 1.65; color: var(--white); }
 
-        .hint-counter {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--muted);
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        .stage-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .stage-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #EEF3FB;
-            border: 1px solid #BDD0F5;
-            border-radius: 100px;
-            padding: 6px 14px;
-        }
-
-        .stage-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--blue);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .stage-label {
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--blue);
-        }
-
-        .progress-pill {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--muted);
-            letter-spacing: 1px;
-        }
-
-        .clue-card {
-            background: var(--blue);
-            border-radius: 12px;
-            padding: 22px 22px 22px 24px;
-            margin-bottom: 24px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .clue-card::before {
-            content: '?';
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 140px;
-            color: rgba(255,255,255,0.04);
-            position: absolute;
-            right: -10px;
-            top: -20px;
-            line-height: 1;
-            pointer-events: none;
-        }
-
-        .clue-eyebrow {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--yellow);
-            margin-bottom: 10px;
-        }
-
-        .clue-text {
-            font-size: 15px;
-            font-weight: 500;
-            line-height: 1.65;
-            color: var(--white);
-        }
-
-        .hint-box {
-            background: #FFFBEA;
-            border: 1.5px solid var(--yellow);
-            border-radius: 10px;
-            padding: 14px 16px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
+        .hint-box { background: #FFFBEA; border: 1.5px solid var(--yellow); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; display: none; }
         .hint-box.visible { display: block; }
+        .hint-box-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #8A6C00; margin-bottom: 6px; }
+        .hint-box-text { font-size: 14px; color: #4A3800; line-height: 1.55; }
 
-        .hint-box-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #8A6C00;
-            margin-bottom: 6px;
-        }
-
-        .hint-box-text {
-            font-size: 14px;
-            color: #4A3800;
-            line-height: 1.55;
-            font-weight: 500;
-        }
-
-        .msg-block {
-            margin-top: 14px;
-            min-height: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            text-align: center;
-            border-radius: 8px;
-            padding: 0;
-            transition: all 0.2s;
-        }
-
-        .msg-block.success {
-            background: var(--success-bg);
-            color: var(--success);
-            padding: 10px 14px;
-        }
-
-        .msg-block.error {
-            background: var(--error-bg);
-            color: var(--error);
-            padding: 10px 14px;
-        }
-
+        .msg-block { margin-top: 14px; min-height: 20px; font-size: 13px; font-weight: 600; text-align: center; border-radius: 8px; transition: all 0.2s; }
+        .msg-block.success { background: var(--success-bg); color: var(--success); padding: 10px 14px; }
+        .msg-block.error { background: var(--error-bg); color: var(--error); padding: 10px 14px; }
         .msg-block.loading { color: var(--muted); }
 
-        .team-chip {
-            display: none;
-            margin-top: 20px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--muted);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
+        .team-chip { display: none; margin-top: 20px; text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
         .team-chip strong { color: var(--blue); }
 
-        .login-head {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .login-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 28px;
-            letter-spacing: 2px;
-            color: var(--blue);
-            margin-bottom: 6px;
-        }
-
-        .login-sub {
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: 500;
-        }
+        .login-head { text-align: center; margin-bottom: 28px; }
+        .login-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: var(--blue); margin-bottom: 6px; }
+        .login-sub { font-size: 13px; color: var(--muted); }
 
         .view-panel { display: none; }
         .view-active { display: block; }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
-        }
+        .winner-panel { text-align: center; padding: 10px 0; }
+        .winner-trophy { font-size: 56px; margin-bottom: 16px; display: block; }
+        .winner-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 3px; color: var(--blue); margin-bottom: 8px; }
+        .winner-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+        .winner-badge { display: inline-block; margin-top: 20px; background: var(--yellow); color: var(--blue); font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; padding: 8px 20px; border-radius: 100px; }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px); }
-            40%, 80% { transform: translateX(5px); }
-        }
-
-        @keyframes pop {
-            0% { transform: scale(0.97); opacity: 0.7; }
-            60% { transform: scale(1.02); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
         .shake { animation: shake 0.35s ease; }
-        .pop   { animation: pop 0.3s ease; }
-
-        .winner-panel {
-            text-align: center;
-            padding: 10px 0;
-        }
-
-        .winner-trophy {
-            font-size: 56px;
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        .winner-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 32px;
-            letter-spacing: 3px;
-            color: var(--blue);
-            margin-bottom: 8px;
-        }
-
-        .winner-sub {
-            font-size: 14px;
-            color: var(--muted);
-            font-weight: 500;
-            line-height: 1.6;
-        }
-
-        .winner-badge {
-            display: inline-block;
-            margin-top: 20px;
-            background: var(--yellow);
-            color: var(--blue);
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 15px;
-            letter-spacing: 2px;
-            padding: 8px 20px;
-            border-radius: 100px;
-        }
     </style>
 </head>
 <body>
@@ -446,69 +200,69 @@
     </div>
 
     <div class="card">
-
+        <!-- VIEW 1: Access Validation -->
         <div id="view-login" class="view-panel view-active">
             <div class="login-head">
                 <div class="login-title">Identity Check</div>
-                <div class="login-sub">Enter your assigned team name to begin.</div>
+                <div class="login-sub">Enter your assigned team name to activate dashboard.</div>
             </div>
             <div class="field-label">Your Team Name</div>
             <div class="input-wrap">
-                <input type="text" id="team-name-input" placeholder="e.g. Royal Blue" autocomplete="off" spellcheck="false">
+                <input type="text" id="team-name-input" placeholder="e.g. ROYAL BLUE" autocomplete="off" spellcheck="false">
             </div>
-            <button class="btn-primary" id="login-btn" onclick="registerTeamName()">Start the Hunt</button>
+            <button class="btn-primary" id="login-btn" onclick="registerTeamName()">Start Hunt</button>
         </div>
 
+        <!-- VIEW 2: Operational Screen -->
         <div id="view-game" class="view-panel">
             <div class="stage-row">
                 <div class="stage-badge">
                     <div class="stage-dot"></div>
-                    <div class="stage-label">Stage <span id="current-stage-display">—</span> of 5</div>
+                    <div class="stage-label">Stage <span id="current-stage-display">—</span> / 5</div>
                 </div>
                 <div class="progress-pill" id="progress-label">Progress: 20%</div>
             </div>
 
-            <div class="clue-card" id="clue-card">
-                <div class="clue-eyebrow">Active Clue</div>
-                <div class="clue-text" id="hint-display">Syncing…</div>
+            <div class="clue-card">
+                <div class="clue-eyebrow">Active Target Clue</div>
+                <div class="clue-text" id="hint-display">Connecting channel…</div>
             </div>
 
             <div class="hint-box" id="hint-reveal-box">
-                <div class="hint-box-label">💡 Hint</div>
+                <div class="hint-box-label">💡 Field Assistance Hint</div>
                 <div class="hint-box-text" id="hint-reveal-text"></div>
             </div>
 
-            <div class="field-label">Your Answer</div>
+            <div class="field-label">Verification Code</div>
             <div class="input-wrap">
-                <input type="text" id="answer-input" placeholder="Type your code here" autocomplete="off" spellcheck="false">
+                <input type="text" id="answer-input" placeholder="Type verified asset code" autocomplete="off" spellcheck="false">
             </div>
-            <button class="btn-primary" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+            <button class="btn-primary" id="submit-btn" onclick="submitAnswer()">Submit Code</button>
 
             <div class="hint-row">
-                <button class="btn-hint" id="hint-btn" onclick="requestHint()">
-                    💡 Request a Hint
-                </button>
+                <button class="btn-hint" id="hint-btn" onclick="requestHint()">💡 Request Hint</button>
                 <div class="hint-counter" id="hint-counter">Hints: 2 remaining</div>
             </div>
         </div>
 
+        <!-- VIEW 3: Completion screen -->
         <div id="view-winner" class="view-panel">
             <div class="winner-panel">
                 <span class="winner-trophy">🏆</span>
-                <div class="winner-title">Hunt Complete!</div>
-                <div class="winner-sub">You've conquered all 5 stages of the Jotun Hunt.<br>Head to the front registration counter to claim your victory.</div>
+                <div class="winner-title">Mission Complete</div>
+                <div class="winner-sub">All 5 tracking arrays successfully synchronized.<br>Return to the front registration matrix for verification.</div>
                 <div class="winner-badge">JOTUN CHAMPION 2026</div>
             </div>
         </div>
 
         <div id="response-message" class="msg-block"></div>
-        <div class="team-chip" id="team-chip">Team: <strong id="team-name-chip"></strong></div>
+        <div class="team-chip" id="team-chip">Active Session: <strong id="team-name-chip"></strong></div>
     </div>
 
 <script>
     const BACKEND_URL = 'https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer';
     const urlParams   = new URLSearchParams(window.location.search);
-    const teamToken   = urlParams.get('team') || null;
+    const teamToken   = urlParams.get('team');
 
     let currentStage = 1;
     let hintsUsed    = 0;
@@ -527,30 +281,16 @@
         el.textContent = text;
     }
 
-    function clearMsg() {
-        const el = document.getElementById('response-message');
-        el.className = 'msg-block';
-        el.textContent = '';
-    }
-
     function setStage(n, clue, hints) {
         currentStage = n;
         hintsUsed    = hints || 0;
-
         document.getElementById('current-stage-display').textContent = n;
-
-        const progressMap = { 1: '20%', 2: '40%', 3: '60%', 4: '80%', 5: '100%' };
-        document.getElementById('progress-label').textContent = 'Progress: ' + (progressMap[n] || '20%');
-
-        const hintEl = document.getElementById('hint-display');
-        hintEl.textContent = clue;
-        hintEl.classList.remove('pop');
-        void hintEl.offsetWidth;
-        hintEl.classList.add('pop');
-
+        
+        const map = { 1: '20%', 2: '40%', 3: '60%', 4: '80%', 5: '100%' };
+        document.getElementById('progress-label').textContent = 'Progress: ' + (map[n] || '20%');
+        document.getElementById('hint-display').textContent = clue;
+        
         document.getElementById('hint-reveal-box').classList.remove('visible');
-        document.getElementById('hint-reveal-text').textContent = '';
-
         updateHintUI();
     }
 
@@ -558,181 +298,133 @@
         const remaining = MAX_HINTS - hintsUsed;
         const btn = document.getElementById('hint-btn');
         const ctr = document.getElementById('hint-counter');
-
         if (remaining <= 0) {
             btn.disabled = true;
-            btn.textContent = '💡 No hints left';
-            ctr.textContent = 'Hints: 0 remaining';
+            btn.textContent = '💡 Out of Hints';
+            ctr.textContent = 'Hints: 0 left';
         } else {
             btn.disabled = false;
-            btn.innerHTML = '💡 Request a Hint';
+            btn.textContent = '💡 Request Hint';
             ctr.textContent = `Hints: ${remaining} remaining`;
         }
-    }
-
-    function showTeamChip(name) {
-        document.getElementById('team-chip').style.display = 'block';
-        document.getElementById('team-name-chip').textContent = name;
     }
 
     async function initializeGame() {
         if (!teamToken) {
             showView('view-game');
-            document.getElementById('hint-display').textContent = 'Access denied — no team token in URL.';
+            document.getElementById('hint-display').textContent = 'Access Token Missing in URL Request string.';
             return;
         }
-
         try {
             const res  = await fetch(`${BACKEND_URL}?team=${teamToken}`);
             const data = await res.json();
-
             if (data.success && data.registered) {
                 if (data.finished) {
                     showView('view-winner');
                 } else {
                     setStage(data.stage, data.hint, data.hintsUsed || 0);
-                    showTeamChip('Returning Player');
+                    document.getElementById('team-chip').style.display = 'block';
+                    document.getElementById('team-name-chip').textContent = "Active Player";
                     showView('view-game');
                 }
             }
         } catch (err) {
-            console.error('Init error:', err);
+            console.error(err);
         }
     }
 
     async function registerTeamName() {
-        const nameInput = document.getElementById('team-name-input');
-        const loginBtn  = document.getElementById('login-btn');
-        const typed     = nameInput.value.trim().toUpperCase();
+        const input = document.getElementById('team-name-input');
+        const btn   = document.getElementById('login-btn');
+        const typed = input.value.trim().toUpperCase();
 
-        if (!typed) {
-            setMsg('Please enter your team name.', 'error');
-            nameInput.focus();
-            return;
-        }
+        if (!typed) { setMsg('Please input your team identifier.', 'error'); return; }
+        if (!teamToken) { setMsg('Session validation error.', 'error'); return; }
 
-        if (!teamToken) {
-            setMsg('No access token found in this URL. Contact your coordinator.', 'error');
-            return;
-        }
-
-        loginBtn.disabled = true;
-        setMsg('Verifying credentials…', 'loading');
+        btn.disabled = true;
+        setMsg('Checking database system registry…', 'loading');
 
         try {
-            const res  = await fetch(`${BACKEND_URL}?team=${teamToken}&checkName=${encodeURIComponent(typed)}`);
+            const res = await fetch(`${BACKEND_URL}?team=${teamToken}&checkName=${encodeURIComponent(typed)}`);
             const data = await res.json();
-
             if (data.success && data.validTeam) {
-                setMsg('✓ Verified — loading your hunt…', 'success');
+                setMsg('Success. Syncing operational data stream…', 'success');
                 setTimeout(() => {
-                    clearMsg();
+                    setMsg('', '');
                     setStage(data.stage, data.hint, data.hintsUsed || 0);
-                    showTeamChip(typed);
-                    loginBtn.disabled = false;
+                    document.getElementById('team-chip').style.display = 'block';
+                    document.getElementById('team-name-chip').textContent = typed;
                     showView('view-game');
-                }, 1200);
+                }, 1000);
             } else {
-                setMsg('❌ Team name does not match this link. Check your name and try again.', 'error');
-                nameInput.classList.remove('shake');
-                void nameInput.offsetWidth;
-                nameInput.classList.add('shake');
-                loginBtn.disabled = false;
+                setMsg('Identifier mismatch for this specific link parameters.', 'error');
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 400);
+                btn.disabled = false;
             }
         } catch (err) {
-            setMsg('Connection error. Please try again.', 'error');
-            loginBtn.disabled = false;
+            setMsg('Network transmission failure.', 'error');
+            btn.disabled = false;
         }
     }
 
     async function submitAnswer() {
-        const inputEl   = document.getElementById('answer-input');
-        const submitBtn = document.getElementById('submit-btn');
-        const answer    = inputEl.value.trim();
+        const input = document.getElementById('answer-input');
+        const btn   = document.getElementById('submit-btn');
+        const value = input.value.trim();
 
-        if (!answer) {
-            setMsg('Enter a code before submitting.', 'error');
-            inputEl.focus();
-            return;
-        }
-
-        submitBtn.disabled = true;
-        setMsg('Checking code…', 'loading');
+        if (!value) { setMsg('Please input code text.', 'error'); return; }
+        btn.disabled = true;
+        setMsg('Analyzing key parameters…', 'loading');
 
         try {
-            const res    = await fetch(BACKEND_URL, {
-                method:  'POST',
+            const res = await fetch(BACKEND_URL, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ team: teamToken, stage: currentStage, submission: answer })
+                body: JSON.stringify({ team: teamToken, stage: currentStage, submission: value })
             });
-            const result = await res.json();
-
-            if (result.correct) {
-                setMsg('✓ Correct! Moving to next stage…', 'success');
-                inputEl.value = '';
-
+            const data = await res.json();
+            if (data.correct) {
+                setMsg('Code entry authenticated.', 'success');
+                input.value = '';
                 setTimeout(() => {
-                    clearMsg();
-                    if (result.finished) {
-                        showView('view-winner');
-                    } else {
-                        setStage(result.nextStage, result.nextHint, hintsUsed);
-                    }
-                    submitBtn.disabled = false;
-                }, 1800);
+                    setMsg('', '');
+                    if (data.finished) { showView('view-winner'); } 
+                    else { setStage(data.nextStage, data.nextHint, hintsUsed); }
+                    btn.disabled = false;
+                }, 1500);
             } else {
-                setMsg('❌ Wrong code. Look more carefully at the clue and try again.', 'error');
-                inputEl.classList.remove('shake');
-                void inputEl.offsetWidth;
-                inputEl.classList.add('shake');
-                submitBtn.disabled = false;
+                setMsg('Validation failure. Code key signature incorrect.', 'error');
+                input.classList.add('shake');
+                setTimeout(() => input.classList.remove('shake'), 400);
+                btn.disabled = false;
             }
         } catch (err) {
-            setMsg('Connection error. Please try again.', 'error');
-            submitBtn.disabled = false;
+            setMsg('Network error occurred.', 'error');
+            btn.disabled = false;
         }
     }
 
     async function requestHint() {
         const btn = document.getElementById('hint-btn');
         btn.disabled = true;
-        setMsg('Requesting hint…', 'loading');
-
         try {
-            const res    = await fetch(BACKEND_URL, {
-                method:  'POST',
+            const res = await fetch(BACKEND_URL, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ team: teamToken, stage: currentStage, requestHint: true })
+                body: JSON.stringify({ team: teamToken, stage: currentStage, requestHint: true })
             });
-            const result = await res.json();
-
-            if (result.success) {
-                hintsUsed = result.hintsUsed;
-                clearMsg();
+            const data = await res.json();
+            if (data.success) {
+                hintsUsed = data.hintsUsed;
                 updateHintUI();
-                const box  = document.getElementById('hint-reveal-box');
-                const text = document.getElementById('hint-reveal-text');
-                text.textContent = result.hint;
-                box.classList.add('visible');
-            } else if (result.hintLimitReached) {
-                setMsg('You have used all 2 hints.', 'error');
-                updateHintUI();
-            } else {
-                setMsg('Could not load hint. Try again.', 'error');
-                btn.disabled = false;
+                document.getElementById('hint-reveal-text').textContent = data.hint;
+                document.getElementById('hint-reveal-box').classList.add('visible');
             }
         } catch (err) {
-            setMsg('Connection error. Please try again.', 'error');
             btn.disabled = false;
         }
     }
-
-    document.getElementById('team-name-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') registerTeamName();
-    });
-    document.getElementById('answer-input').addEventListener('keydown', e => {
-        if (e.key === 'Enter') submitAnswer();
-    });
 
     window.onload = initializeGame;
 </script>
