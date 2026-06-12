@@ -1,7 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
-// Explicit configurations pointing database operations directly to your active Southeast Asian cluster
 admin.initializeApp({
   databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
 });
@@ -88,7 +87,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
       const snapshot = await teamRef.once("value");
       const teamData = snapshot.val();
 
-      // Name verification on first login
       if (checkName) {
         if (checkName !== expectedName) {
           return res.json({ success: true, validTeam: false, message: "Team name does not match this access link." });
@@ -120,7 +118,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         });
       }
 
-      // Returning player — restore full state context safely
       if (teamData && teamData.stage) {
         return res.json({
           success: true,
@@ -148,7 +145,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
       const teamData = snapshot.val();
       const currentHintsUsed = teamData ? (teamData.hintsUsed || 0) : 0;
 
-      // ── Hint request ──────────────────────────────────────────────────────
       if (requestHint) {
         if (currentHintsUsed >= MAX_HINTS) {
           return res.json({ success: false, hintLimitReached: true, message: "You have used all your hints." });
@@ -169,7 +165,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         });
       }
 
-      // ── Answer check ──────────────────────────────────────────────────────
       const cleanSubmission = submission.trim().toUpperCase();
       const currentStageNum = parseInt(stage);
 

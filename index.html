@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jotun Colorful Revamp</title>
+    <link rel="icon" href="data:,">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +38,6 @@
             padding: 24px 16px;
         }
 
-        /* ── Top banner ─────────────────────────────────────────────────── */
         .topbar {
             width: 100%;
             max-width: 480px;
@@ -88,7 +88,6 @@
             border-radius: 20px;
         }
 
-        /* ── Card ────────────────────────────────────────────────────────── */
         .card {
             width: 100%;
             max-width: 480px;
@@ -100,7 +99,6 @@
             box-shadow: 0 8px 32px rgba(0,48,135,0.08);
         }
 
-        /* ── Section labels ──────────────────────────────────────────────── */
         .field-label {
             font-size: 11px;
             font-weight: 700;
@@ -110,7 +108,6 @@
             margin-bottom: 8px;
         }
 
-        /* ── Inputs ──────────────────────────────────────────────────────── */
         .input-wrap { margin-bottom: 16px; }
 
         .input-wrap input {
@@ -141,7 +138,6 @@
             background: #EEF3FB;
         }
 
-        /* ── Primary button ──────────────────────────────────────────────── */
         .btn-primary {
             width: 100%;
             background: var(--blue);
@@ -166,7 +162,6 @@
         .btn-primary:active:not(:disabled) { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
 
-        /* ── Hint button ─────────────────────────────────────────────────── */
         .hint-row {
             display: flex;
             align-items: center;
@@ -212,7 +207,6 @@
             white-space: nowrap;
         }
 
-        /* ── Stage badge ─────────────────────────────────────────────────── */
         .stage-row {
             display: flex;
             align-items: center;
@@ -253,7 +247,6 @@
             letter-spacing: 1px;
         }
 
-        /* ── Clue card ───────────────────────────────────────────────────── */
         .clue-card {
             background: var(--blue);
             border-radius: 12px;
@@ -291,7 +284,6 @@
             color: var(--white);
         }
 
-        /* ── Hint reveal box ─────────────────────────────────────────────── */
         .hint-box {
             background: #FFFBEA;
             border: 1.5px solid var(--yellow);
@@ -319,7 +311,6 @@
             font-weight: 500;
         }
 
-        /* ── Message block ───────────────────────────────────────────────── */
         .msg-block {
             margin-top: 14px;
             min-height: 20px;
@@ -346,7 +337,6 @@
 
         .msg-block.loading { color: var(--muted); }
 
-        /* ── Team chip ───────────────────────────────────────────────────── */
         .team-chip {
             display: none;
             margin-top: 20px;
@@ -360,7 +350,6 @@
 
         .team-chip strong { color: var(--blue); }
 
-        /* ── Login header ─────────────────────────────────────────────────── */
         .login-head {
             text-align: center;
             margin-bottom: 28px;
@@ -380,11 +369,9 @@
             font-weight: 500;
         }
 
-        /* ── View gating ──────────────────────────────────────────────────── */
         .view-panel { display: none; }
         .view-active { display: block; }
 
-        /* ── Animations ───────────────────────────────────────────────────── */
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.8); }
@@ -405,7 +392,6 @@
         .shake { animation: shake 0.35s ease; }
         .pop   { animation: pop 0.3s ease; }
 
-        /* ── Winner screen ────────────────────────────────────────────────── */
         .winner-panel {
             text-align: center;
             padding: 10px 0;
@@ -570,8 +556,8 @@
 
     function updateHintUI() {
         const remaining = MAX_HINTS - hintsUsed;
-        const btn  = document.getElementById('hint-btn');
-        const ctr  = document.getElementById('hint-counter');
+        const btn = document.getElementById('hint-btn');
+        const ctr = document.getElementById('hint-counter');
 
         if (remaining <= 0) {
             btn.disabled = true;
