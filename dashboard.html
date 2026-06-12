@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jotun Colorful Revamp â€” War Room</title>
+    <link rel="icon" href="data:,">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue:    #003087;
+            --blue-lt: #1a4fab;
+            --yellow:  #F5C400;
+            --white:   #FFFFFF;
+            --offwhite:#F7F9FC;
+            --dark:    #0D1B36;
+            --text:    #0D1B36;
+            --muted:   #6B7A99;
+            --border:  #D8E0EE;
+            --surface: #FFFFFF;
+            --success: #1A7A4A;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--offwhite);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px 12px 40px;
+        }
+
+        .page-header {
+            max-width: 1060px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 14px; }
+
+        .header-mark {
+            width: 48px;
+            height: 48px;
+            background: var(--blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-mark svg { display: block; }
+
+        .header-main {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: var(--blue);
+            line-height: 1.1;
+        }
+        .header-main span { color: var(--yellow); }
+        .header-sub {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .live-chip {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #E6F4ED;
+            border: 1px solid #A8DEC1;
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--success);
+            text-transform: uppercase;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 1.8s ease-in-out infinite;
+        }
+
+        .table-card {
+            max-width: 1060px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
