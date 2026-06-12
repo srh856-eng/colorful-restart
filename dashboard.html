@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Hunts 2026 — War Room</title>
+    <title>Jotun Colorful Revamp — War Room</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -31,15 +31,15 @@
             background: var(--offwhite);
             color: var(--text);
             min-height: 100vh;
-            padding: 32px 20px 60px;
+            padding: 20px 12px 40px;
         }
 
         /* ── Page header ─────────────────────────────────────────────────── */
         .page-header {
             max-width: 1060px;
-            margin: 0 auto 28px;
+            margin: 0 auto 24px;
             display: flex;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 16px;
@@ -62,19 +62,19 @@
         .header-titles {}
         .header-main {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 30px;
-            letter-spacing: 3px;
+            font-size: 28px;
+            letter-spacing: 2px;
             color: var(--blue);
-            line-height: 1;
+            line-height: 1.1;
         }
         .header-main span { color: var(--yellow); }
         .header-sub {
             font-size: 11px;
             font-weight: 700;
-            letter-spacing: 3px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
             color: var(--muted);
-            margin-top: 3px;
+            margin-top: 4px;
         }
 
         .live-chip {
@@ -100,67 +100,7 @@
             animation: pulse 1.8s ease-in-out infinite;
         }
 
-        /* ── Summary stats row ───────────────────────────────────────────── */
-        .stats-row {
-            max-width: 1060px;
-            margin: 0 auto 24px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px 22px;
-            box-shadow: 0 2px 10px rgba(0,48,135,0.05);
-        }
-
-        .stat-eyebrow {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 38px;
-            letter-spacing: 2px;
-            color: var(--blue);
-            line-height: 1;
-        }
-
-        .stat-value.gold { color: var(--yellow); }
-        .stat-value.green { color: var(--success); }
-
-        .stat-sub {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: 4px;
-            font-weight: 500;
-        }
-
-        /* ── Progress bar (stat card) ────────────────────────────────────── */
-        .stat-bar-outer {
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .stat-bar-inner {
-            height: 100%;
-            background: linear-gradient(90deg, var(--blue), var(--yellow));
-            border-radius: 3px;
-            transition: width 0.6s ease;
-        }
-
-        /* ── Table card ──────────────────────────────────────────────────── */
+        /* ── Table card with Mobile Responsiveness ───────────────────────── */
         .table-card {
             max-width: 1060px;
             margin: 0 auto;
@@ -173,348 +113,6 @@
 
         .table-card-header {
             background: var(--blue);
-            padding: 16px 24px;
+            padding: 16px 20px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .table-card-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 2.5px;
-            color: var(--white);
-        }
-
-        .table-refresh {
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 1px;
-        }
-
-        table { width: 100%; border-collapse: collapse; }
-
-        thead th {
-            padding: 13px 20px;
-            text-align: left;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            background: #F0F4FA;
-            border-bottom: 1px solid var(--border);
-        }
-
-        tbody td {
-            padding: 15px 20px;
-            border-bottom: 1px solid #EDF1F9;
-            font-size: 13px;
-            vertical-align: middle;
-        }
-
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: #F7F9FE; }
-
-        .team-name {
-            font-weight: 700;
-            color: var(--blue);
-            font-size: 14px;
-        }
-
-        .team-token {
-            font-size: 11px;
-            color: var(--muted);
-            font-family: monospace;
-            margin-top: 2px;
-        }
-
-        /* ── Stage badge ─────────────────────────────────────────────────── */
-        .stage-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #EEF3FB;
-            border: 1px solid #BDD0F5;
-            border-radius: 6px;
-            padding: 4px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--blue);
-        }
-
-        .stage-badge.done {
-            background: #E6F4ED;
-            border-color: #A8DEC1;
-            color: var(--success);
-        }
-
-        /* ── Progress bar (table) ────────────────────────────────────────── */
-        .prog-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 180px;
-        }
-
-        .prog-bar-outer {
-            flex: 1;
-            height: 7px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .prog-bar-inner {
-            height: 100%;
-            background: linear-gradient(90deg, var(--blue) 0%, var(--yellow) 100%);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .prog-label {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 15px;
-            color: var(--blue);
-            min-width: 42px;
-            text-align: right;
-        }
-
-        /* ── Hint indicator ──────────────────────────────────────────────── */
-        .hint-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            padding: 3px 9px;
-            border-radius: 20px;
-        }
-
-        .hint-indicator.h0 { background: #EEF3FB; color: #6B7A99; }
-        .hint-indicator.h1 { background: #FFFBEA; color: #8A6C00; border: 1px solid #F5C400; }
-        .hint-indicator.h2 { background: #FDE8EB; color: var(--error, #C0001A); border: 1px solid #F5ADC0; }
-
-        /* ── Timestamp ───────────────────────────────────────────────────── */
-        .ts-label {
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        /* ── Empty / error state ─────────────────────────────────────────── */
-        .empty-row td {
-            text-align: center;
-            padding: 48px 20px;
-            color: var(--muted);
-            font-style: italic;
-            font-size: 14px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ── Page header ────────────────────────────────────────────────────── -->
-    <div class="page-header">
-        <div class="header-brand">
-            <div class="header-mark">
-                <svg width="26" height="28" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13 1H18V15C18 18.866 14.866 22 11 22H9C5.134 22 2 18.866 2 15V13H7V15C7 16.105 7.895 17 9 17H11C12.105 17 13 16.105 13 15V1Z" fill="#F5C400"/>
-                </svg>
-            </div>
-            <div class="header-titles">
-                <div class="header-main"><span>Jotun</span> Hunts War Room</div>
-                <div class="header-sub">Live Scavenger Tracking — 2026 Inauguration</div>
-            </div>
-        </div>
-        <div class="live-chip">
-            <div class="live-dot"></div>
-            Live Feed
-        </div>
-    </div>
-
-    <!-- ── Stats row ─────────────────────────────────────────────────────── -->
-    <div class="stats-row">
-        <div class="stat-card">
-            <div class="stat-eyebrow">Registered Teams</div>
-            <div class="stat-value" id="stat-registered">—</div>
-            <div class="stat-sub">out of 20 total</div>
-            <div class="stat-bar-outer">
-                <div class="stat-bar-inner" id="stat-reg-bar" style="width:0%"></div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-eyebrow">Teams Completed</div>
-            <div class="stat-value green" id="stat-finished">—</div>
-            <div class="stat-sub">full hunt complete</div>
-            <div class="stat-bar-outer">
-                <div class="stat-bar-inner" id="stat-fin-bar" style="width:0%; background: linear-gradient(90deg, #1A7A4A, #4CAF82);"></div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-eyebrow">Total Hints Used</div>
-            <div class="stat-value gold" id="stat-hints">—</div>
-            <div class="stat-sub">across all teams</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-eyebrow">Most Advanced Stage</div>
-            <div class="stat-value" id="stat-top-stage">—</div>
-            <div class="stat-sub">highest stage reached</div>
-        </div>
-    </div>
-
-    <!-- ── Team table ─────────────────────────────────────────────────────── -->
-    <div class="table-card">
-        <div class="table-card-header">
-            <div class="table-card-title">Team Status Board</div>
-            <div class="table-refresh" id="last-updated">Connecting…</div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Team</th>
-                    <th>Current Stage</th>
-                    <th>Progress</th>
-                    <th>Hints Used</th>
-                    <th>Last Active</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-rows">
-                <tr class="empty-row"><td colspan="5">Establishing live connection…</td></tr>
-            </tbody>
-        </table>
-    </div>
-
-<script>
-    const firebaseConfig = {
-        databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const TOTAL_TEAMS = 20;
-
-    function timeAgo(ts) {
-        if (!ts) return '—';
-        const secs = Math.floor((Date.now() - ts) / 1000);
-        if (secs < 10)  return 'Just now';
-        if (secs < 60)  return `${secs}s ago`;
-        if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
-        return `${Math.floor(secs / 3600)}h ago`;
-    }
-
-    function hintClass(n) {
-        if (n === 0) return 'h0';
-        if (n === 1) return 'h1';
-        return 'h2';
-    }
-
-    function hintLabel(n) {
-        if (n === 0) return '💡 None used';
-        if (n === 1) return '💡 1 / 2 used';
-        return '⚠️ 2 / 2 used';
-    }
-
-    db.ref('gameData/teams').on('value', (snapshot) => {
-        const tbody = document.getElementById('leaderboard-rows');
-        tbody.innerHTML = '';
-
-        const raw = snapshot.val();
-
-        if (!raw) {
-            tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No teams registered yet.</td></tr>`;
-            updateStats([]);
-            return;
-        }
-
-        const teams = Object.keys(raw).map(k => ({ token: k, ...raw[k] }))
-            .sort((a, b) => {
-                // Sort: finished first, then by stage desc, then by lastActive desc
-                if (a.finished && !b.finished) return -1;
-                if (!a.finished && b.finished) return 1;
-                const stageA = a.stage || 1;
-                const stageB = b.stage || 1;
-                if (stageB !== stageA) return stageB - stageA;
-                return (b.lastActive || 0) - (a.lastActive || 0);
-            });
-
-        teams.forEach((team, idx) => {
-            const name       = team.teamName || 'Initializing…';
-            const stage      = team.stage || 1;
-            const hints      = team.hintsUsed || 0;
-            const finished   = team.finished || false;
-            const rawProg    = team.progress || '20%';
-            const pct        = parseInt(rawProg) || 20;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <div class="team-name">${name}</div>
-                    <div class="team-token">${team.token}</div>
-                </td>
-                <td>
-                    <span class="stage-badge ${finished ? 'done' : ''}">
-                        ${finished ? '✓ Complete' : `Stage ${stage} / 5`}
-                    </span>
-                </td>
-                <td>
-                    <div class="prog-wrap">
-                        <div class="prog-bar-outer">
-                            <div class="prog-bar-inner" style="width:${pct}%"></div>
-                        </div>
-                        <div class="prog-label">${rawProg}</div>
-                    </div>
-                </td>
-                <td>
-                    <span class="hint-indicator ${hintClass(hints)}">${hintLabel(hints)}</span>
-                </td>
-                <td>
-                    <span class="ts-label">${timeAgo(team.lastActive)}</span>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        updateStats(teams);
-
-        const now = new Date();
-        document.getElementById('last-updated').textContent =
-            `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-
-    }, (err) => {
-        console.error('Firebase error:', err);
-        document.getElementById('leaderboard-rows').innerHTML =
-            `<tr class="empty-row"><td colspan="5" style="color:#C0001A;">⚠️ Database sync error: ${err.message}</td></tr>`;
-    });
-
-    function updateStats(teams) {
-        const registered = teams.length;
-        const finished   = teams.filter(t => t.finished).length;
-        const totalHints = teams.reduce((s, t) => s + (t.hintsUsed || 0), 0);
-        const topStage   = teams.length ? Math.max(...teams.map(t => t.stage || 1)) : 0;
-
-        document.getElementById('stat-registered').textContent = `${registered} / ${TOTAL_TEAMS}`;
-        document.getElementById('stat-finished').textContent   = `${finished} / ${TOTAL_TEAMS}`;
-        document.getElementById('stat-hints').textContent      = totalHints;
-        document.getElementById('stat-top-stage').textContent  = topStage ? `Stage ${topStage}` : '—';
-
-        document.getElementById('stat-reg-bar').style.width = `${(registered / TOTAL_TEAMS) * 100}%`;
-        document.getElementById('stat-fin-bar').style.width = `${(finished   / TOTAL_TEAMS) * 100}%`;
-    }
-
-    // Refresh timestamps every 30s so "2m ago" stays accurate
-    setInterval(() => {
-        document.querySelectorAll('.ts-label[data-ts]').forEach(el => {
-            el.textContent = timeAgo(parseInt(el.dataset.ts));
-        });
-    }, 30000);
-</script>
-
-</body>
-</html>
+            align-

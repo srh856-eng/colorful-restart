@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Hunts 2026</title>
+    <title>Jotun Colorful Revamp</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -70,7 +70,7 @@
         .brand-name {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 22px;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             color: var(--white);
             line-height: 1;
         }
@@ -450,19 +450,17 @@
     <div class="topbar">
         <div class="brand">
             <div class="brand-mark">
-                <!-- Jotun J mark -->
                 <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M13 1H18V15C18 18.866 14.866 22 11 22H9C5.134 22 2 18.866 2 15V13H7V15C7 16.105 7.895 17 9 17H11C12.105 17 13 16.105 13 15V1Z" fill="#003087"/>
                 </svg>
             </div>
-            <div class="brand-name"><span>Jotun</span> Hunts <span>2026</span></div>
+            <div class="brand-name"><span>Jotun</span> Colorful <span>Revamp</span></div>
         </div>
         <div class="event-tag">Inauguration</div>
     </div>
 
     <div class="card">
 
-        <!-- VIEW 1: LOGIN ──────────────────────────────────────────────── -->
         <div id="view-login" class="view-panel view-active">
             <div class="login-head">
                 <div class="login-title">Identity Check</div>
@@ -475,7 +473,6 @@
             <button class="btn-primary" id="login-btn" onclick="registerTeamName()">Start the Hunt</button>
         </div>
 
-        <!-- VIEW 2: GAME ───────────────────────────────────────────────── -->
         <div id="view-game" class="view-panel">
             <div class="stage-row">
                 <div class="stage-badge">
@@ -490,7 +487,6 @@
                 <div class="clue-text" id="hint-display">Syncing…</div>
             </div>
 
-            <!-- Hint reveal area -->
             <div class="hint-box" id="hint-reveal-box">
                 <div class="hint-box-label">💡 Hint</div>
                 <div class="hint-box-text" id="hint-reveal-text"></div>
@@ -510,17 +506,15 @@
             </div>
         </div>
 
-        <!-- VIEW 3: WINNER ─────────────────────────────────────────────── -->
         <div id="view-winner" class="view-panel">
             <div class="winner-panel">
                 <span class="winner-trophy">🏆</span>
                 <div class="winner-title">Hunt Complete!</div>
-                <div class="winner-sub">You've conquered all 5 stages of the Jotun Hunt 2026.<br>Head to the front registration counter to claim your victory.</div>
+                <div class="winner-sub">You've conquered all 5 stages of the Jotun Hunt.<br>Head to the front registration counter to claim your victory.</div>
                 <div class="winner-badge">JOTUN CHAMPION 2026</div>
             </div>
         </div>
 
-        <!-- Shared feedback & team chip -->
         <div id="response-message" class="msg-block"></div>
         <div class="team-chip" id="team-chip">Team: <strong id="team-name-chip"></strong></div>
     </div>
@@ -534,7 +528,6 @@
     let hintsUsed    = 0;
     const MAX_HINTS  = 2;
 
-    // ── View helpers ──────────────────────────────────────────────────────────
     function showView(id) {
         ['view-login', 'view-game', 'view-winner'].forEach(v => {
             document.getElementById(v).classList.remove('view-active');
@@ -554,7 +547,6 @@
         el.textContent = '';
     }
 
-    // ── Stage render ──────────────────────────────────────────────────────────
     function setStage(n, clue, hints) {
         currentStage = n;
         hintsUsed    = hints || 0;
@@ -570,7 +562,6 @@
         void hintEl.offsetWidth;
         hintEl.classList.add('pop');
 
-        // Reset hint reveal
         document.getElementById('hint-reveal-box').classList.remove('visible');
         document.getElementById('hint-reveal-text').textContent = '';
 
@@ -598,7 +589,6 @@
         document.getElementById('team-name-chip').textContent = name;
     }
 
-    // ── Init: restore session if returning player ─────────────────────────────
     async function initializeGame() {
         if (!teamToken) {
             showView('view-game');
@@ -619,13 +609,11 @@
                     showView('view-game');
                 }
             }
-            // else show login (default)
         } catch (err) {
             console.error('Init error:', err);
         }
     }
 
-    // ── Screen 1: Verify team name ────────────────────────────────────────────
     async function registerTeamName() {
         const nameInput = document.getElementById('team-name-input');
         const loginBtn  = document.getElementById('login-btn');
@@ -671,7 +659,6 @@
         }
     }
 
-    // ── Screen 2: Submit answer ───────────────────────────────────────────────
     async function submitAnswer() {
         const inputEl   = document.getElementById('answer-input');
         const submitBtn = document.getElementById('submit-btn');
@@ -720,7 +707,6 @@
         }
     }
 
-    // ── Hint request ─────────────────────────────────────────────────────────
     async function requestHint() {
         const btn = document.getElementById('hint-btn');
         btn.disabled = true;
@@ -755,7 +741,6 @@
         }
     }
 
-    // ── Keyboard shortcuts ────────────────────────────────────────────────────
     document.getElementById('team-name-input').addEventListener('keydown', e => {
         if (e.key === 'Enter') registerTeamName();
     });
