@@ -1,6 +1,10 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-admin.initializeApp();
+
+// Explicit configurations pointing database operations directly to your active Southeast Asian cluster
+admin.initializeApp({
+  databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
+});
 
 const db = admin.database();
 
@@ -97,7 +101,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
           currentStage = teamData.stage;
           hintsUsed = teamData.hintsUsed || 0;
         } else {
-          // First time — initialize the team record
           await teamRef.set({
             teamName: expectedName,
             stage: 1,
@@ -117,7 +120,7 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         });
       }
 
-      // Returning player — restore full state
+      // Returning player — restore full state context safely
       if (teamData && teamData.stage) {
         return res.json({
           success: true,
@@ -174,7 +177,6 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         const nextStage = currentStageNum + 1;
         const isGameFinished = nextStage > TOTAL_STAGES;
         const progressPercent = isGameFinished ? 100 : Math.floor((nextStage / TOTAL_STAGES) * 100);
-        // Override first stage transition to 40% to feel more satisfying
         const progressDisplay = isGameFinished ? "100%" : (currentStageNum === 1 ? "40%" : `${progressPercent}%`);
 
         const updateData = {
