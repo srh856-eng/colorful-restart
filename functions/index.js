@@ -7,7 +7,6 @@ admin.initializeApp({
 
 const db = admin.database();
 
-// ─── 20 OFFICIAL JOTUN TEAMS ────────────────────────────────────────────────
 const AUTHORIZED_TEAMS = {
   "j7x2": "ROYAL BLUE",
   "m3kw": "MINTY BREEZE",
@@ -34,7 +33,6 @@ const AUTHORIZED_TEAMS = {
 const TOTAL_STAGES = 5;
 const MAX_HINTS = 2;
 
-// ─── STAGE CLUES ─────────────────────────────────────────────────────────────
 const CLUES = {
   1: "Welcome to the hunt! Your first destination is where the global corporate history began. Find the founding year on the commemorative plaque.",
   2: "Look closely at the premium finish gallery. The answer is hidden beneath the brightest spotlight.",
@@ -43,7 +41,6 @@ const CLUES = {
   5: "The final checkpoint. Present your journey log to the coordinator at the front registration counter to claim victory."
 };
 
-// ─── HINTS (secondary clues per stage) ───────────────────────────────────────
 const HINTS = {
   1: "The plaque is mounted on the wall near the main entrance lobby. Look for a brass frame.",
   2: "The spotlight is in the far-right corner of the gallery. Check the pedestal beneath it.",
@@ -52,7 +49,6 @@ const HINTS = {
   5: "The registration counter is staffed and located directly opposite the main entrance."
 };
 
-// ─── ANSWERS ──────────────────────────────────────────────────────────────────
 const MASTER_ANSWERS = {
   1: "1926",
   2: "MATTE",
@@ -61,7 +57,6 @@ const MASTER_ANSWERS = {
   5: "JOTUNUNITE"
 };
 
-// ─── MAIN CLOUD FUNCTION ──────────────────────────────────────────────────────
 exports.checkAnswer = functions.https.onRequest(async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -72,14 +67,12 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
   }
 
   try {
-
-    // ── GET: Init check / name verification ───────────────────────────────────
     if (req.method === "GET") {
       const token = req.query.team;
       const checkName = req.query.checkName ? req.query.checkName.trim().toUpperCase() : null;
 
       if (!token || !AUTHORIZED_TEAMS[token]) {
-        return res.status(400).json({ success: false, message: "Invalid or missing team token." });
+        return res.status(400).json({ success: false, message: "Invalid token value." });
       }
 
       const expectedName = AUTHORIZED_TEAMS[token];
@@ -89,7 +82,7 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
 
       if (checkName) {
         if (checkName !== expectedName) {
-          return res.json({ success: true, validTeam: false, message: "Team name does not match this access link." });
+          return res.json({ success: true, validTeam: false });
         }
 
         let currentStage = 1;
@@ -132,12 +125,11 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
       }
     }
 
-    // ── POST: Answer submission OR hint request ────────────────────────────────
     if (req.method === "POST") {
       const { team: token, stage, submission, requestHint } = req.body;
 
       if (!token || !AUTHORIZED_TEAMS[token]) {
-        return res.status(400).json({ success: false, message: "Unauthorized token." });
+        return res.status(400).json({ success: false });
       }
 
       const teamRef = db.ref(`gameData/teams/${token}`);
@@ -147,21 +139,18 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
 
       if (requestHint) {
         if (currentHintsUsed >= MAX_HINTS) {
-          return res.json({ success: false, hintLimitReached: true, message: "You have used all your hints." });
+          return res.json({ success: false, hintLimitReached: true });
         }
-
         const stageNum = parseInt(stage);
         const newHintsUsed = currentHintsUsed + 1;
         await teamRef.update({
           hintsUsed: newHintsUsed,
           lastActive: admin.database.ServerValue.TIMESTAMP
         });
-
         return res.json({
           success: true,
           hint: HINTS[stageNum],
-          hintsUsed: newHintsUsed,
-          hintsRemaining: MAX_HINTS - newHintsUsed
+          hintsUsed: newHintsUsed
         });
       }
 
@@ -172,11 +161,11 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         const nextStage = currentStageNum + 1;
         const isGameFinished = nextStage > TOTAL_STAGES;
         const progressPercent = isGameFinished ? 100 : Math.floor((nextStage / TOTAL_STAGES) * 100);
-        const progressDisplay = isGameFinished ? "100%" : (currentStageNum === 1 ? "40%" : `${progressPercent}%`);
+        const progressDisplay = isGameFinished ? "100%" : `${progressPercent}%`;
 
         const updateData = {
           lastActive: admin.database.ServerValue.TIMESTAMP,
-          progress: isGameFinished ? "100%" : progressDisplay
+          progress: progressDisplay
         };
 
         if (!isGameFinished) {
@@ -191,18 +180,14 @@ exports.checkAnswer = functions.https.onRequest(async (req, res) => {
         return res.json({
           correct: true,
           nextStage: isGameFinished ? currentStageNum : nextStage,
-          nextHint: isGameFinished
-            ? "🏆 CONGRATULATIONS! You have completed the Jotun Hunt 2026!"
-            : CLUES[nextStage],
+          nextHint: isGameFinished ? "🏆 Victory!" : CLUES[nextStage],
           finished: isGameFinished
         });
       } else {
         return res.json({ correct: false });
       }
     }
-
   } catch (error) {
-    console.error("Function error:", error);
-    return res.status(500).json({ success: false, message: "Internal server error." });
+    return res.status(500).json({ success: false });
   }
 });
