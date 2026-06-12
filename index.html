@@ -9,408 +9,761 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --navy:      #003087;
-            --yellow:    #F5C400;
-            --dark:      #0A1628;
-            --parchment: #FFF8E7;
-            --text:      #E8EDF5;
-            --muted:     #8A9BBF;
-            --success:   #4CAF82;
-            --red:       #E3001B;
-            --error:     #E3001B;
+            --blue:    #003087;
+            --blue-lt: #1a4fab;
+            --yellow:  #F5C400;
+            --white:   #FFFFFF;
+            --offwhite:#F7F9FC;
+            --dark:    #0D1B36;
+            --navy:    #06112A;
+            --text:    #0D1B36;
+            --muted:   #6B7A99;
+            --success: #1A7A4A;
+            --success-bg: #E6F4ED;
+            --error:   #C0001A;
+            --error-bg:#FDE8EB;
+            --border:  #D8E0EE;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--dark);
+            background: var(--offwhite);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 24px;
-            background-image:
-                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 48, 135, 0.7) 0%, transparent 70%),
-                repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px),
-                repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
+            padding: 24px 16px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 32px;
-            animation: fadeDown 0.6s ease both;
+        /* ── Top banner ─────────────────────────────────────────────────── */
+        .topbar {
+            width: 100%;
+            max-width: 480px;
+            background: var(--blue);
+            border-radius: 14px 14px 0 0;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .logo-line {
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            background: var(--yellow);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 4px;
         }
 
-        .logo-bar { width: 36px; height: 4px; border-radius: 2px; }
-        .logo-bar:first-child { background: var(--yellow); }
-        .logo-bar:last-child  { background: var(--red); }
+        .brand-mark svg { display: block; }
 
-        .logo-text {
+        .brand-name {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 36px;
-            letter-spacing: 4px;
-            color: var(--yellow);
-            text-shadow: 0 0 30px rgba(255,204,0,0.3);
+            font-size: 22px;
+            letter-spacing: 3px;
+            color: var(--white);
+            line-height: 1;
         }
 
-        .subtitle {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 3px;
+        .brand-name span { color: var(--yellow); }
+
+        .event-tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
             text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            padding: 4px 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+        }
+
+        /* ── Card ────────────────────────────────────────────────────────── */
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 14px 14px;
+            padding: 32px 28px 28px;
+            box-shadow: 0 8px 32px rgba(0,48,135,0.08);
+        }
+
+        /* ── Section labels ──────────────────────────────────────────────── */
+        .field-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        /* ── Inputs ──────────────────────────────────────────────────────── */
+        .input-wrap { margin-bottom: 16px; }
+
+        .input-wrap input {
+            width: 100%;
+            background: var(--offwhite);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 13px 16px;
+            font-size: 16px;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 3px;
+            color: var(--text);
+            text-transform: uppercase;
+            transition: border-color 0.2s, background 0.2s;
+            outline: none;
+        }
+
+        .input-wrap input::placeholder {
+            color: #BEC8DB;
+            font-size: 13px;
+            letter-spacing: 2px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--blue);
+            background: #EEF3FB;
+        }
+
+        /* ── Primary button ──────────────────────────────────────────────── */
+        .btn-primary {
+            width: 100%;
+            background: var(--blue);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 19px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+            box-shadow: 0 4px 16px rgba(0,48,135,0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--blue-lt);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0,48,135,0.28);
+        }
+
+        .btn-primary:active:not(:disabled) { transform: translateY(0); }
+        .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* ── Hint button ─────────────────────────────────────────────────── */
+        .hint-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .btn-hint {
+            flex: 1;
+            background: transparent;
+            border: 1.5px solid var(--yellow);
+            color: var(--blue);
+            border-radius: 10px;
+            padding: 11px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background 0.18s, color 0.18s;
+        }
+
+        .btn-hint:hover:not(:disabled) {
+            background: var(--yellow);
+            color: var(--blue);
+        }
+
+        .btn-hint:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: var(--border);
             color: var(--muted);
         }
 
-        .card {
-            width: 100%;
-            max-width: 460px;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 32px;
-            backdrop-filter: blur(12px);
-            animation: fadeUp 0.6s ease 0.1s both;
-            position: relative;
-            overflow: hidden;
+        .hint-counter {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
-        .stage-ghost {
-            position: absolute;
-            top: -20px;
-            right: -10px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 180px;
-            color: rgba(227, 0, 27, 0.04);
-            line-height: 1;
-            pointer-events: none;
-            user-select: none;
-            transition: color 0.4s;
+        /* ── Stage badge ─────────────────────────────────────────────────── */
+        .stage-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
         .stage-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(227, 0, 27, 0.10);
-            border: 1px solid rgba(227, 0, 27, 0.3);
+            background: #EEF3FB;
+            border: 1px solid #BDD0F5;
             border-radius: 100px;
             padding: 6px 14px;
-            margin-bottom: 24px;
         }
 
-        .stage-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-        .stage-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--red); }
+        .stage-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
 
-        .clue-label, .input-label {
+        .stage-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--blue);
+        }
+
+        .progress-pill {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+
+        /* ── Clue card ───────────────────────────────────────────────────── */
+        .clue-card {
+            background: var(--blue);
+            border-radius: 12px;
+            padding: 22px 22px 22px 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clue-card::before {
+            content: '?';
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 140px;
+            color: rgba(255,255,255,0.04);
+            position: absolute;
+            right: -10px;
+            top: -20px;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .clue-eyebrow {
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: var(--muted);
+            color: var(--yellow);
             margin-bottom: 10px;
         }
 
-        .clue-box {
-            background: var(--parchment);
-            color: #2C1A00;
-            border-radius: 12px;
-            padding: 20px 22px;
-            margin-bottom: 28px;
+        .clue-text {
             font-size: 15px;
-            font-style: italic;
-            line-height: 1.7;
             font-weight: 500;
-            position: relative;
-            min-height: 80px;
-            border-left: 4px solid var(--yellow);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+            line-height: 1.65;
+            color: var(--white);
         }
 
-        .clue-box::before {
-            content: '"';
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 60px;
-            color: rgba(0,45,98,0.1);
-            position: absolute;
-            top: -4px;
-            left: 10px;
-            line-height: 1;
-        }
-
-        .input-wrap { position: relative; margin-bottom: 16px; }
-        .input-wrap input {
-            width: 100%;
-            background: rgba(255,255,255,0.06);
-            border: 1.5px solid rgba(255,255,255,0.12);
+        /* ── Hint reveal box ─────────────────────────────────────────────── */
+        .hint-box {
+            background: #FFFBEA;
+            border: 1.5px solid var(--yellow);
             border-radius: 10px;
-            padding: 14px 18px;
-            font-size: 18px;
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 4px;
-            color: var(--text);
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .hint-box.visible { display: block; }
+
+        .hint-box-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            transition: border-color 0.2s, background 0.2s;
-            outline: none;
+            color: #8A6C00;
+            margin-bottom: 6px;
         }
-        .input-wrap input::placeholder { color: rgba(255,255,255,0.2); font-size: 14px; letter-spacing: 2px; font-family: 'Inter', sans-serif;}
-        .input-wrap input:focus { border-color: var(--yellow); background: rgba(255,204,0,0.04); }
 
-        .submit-btn {
-            width: 100%;
-            background: var(--red);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 15px;
+        .hint-box-text {
+            font-size: 14px;
+            color: #4A3800;
+            line-height: 1.55;
+            font-weight: 500;
+        }
+
+        /* ── Message block ───────────────────────────────────────────────── */
+        .msg-block {
+            margin-top: 14px;
+            min-height: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-align: center;
+            border-radius: 8px;
+            padding: 0;
+            transition: all 0.2s;
+        }
+
+        .msg-block.success {
+            background: var(--success-bg);
+            color: var(--success);
+            padding: 10px 14px;
+        }
+
+        .msg-block.error {
+            background: var(--error-bg);
+            color: var(--error);
+            padding: 10px 14px;
+        }
+
+        .msg-block.loading { color: var(--muted); }
+
+        /* ── Team chip ───────────────────────────────────────────────────── */
+        .team-chip {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .team-chip strong { color: var(--blue); }
+
+        /* ── Login header ─────────────────────────────────────────────────── */
+        .login-head {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .login-title {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 3px;
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
-            box-shadow: 0 4px 20px rgba(227, 0, 27, 0.25);
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: var(--blue);
+            margin-bottom: 6px;
         }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(227, 0, 27, 0.4); }
-        .submit-btn:active:not(:disabled) { transform: translateY(0); }
-        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .message { margin-top: 16px; font-size: 13px; font-weight: 600; min-height: 20px; text-align: center; letter-spacing: 0.5px; }
-        .success { color: var(--success); }
-        .error   { color: var(--error); }
-        .loading { color: var(--muted); }
+        .login-sub {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 500;
+        }
 
-        .team-chip { margin-top: 28px; text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; }
-        .team-chip span { color: var(--text); font-weight: 600; }
-
-        /* View display gates */
+        /* ── View gating ──────────────────────────────────────────────────── */
         .view-panel { display: none; }
         .view-active { display: block; }
 
-        @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.85); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
-        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0.6; } 60% { transform: scale(1.03); } 100% { transform: scale(1); opacity: 1; } }
-        .shake { animation: shake 0.4s ease; }
-        .pop   { animation: popIn 0.35s ease; }
+        /* ── Animations ───────────────────────────────────────────────────── */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.97); opacity: 0.7; }
+            60% { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .shake { animation: shake 0.35s ease; }
+        .pop   { animation: pop 0.3s ease; }
+
+        /* ── Winner screen ────────────────────────────────────────────────── */
+        .winner-panel {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .winner-trophy {
+            font-size: 56px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .winner-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 3px;
+            color: var(--blue);
+            margin-bottom: 8px;
+        }
+
+        .winner-sub {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            margin-top: 20px;
+            background: var(--yellow);
+            color: var(--blue);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 15px;
+            letter-spacing: 2px;
+            padding: 8px 20px;
+            border-radius: 100px;
+        }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="logo-line">
-            <div class="logo-bar"></div>
-            <div class="logo-text"><span style="color:var(--yellow)">Jotun</span> <span style="color:#fff">Hunts</span> <span style="color:var(--red)">2026</span></div>
-            <div class="logo-bar"></div>
+    <div class="topbar">
+        <div class="brand">
+            <div class="brand-mark">
+                <!-- Jotun J mark -->
+                <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 1H18V15C18 18.866 14.866 22 11 22H9C5.134 22 2 18.866 2 15V13H7V15C7 16.105 7.895 17 9 17H11C12.105 17 13 16.105 13 15V1Z" fill="#003087"/>
+                </svg>
+            </div>
+            <div class="brand-name"><span>Jotun</span> Hunts <span>2026</span></div>
         </div>
-        <div class="subtitle">Inauguration Scavenger Challenge</div>
-    </header>
+        <div class="event-tag">Inauguration</div>
+    </div>
 
     <div class="card">
-        
-        <!-- 🚪 VIEW 1: REGISTRATION / LOGIN -->
+
+        <!-- VIEW 1: LOGIN ──────────────────────────────────────────────── -->
         <div id="view-login" class="view-panel view-active">
-            <div class="clue-label" style="text-align: center; margin-bottom: 20px; font-size: 12px; color: #fff;">Identity Verification Required</div>
-            <div class="input-label">Enter Assigned Team Name</div>
-            <div class="input-wrap">
-                <input type="text" id="team-name-input" placeholder="E.G. MAJESTIC BLUE" autocomplete="off" spellcheck="false">
+            <div class="login-head">
+                <div class="login-title">Identity Check</div>
+                <div class="login-sub">Enter your assigned team name to begin.</div>
             </div>
-            <button class="submit-btn" id="login-btn" onclick="registerTeamName()">Start Hunt</button>
+            <div class="field-label">Your Team Name</div>
+            <div class="input-wrap">
+                <input type="text" id="team-name-input" placeholder="e.g. Royal Blue" autocomplete="off" spellcheck="false">
+            </div>
+            <button class="btn-primary" id="login-btn" onclick="registerTeamName()">Start the Hunt</button>
         </div>
 
-        <!-- 🗺️ VIEW 2: ACTIVE GAME PANEL -->
+        <!-- VIEW 2: GAME ───────────────────────────────────────────────── -->
         <div id="view-game" class="view-panel">
-            <div class="stage-ghost" id="stage-ghost">1</div>
-            <div class="stage-badge">
-                <div class="stage-dot"></div>
-                <div class="stage-label">Stage <span id="current-stage-display">—</span></div>
+            <div class="stage-row">
+                <div class="stage-badge">
+                    <div class="stage-dot"></div>
+                    <div class="stage-label">Stage <span id="current-stage-display">—</span> of 5</div>
+                </div>
+                <div class="progress-pill" id="progress-label">Progress: 20%</div>
             </div>
-            <div class="clue-label">Active Clue</div>
-            <div class="clue-box" id="hint-display">Syncing with base camp…</div>
-            <div class="input-label">Enter Secret Code</div>
+
+            <div class="clue-card" id="clue-card">
+                <div class="clue-eyebrow">Active Clue</div>
+                <div class="clue-text" id="hint-display">Syncing…</div>
+            </div>
+
+            <!-- Hint reveal area -->
+            <div class="hint-box" id="hint-reveal-box">
+                <div class="hint-box-label">💡 Hint</div>
+                <div class="hint-box-text" id="hint-reveal-text"></div>
+            </div>
+
+            <div class="field-label">Your Answer</div>
             <div class="input-wrap">
-                <input type="text" id="answer-input" placeholder="TYPE CODE HERE" autocomplete="off" spellcheck="false">
+                <input type="text" id="answer-input" placeholder="Type your code here" autocomplete="off" spellcheck="false">
             </div>
-            <button class="submit-btn" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+            <button class="btn-primary" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+
+            <div class="hint-row">
+                <button class="btn-hint" id="hint-btn" onclick="requestHint()">
+                    💡 Request a Hint
+                </button>
+                <div class="hint-counter" id="hint-counter">Hints: 2 remaining</div>
+            </div>
         </div>
 
-        <!-- Shared feedback tracking message block -->
-        <div id="response-message" class="message"></div>
-        <div class="team-chip" id="team-chip" style="display:none;">Team — <span></span></div>
+        <!-- VIEW 3: WINNER ─────────────────────────────────────────────── -->
+        <div id="view-winner" class="view-panel">
+            <div class="winner-panel">
+                <span class="winner-trophy">🏆</span>
+                <div class="winner-title">Hunt Complete!</div>
+                <div class="winner-sub">You've conquered all 5 stages of the Jotun Hunt 2026.<br>Head to the front registration counter to claim your victory.</div>
+                <div class="winner-badge">JOTUN CHAMPION 2026</div>
+            </div>
+        </div>
+
+        <!-- Shared feedback & team chip -->
+        <div id="response-message" class="msg-block"></div>
+        <div class="team-chip" id="team-chip">Team: <strong id="team-name-chip"></strong></div>
     </div>
 
 <script>
     const BACKEND_URL = 'https://us-central1-jotunhunt2026.cloudfunctions.net/checkAnswer';
-    const urlParams = new URLSearchParams(window.location.search);
-    const teamToken = urlParams.get('team') || null;
+    const urlParams   = new URLSearchParams(window.location.search);
+    const teamToken   = urlParams.get('team') || null;
 
     let currentStage = 1;
+    let hintsUsed    = 0;
+    const MAX_HINTS  = 2;
 
-    function showView(viewId) {
-        document.getElementById('view-login').classList.remove('view-active');
-        document.getElementById('view-game').classList.remove('view-active');
-        document.getElementById(viewId).classList.add('view-active');
+    // ── View helpers ──────────────────────────────────────────────────────────
+    function showView(id) {
+        ['view-login', 'view-game', 'view-winner'].forEach(v => {
+            document.getElementById(v).classList.remove('view-active');
+        });
+        document.getElementById(id).classList.add('view-active');
     }
 
-    function setStage(n, hint) {
+    function setMsg(text, type) {
+        const el = document.getElementById('response-message');
+        el.className = 'msg-block ' + (type || '');
+        el.textContent = text;
+    }
+
+    function clearMsg() {
+        const el = document.getElementById('response-message');
+        el.className = 'msg-block';
+        el.textContent = '';
+    }
+
+    // ── Stage render ──────────────────────────────────────────────────────────
+    function setStage(n, clue, hints) {
         currentStage = n;
-        document.getElementById('current-stage-display').innerText = n;
-        document.getElementById('stage-ghost').innerText = n;
-        
+        hintsUsed    = hints || 0;
+
+        document.getElementById('current-stage-display').textContent = n;
+
+        const progressMap = { 1: '20%', 2: '40%', 3: '60%', 4: '80%', 5: '100%' };
+        document.getElementById('progress-label').textContent = 'Progress: ' + (progressMap[n] || '20%');
+
         const hintEl = document.getElementById('hint-display');
-        hintEl.innerText = hint;
+        hintEl.textContent = clue;
         hintEl.classList.remove('pop');
-        void hintEl.offsetWidth; 
+        void hintEl.offsetWidth;
         hintEl.classList.add('pop');
+
+        // Reset hint reveal
+        document.getElementById('hint-reveal-box').classList.remove('visible');
+        document.getElementById('hint-reveal-text').textContent = '';
+
+        updateHintUI();
     }
 
+    function updateHintUI() {
+        const remaining = MAX_HINTS - hintsUsed;
+        const btn  = document.getElementById('hint-btn');
+        const ctr  = document.getElementById('hint-counter');
+
+        if (remaining <= 0) {
+            btn.disabled = true;
+            btn.textContent = '💡 No hints left';
+            ctr.textContent = 'Hints: 0 remaining';
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '💡 Request a Hint';
+            ctr.textContent = `Hints: ${remaining} remaining`;
+        }
+    }
+
+    function showTeamChip(name) {
+        document.getElementById('team-chip').style.display = 'block';
+        document.getElementById('team-name-chip').textContent = name;
+    }
+
+    // ── Init: restore session if returning player ─────────────────────────────
     async function initializeGame() {
-        const msgDiv = document.getElementById('response-message');
         if (!teamToken) {
-            document.getElementById('view-login').style.display = 'none';
             showView('view-game');
-            document.getElementById('current-stage-display').innerText = '—';
-            document.getElementById('hint-display').innerText = 'Access Denied. Unique URL token mapping parameter missing.';
+            document.getElementById('hint-display').textContent = 'Access denied — no team token in URL.';
             return;
         }
 
         try {
-            // Check if token already registered on database previously
-            const response = await fetch(`${BACKEND_URL}?team=${teamToken}`);
-            const data = await response.json();
+            const res  = await fetch(`${BACKEND_URL}?team=${teamToken}`);
+            const data = await res.json();
 
             if (data.success && data.registered) {
-                // Already checked in before, jump directly over to active clue panel
-                setStage(data.stage, data.hint);
-                document.getElementById('team-chip').style.display = 'block';
-                document.getElementById('team-chip').innerHTML = `Active Session Token &mdash; <span>${teamToken}</span>`;
-                showView('view-game');
+                if (data.finished) {
+                    showView('view-winner');
+                } else {
+                    setStage(data.stage, data.hint, data.hintsUsed || 0);
+                    showTeamChip('Returning Player');
+                    showView('view-game');
+                }
             }
+            // else show login (default)
         } catch (err) {
             console.error('Init error:', err);
-            msgDiv.className = 'message error';
-            msgDiv.innerText = 'Sync pipeline error. Checking network connection stability...';
         }
     }
 
-    // 🔒 SCREEN 1 ACTION: MATCH TYPED NAME WITH URL LINK TOKEN
+    // ── Screen 1: Verify team name ────────────────────────────────────────────
     async function registerTeamName() {
         const nameInput = document.getElementById('team-name-input');
-        const loginBtn = document.getElementById('login-btn');
-        const msgDiv = document.getElementById('response-message');
-        const typedName = nameInput.value.trim().toUpperCase();
+        const loginBtn  = document.getElementById('login-btn');
+        const typed     = nameInput.value.trim().toUpperCase();
 
-        if (!typedName) {
-            msgDiv.className = 'message error';
-            msgDiv.innerText = 'Please enter your team name to authenticate.';
+        if (!typed) {
+            setMsg('Please enter your team name.', 'error');
             nameInput.focus();
             return;
         }
 
+        if (!teamToken) {
+            setMsg('No access token found in this URL. Contact your coordinator.', 'error');
+            return;
+        }
+
         loginBtn.disabled = true;
-        msgDiv.className = 'message loading';
-        msgDiv.innerText = 'Validating signature credentials…';
+        setMsg('Verifying credentials…', 'loading');
 
         try {
-            const response = await fetch(`${BACKEND_URL}?team=${teamToken}&checkName=${encodeURIComponent(typedName)}`);
-            const data = await response.json();
+            const res  = await fetch(`${BACKEND_URL}?team=${teamToken}&checkName=${encodeURIComponent(typed)}`);
+            const data = await res.json();
 
             if (data.success && data.validTeam) {
-                msgDiv.className = 'message success';
-                msgDiv.innerText = '✓ IDENTITY VERIFIED. Initializing matrix profile...';
-                
+                setMsg('✓ Verified — loading your hunt…', 'success');
                 setTimeout(() => {
-                    setStage(data.stage, data.hint);
-                    msgDiv.innerText = '';
+                    clearMsg();
+                    setStage(data.stage, data.hint, data.hintsUsed || 0);
+                    showTeamChip(typed);
                     loginBtn.disabled = false;
-                    document.getElementById('team-chip').style.display = 'block';
-                    document.getElementById('team-chip').innerHTML = `Team &mdash; <span>${typedName}</span>`;
                     showView('view-game');
-                }, 1500);
+                }, 1200);
             } else {
-                msgDiv.className = 'message error';
-                msgDiv.innerText = '❌ Access Denied: Mismatched team name for this profile link.';
+                setMsg('❌ Team name does not match this link. Check your name and try again.', 'error');
                 nameInput.classList.remove('shake');
                 void nameInput.offsetWidth;
                 nameInput.classList.add('shake');
                 loginBtn.disabled = false;
             }
         } catch (err) {
-            console.error('Registration error:', err);
-            msgDiv.className = 'message error';
-            msgDiv.innerText = 'Verification submission failed. Retry connection execution.';
+            setMsg('Connection error. Please try again.', 'error');
             loginBtn.disabled = false;
         }
     }
 
-    // 🗺️ SCREEN 2 ACTION: VERIFY ACTIVE GAME ANSWERS WITH INFINITE ATTEMPTS
+    // ── Screen 2: Submit answer ───────────────────────────────────────────────
     async function submitAnswer() {
-        const inputField = document.getElementById('answer-input');
-        const submitBtn  = document.getElementById('submit-btn');
-        const msgDiv     = document.getElementById('response-message');
-        const answer     = inputField.value.trim().toUpperCase();
+        const inputEl   = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const answer    = inputEl.value.trim();
 
         if (!answer) {
-            msgDiv.className = 'message error';
-            msgDiv.innerText = 'Enter a code sequence before checking.';
-            inputField.focus();
+            setMsg('Enter a code before submitting.', 'error');
+            inputEl.focus();
             return;
         }
 
         submitBtn.disabled = true;
-        msgDiv.className   = 'message loading';
-        msgDiv.innerText   = 'Checking target code parameters…';
+        setMsg('Checking code…', 'loading');
 
         try {
-            const response = await fetch(BACKEND_URL, {
+            const res    = await fetch(BACKEND_URL, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ team: teamToken, stage: currentStage, submission: answer })
             });
-
-            const result = await response.json();
+            const result = await res.json();
 
             if (result.correct) {
-                msgDiv.className = 'message success';
-                msgDiv.innerText = '✓ Code accepted — loading next stage…';
-                inputField.value = '';
+                setMsg('✓ Correct! Moving to next stage…', 'success');
+                inputEl.value = '';
 
                 setTimeout(() => {
-                    setStage(result.nextStage, result.nextHint);
-                    msgDiv.innerText = '';
+                    clearMsg();
+                    if (result.finished) {
+                        showView('view-winner');
+                    } else {
+                        setStage(result.nextStage, result.nextHint, hintsUsed);
+                    }
                     submitBtn.disabled = false;
-                }, 2000);
+                }, 1800);
             } else {
-                // Wrong answer triggers shake animation, but loops seamlessly without counting strikes
-                msgDiv.className = 'message error';
-                msgDiv.innerText = '❌ Mismatched code footprint. Scan objective criteria again.';
-                inputField.classList.remove('shake');
-                void inputField.offsetWidth;
-                inputField.classList.add('shake');
+                setMsg('❌ Wrong code. Look more carefully at the clue and try again.', 'error');
+                inputEl.classList.remove('shake');
+                void inputEl.offsetWidth;
+                inputEl.classList.add('shake');
                 submitBtn.disabled = false;
             }
         } catch (err) {
-            console.error('Submit execution error:', err);
-            msgDiv.className = 'message error';
-            msgDiv.innerText = 'Server processing failure. Resubmit answer token.';
+            setMsg('Connection error. Please try again.', 'error');
             submitBtn.disabled = false;
         }
     }
 
-    // Capture entry shortcuts across input fields
-    document.getElementById('team-name-input').addEventListener('keydown', e => { if (e.key === 'Enter') registerTeamName(); });
-    document.getElementById('answer-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitAnswer(); });
+    // ── Hint request ─────────────────────────────────────────────────────────
+    async function requestHint() {
+        const btn = document.getElementById('hint-btn');
+        btn.disabled = true;
+        setMsg('Requesting hint…', 'loading');
+
+        try {
+            const res    = await fetch(BACKEND_URL, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ team: teamToken, stage: currentStage, requestHint: true })
+            });
+            const result = await res.json();
+
+            if (result.success) {
+                hintsUsed = result.hintsUsed;
+                clearMsg();
+                updateHintUI();
+                const box  = document.getElementById('hint-reveal-box');
+                const text = document.getElementById('hint-reveal-text');
+                text.textContent = result.hint;
+                box.classList.add('visible');
+            } else if (result.hintLimitReached) {
+                setMsg('You have used all 2 hints.', 'error');
+                updateHintUI();
+            } else {
+                setMsg('Could not load hint. Try again.', 'error');
+                btn.disabled = false;
+            }
+        } catch (err) {
+            setMsg('Connection error. Please try again.', 'error');
+            btn.disabled = false;
+        }
+    }
+
+    // ── Keyboard shortcuts ────────────────────────────────────────────────────
+    document.getElementById('team-name-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') registerTeamName();
+    });
+    document.getElementById('answer-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') submitAnswer();
+    });
 
     window.onload = initializeGame;
 </script>
-
 </body>
 </html>
