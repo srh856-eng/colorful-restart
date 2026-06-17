@@ -19,7 +19,6 @@
         h2 { color: var(--primary); font-size: 22px; border-bottom: 2px solid var(--light); padding-bottom: 8px; }
         .desc-text { line-height: 1.5; color: #55637D; font-size: 15px; }
         .input-box { width: 100%; padding: 12px 16px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 16px; outline: none; transition: 0.2s; text-transform: uppercase; }
-        .input-box:focus { border-color: var(--primary); }
         button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-submit { background: var(--primary); color: white; }
         .btn-submit:hover { background: #001E4E; }
@@ -27,12 +26,11 @@
         .btn-action { background: var(--accent); color: var(--primary); font-weight: bold; margin: 5px 0; }
         .cw-grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0; }
         .cw-column h4 { margin-bottom: 8px; color: var(--primary); border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; }
-        .cw-btn { background: #F4F7FC; color: var(--dark); border: 1px solid #D2Dbe5; padding: 8px; margin-bottom: 6px; font-size: 13px; text-align: left; border-radius: 6px; }
+        .cw-btn { width: 100%; background: #F4F7FC; color: var(--dark); border: 1px solid #D2Dbe5; padding: 8px; margin-bottom: 6px; font-size: 13px; text-align: left; border-radius: 6px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 15px; }
-        .splash-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); color: white; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; z-index: 2000; animation: fadeIn 0.4s; text-transform: uppercase; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; display: flex; flex-direction: column; gap: 15px; }
+        .splash-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); color: white; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; z-index: 2000; text-transform: uppercase; }
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1.1); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -61,7 +59,7 @@
     <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="action-modal-title" style="color:var(--primary)">Asset Viewer</h3>
-            <div id="action-modal-body" style="min-height:100px; display:flex; align-items:center; justify-content:center;"></div>
+            <div id="action-modal-body" style="min-height:100px;"></div>
             <button class="btn-submit" onclick="closeModal('action-modal')">Close Framework</button>
         </div>
     </div>
@@ -69,7 +67,6 @@
     <div id="splash-screen" class="splash-overlay"></div>
 
     <script>
-        // System Initialize Parameters Mapping
         const firebaseConfig = {
             apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
             authDomain: "jotunhunt2026.firebaseapp.com",
@@ -77,7 +74,9 @@
             databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
         firebase.initializeApp(firebaseConfig);
-        const functions = firebase.functions();
+        
+        // Strictly force call structures to hit the us-central1 region instance
+        const functions = firebase.app().functions("us-central1");
         
         const urlParams = new URLSearchParams(window.location.search);
         const teamToken = urlParams.get('id');
@@ -95,7 +94,7 @@
                 localStateCache = result.data;
                 renderUI(localStateCache);
             } catch(e) {
-                document.getElementById('game-viewport').innerHTML = `<h2>Error</h2><p class="desc-text">${e.message}</p>`;
+                document.getElementById('game-viewport').innerHTML = `<h2>Status Integration Error</h2><p class="desc-text">${e.message}</p>`;
             }
         }
 
@@ -110,13 +109,12 @@
                     <p class="desc-text" style="text-align:center;">Input your officially registered team name string to initialize verification sequences.</p>
                     <input type="text" id="identity-input" class="input-box" placeholder="EG: ROYAL BLUE">
                     <button class="btn-submit" onclick="triggerIdentityCheck()">Authorize Entry</button>
-                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Request Protocol Hint (2 Remaining)</button>
+                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Request Protocol Hint</button>
                 `;
                 updateHintButtonLabel(data.hintsUsed);
                 return;
             }
 
-            // Sync Header State Assemblies
             header.style.display = "flex";
             document.getElementById('progress-indicator').innerText = `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
             
@@ -142,17 +140,16 @@
                     <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Request Hint</button>
                 `;
             } else {
-                // Render Standard Puzzles (2-6) Layout Dynamic Pipelines
                 let actionAssetsHTML = '';
                 if(data.viewType === "CW") {
                     actionAssetsHTML = `
                         <button class="btn-action" onclick="openConfirmationAsset('CW_SKELETON')">Show Crossword Skeleton Grid Map</button>
                         <div class="cw-grid-menu">
                             <div class="cw-column"><h4>Across</h4>
-                                ${Object.entries(data.crosswordClues.across).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. Read Clue</button>`).join('')}
+                                ${Object.entries(data.crosswordClues.across).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. View Clue</button>`).join('')}
                             </div>
                             <div class="cw-column"><h4>Down</h4>
-                                ${Object.entries(data.crosswordClues.down).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. Read Clue</button>`).join('')}
+                                ${Object.entries(data.crosswordClues.down).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. View Clue</button>`).join('')}
                             </div>
                         </div>`;
                 } else if(data.viewType === "BP") {
@@ -230,25 +227,26 @@
             if(!confirm("Open asset interface module?")) return;
             const body = document.getElementById('action-modal-body');
             const title = document.getElementById('action-modal-title');
+            body.innerHTML = '';
             
             if(type === 'CW_SKELETON') {
                 title.innerText = "Crossword Wireframe Skeleton";
-                body.innerHTML = `<div style="border:2px dashed var(--primary); padding:20px; font-weight:bold;">[Mocked CSS/HTML Crossword Render Matrix]</div>`;
+                body.innerHTML = `<div style="border:2px dashed var(--primary); padding:20px; text-align:center; font-weight:bold;">[Crossword Grid Layout]</div>`;
             } else if(type === 'BP_IMAGE') {
                 title.innerText = "Architectural Floor Blueprint";
-                body.innerHTML = `<div style="background:#004B87; color:white; padding:30px; font-family:monospace; border-radius:6px;">[Lightweight CSS Blueprint Schematics Asset]</div>`;
+                body.innerHTML = `<div style="background:#004B87; color:white; padding:30px; text-align:center; font-family:monospace; border-radius:6px;">[HTML Blueprint Matrix Maps]</div>`;
             } else if(type === 'MR_RULES') {
                 title.innerText = "Case File Operations Handbook";
-                body.innerHTML = `<p class="desc-text" style="text-align:left;">1. No two workers can occupy the same room grid cell area matrix.<br>2. Entry points must remain unobstructed.</p>`;
+                body.innerHTML = `<p class="desc-text">1. No two workers can occupy the same room grid cell matrix.<br>2. Entry points must remain unobstructed.</p>`;
             } else if(type === 'MR_SKELETON') {
                 title.innerText = "Murdle Room Skeleton Node";
-                body.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3,40px); gap:5px;"><div style="border:1px solid var(--dark); height:40px;"></div><div style="border:1px solid var(--dark); height:40px;"></div><div style="border:1px solid var(--dark); height:40px;"></div></div>`;
+                body.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3,40px); gap:5px; justify-content:center;"><div style="border:1px solid var(--dark); height:40px;"></div><div style="border:1px solid var(--dark); height:40px;"></div><div style="border:1px solid var(--dark); height:40px;"></div></div>`;
             } else if(type === 'VIGENERE_WHEEL') {
                 title.innerText = "Interactive Cipher Processing Wheel";
-                body.innerHTML = `<div style="width:120px; height:120px; border-radius:50%; border:5px double var(--primary); display:flex; align-items:center; justify-content:center; font-weight:bold; transform:rotate(45deg);">ROTATE WHEEL</div>`;
+                body.innerHTML = `<div style="width:120px; height:120px; border-radius:50%; margin:auto; border:5px double var(--primary); display:flex; align-items:center; justify-content:center; font-weight:bold;">ROTATE WHEEL</div>`;
             } else {
                 title.innerText = "Cryptogram Vector";
-                body.innerHTML = `<div style="font-weight:bold; color:red;">[Final Clue Asset Map]</div>`;
+                body.innerHTML = `<div style="font-weight:bold; color:red; text-align:center;">[Final Clue Asset Map]</div>`;
             }
             document.getElementById('action-modal').style.display = "flex";
         }
@@ -266,7 +264,6 @@
             else { btn.innerText = `Request Strategy Insight (${2 - used} Remaining)`; }
         }
 
-        // Initialize Call Engine Lifecycle loop
         refreshViewEngine();
     </script>
 </body>

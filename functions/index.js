@@ -4,67 +4,22 @@ admin.initializeApp();
 
 const db = admin.database();
 
-// Total stages including Identity (1), Puzzles (2-6), and Finale (7)
 const TOTAL_STAGES = 7;
 const MAX_HINTS = 2;
 
-// Master Puzzle Reference Data
 const PUZZLE_DATA = {
-  "CW": {
-    heading: "Quest CW",
-    description: "Solve the crossword clues to find your path forward.",
-    prompt: "Did you solve the crossword? Now what ?",
-    answer: "BEAUTIFUL",
-    lettersDropped: 2
-  },
-  "BP": {
-    heading: "Quest BP",
-    description: "Are you good at additions? Probably not very good at guessing the places you shouldn’t go now ?",
-    prompt: "What is the total of the numbers you got ?",
-    answer: "5698",
-    lettersDropped: 2
-  },
-  "MR": {
-    heading: "Quest – MR",
-    description: "Pablo the penguin is missing in the office. To find Pablo, find exactly where other members of the office were present. Pablo will be in the last remaining cell. Pablo left the room with a passcode hidden somewhere.",
-    prompt: "Enter Pablo’s passcode",
-    answer: "PABLOLOVESYOU",
-    lettersDropped: 2
-  },
-  "LR": {
-    heading: "Quest LR",
-    description: "Sam is the new Intern for the Protective department. He went from his desk to meet the HR. HR sent him to the IT department to fix his access. Suddenly Sam realized his route made a specific alphabet. Can you find it?",
-    prompt: "What is the letter?",
-    answer: "L",
-    lettersDropped: 1
-  },
-  "FR": {
-    heading: "Quest FR",
-    description: "Like reading facts ? Head to the pantries and find something odd in the facts. Be careful few has nothing odd",
-    prompt: "Unscramble the odds",
-    answer: "EARTH",
-    lettersDropped: 2
-  }
+  "CW": { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? Now what ?", answer: "BEAUTIFUL", lettersDropped: 2 },
+  "BP": { heading: "Quest BP", description: "Are you good at additions? Probably not very good at guessing the places you shouldn’t go now ?", prompt: "What is the total of the numbers you got ?", answer: "5698", lettersDropped: 2 },
+  "MR": { heading: "Quest – MR", description: "Pablo the penguin is missing in the office. To find Pablo, find exactly where other members of the office were present. Pablo will be in the last remaining cell. Pablo left the room with a passcode hidden somewhere.", prompt: "Enter Pablo’s passcode", answer: "PABLOLOVESYOU", lettersDropped: 2 },
+  "LR": { heading: "Quest LR", description: "Sam is the new Intern for the Protective department. He went from his desk to meet the HR. HR sent him to the IT department to fix his access. Suddenly Sam realized his route made a specific alphabet. Can you find it?", prompt: "What is the letter?", answer: "L", lettersDropped: 1 },
+  "FR": { heading: "Quest FR", description: "Like reading facts ? Head to the pantries and find something odd in the facts. Be careful few has nothing odd", prompt: "Unscramble the odds", answer: "EARTH", lettersDropped: 2 }
 };
 
-// 10 Detailed Crossword Clues
 const CROSSWORD_CLUES = {
-  across: {
-    3: "Spread the Word",
-    5: "Protectors of the ship",
-    6: "Think Tank #3",
-    9: "Looks for good pitch but doesn’t play baseball, Always try to hit the target but not shooter. Who are we?"
-  },
-  down: {
-    1: "Selection committee",
-    2: "People of the money",
-    4: "Report to the captain penguin",
-    7: "Backbone of digital Era",
-    8: "Room is bored or people are bored?"
-  }
+  across: { 3: "Spread the Word", 5: "Protectors of the ship", 6: "Think Tank #3", 9: "Looks for good pitch but doesn’t play baseball, Always try to hit the target but not shooter. Who are we?" },
+  down: { 1: "Selection committee", 2: "People of the money", 4: "Report to the captain penguin", 7: "Backbone of digital Era", 8: "Room is bored or people are bored?" }
 };
 
-// Hints Dictionary
 const HINTS = {
   "IDENTITY": "jersey number 1-10 play in the ground floor and Jersey number 11-20 play in the first floor",
   "CW": "You need to find the physical location through the clue and solve the riddle found there. Then pick the circled letters and unscramble for the answer.",
@@ -75,7 +30,6 @@ const HINTS = {
   "FINALE": "Vignere Cipher is solved using a key. Key can be more than 1 word with spaces ignored!"
 };
 
-// Strict Token to Team Roster Database Map
 const TEAM_ROSTER = {
   "j7x2": { name: "ROYAL BLUE", cohort: 1 },
   "m3kw": { name: "MINTY BREEZE", cohort: 1 },
@@ -99,7 +53,6 @@ const TEAM_ROSTER = {
   "k0yd": { name: "MINIMALIST", cohort: 5 }
 };
 
-// Rotational Schedule Sequence Matrix Maps
 const COHORTS = {
   1: ["CW", "BP", "MR", "LR", "FR"],
   2: ["BP", "CW", "LR", "FR", "MR"],
@@ -108,16 +61,15 @@ const COHORTS = {
   5: ["LR", "FR", "BP", "MR", "CW"]
 };
 
-// Helper function to resolve what puzzle a specific team is on based on their current stage index
 function getPuzzleForStage(cohortNum, stage) {
   if (stage <= 1 || stage >= 7) return null;
   const sequence = COHORTS[cohortNum];
-  const puzzleKey = sequence[stage - 2]; // Stage 2 maps to array element 0
+  const puzzleKey = sequence[stage - 2];
   return { key: puzzleKey, ...PUZZLE_DATA[puzzleKey] };
 }
 
-// 1. Fetch Current State Function
-exports.getGameState = functions.https.onCall(async (data, context) => {
+// Fixed region wrapper to ensure global connectivity alignment
+exports.getGameState = functions.region("us-central1").https.onCall(async (data, context) => {
   const token = data.token;
   if (!token || !TEAM_ROSTER[token]) {
     throw new functions.https.HttpsError("not-found", "Invalid authorization link token.");
@@ -140,7 +92,6 @@ exports.getGameState = functions.https.onCall(async (data, context) => {
     await teamRef.set(state);
   }
 
-  // Calculate clean display layout payload
   const result = {
     teamName: state.teamName,
     currentStage: state.currentStage,
@@ -167,14 +118,13 @@ exports.getGameState = functions.https.onCall(async (data, context) => {
   return result;
 });
 
-// 2. Identity Verification Mapping Function
-exports.verifyIdentity = functions.https.onCall(async (data, context) => {
+exports.verifyIdentity = functions.region("us-central1").https.onCall(async (data, context) => {
   const { token, inputName } = data;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
   
   const registeredName = TEAM_ROSTER[token].name;
   if (inputName.trim().toUpperCase() !== registeredName) {
-    throw new functions.https.HttpsError("already-exists", "Mismatched Team Identification.");
+    throw new functions.https.HttpsError("invalid-argument", "Mismatched Team Identification.");
   }
 
   const teamRef = db.ref(`gameData/teams/${token}`);
@@ -182,8 +132,7 @@ exports.verifyIdentity = functions.https.onCall(async (data, context) => {
   return { success: true };
 });
 
-// 3. Main Stage Answer Checking Validation Engine
-exports.submitStageAnswer = functions.https.onCall(async (data, context) => {
+exports.submitStageAnswer = functions.region("us-central1").https.onCall(async (data, context) => {
   const { token, answer } = data;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
 
@@ -202,7 +151,6 @@ exports.submitStageAnswer = functions.https.onCall(async (data, context) => {
     return { correct: false };
   }
 
-  // Calculate new accrued letters
   let updatedLetters = state.letters || "";
   updatedLetters += currentPuzzle.answer.substring(0, currentPuzzle.lettersDropped).toUpperCase();
 
@@ -216,8 +164,7 @@ exports.submitStageAnswer = functions.https.onCall(async (data, context) => {
   return { correct: true, nextStage: nextStage, animationType: getAnimationLabel(currentPuzzle.key) };
 });
 
-// 4. Request Clue/Hint Dispatcher Engine
-exports.requestHint = functions.https.onCall(async (data, context) => {
+exports.requestHint = functions.region("us-central1").https.onCall(async (data, context) => {
   const token = data.token;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
 
@@ -244,8 +191,7 @@ exports.requestHint = functions.https.onCall(async (data, context) => {
   return { success: true, hint: hintText, remaining: MAX_HINTS - newHintCount };
 });
 
-// 5. Final Grand End-game Cipher Verification
-exports.submitFinale = functions.https.onCall(async (data, context) => {
+exports.submitFinale = functions.region("us-central1").https.onCall(async (data, context) => {
   const { token, finalWord } = data;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
 

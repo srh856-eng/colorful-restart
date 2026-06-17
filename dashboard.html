@@ -50,7 +50,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Establish real-time persistent synchronization stream
         db.ref('gameData/teams').on('value', (snapshot) => {
             const target = document.getElementById('leaderboard-stream-target');
             if(!snapshot.exists()) {
@@ -63,7 +62,6 @@
                 teamsList.push({ id: child.key, ...child.val() });
             });
 
-            // Master sorting evaluation matrix logic sequence
             teamsList.sort((a, b) => {
                 if (a.isCompleted && !b.isCompleted) return -1;
                 if (!a.isCompleted && b.isCompleted) return 1;
