@@ -1,193 +1,269 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-
-admin.initializeApp({
-  databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
-});
+admin.initializeApp();
 
 const db = admin.database();
 
-const AUTHORIZED_TEAMS = {
-  "j7x2": "ROYAL BLUE",
-  "m3kw": "MINTY BREEZE",
-  "r9nt": "MOROCCAN MIST",
-  "w4qb": "WOODSMOKE",
-  "v6lp": "MEDITERRANEAN OLIVE",
-  "t8cz": "TRAVERTINE CAIRO",
-  "e2ys": "TIMELESS",
-  "u5fh": "PURE OCEAN",
-  "n1gd": "FOREVER JUNGLE",
-  "d0rv": "DREAMY DESERT",
-  "i4mo": "IVORY TOAST",
-  "s6jt": "STONE GREY",
-  "p2xn": "PASTEL MINT",
-  "b9ae": "URBAN MIST",
-  "q3wk": "PERSIAN PEARL",
-  "f7cv": "DOVE GREY",
-  "g5rl": "GOLDEN LILY",
-  "h8uz": "EARTHSCAPE",
-  "c1mb": "BRIGHT SIENNA",
-  "k0yd": "MINIMALIST"
-};
-
-const TOTAL_STAGES = 5;
+// Total stages including Identity (1), Puzzles (2-6), and Finale (7)
+const TOTAL_STAGES = 7;
 const MAX_HINTS = 2;
 
-const CLUES = {
-  1: "Welcome to the hunt! Your first destination is where the global corporate history began. Find the founding year on the commemorative plaque.",
-  2: "Look closely at the premium finish gallery. The answer is hidden beneath the brightest spotlight.",
-  3: "Find the laboratory mixing station. Your clue is the exact chemical code for our signature primary blue.",
-  4: "Search near the main presentation auditorium. Count the total number of glass panels on the entryway door.",
-  5: "The final checkpoint. Present your journey log to the coordinator at the front registration counter to claim victory."
+// Master Puzzle Reference Data
+const PUZZLE_DATA = {
+  "CW": {
+    heading: "Quest CW",
+    description: "Solve the crossword clues to find your path forward.",
+    prompt: "Did you solve the crossword? Now what ?",
+    answer: "BEAUTIFUL",
+    lettersDropped: 2
+  },
+  "BP": {
+    heading: "Quest BP",
+    description: "Are you good at additions? Probably not very good at guessing the places you shouldn’t go now ?",
+    prompt: "What is the total of the numbers you got ?",
+    answer: "5698",
+    lettersDropped: 2
+  },
+  "MR": {
+    heading: "Quest – MR",
+    description: "Pablo the penguin is missing in the office. To find Pablo, find exactly where other members of the office were present. Pablo will be in the last remaining cell. Pablo left the room with a passcode hidden somewhere.",
+    prompt: "Enter Pablo’s passcode",
+    answer: "PABLOLOVESYOU",
+    lettersDropped: 2
+  },
+  "LR": {
+    heading: "Quest LR",
+    description: "Sam is the new Intern for the Protective department. He went from his desk to meet the HR. HR sent him to the IT department to fix his access. Suddenly Sam realized his route made a specific alphabet. Can you find it?",
+    prompt: "What is the letter?",
+    answer: "L",
+    lettersDropped: 1
+  },
+  "FR": {
+    heading: "Quest FR",
+    description: "Like reading facts ? Head to the pantries and find something odd in the facts. Be careful few has nothing odd",
+    prompt: "Unscramble the odds",
+    answer: "EARTH",
+    lettersDropped: 2
+  }
 };
 
+// 10 Detailed Crossword Clues
+const CROSSWORD_CLUES = {
+  across: {
+    3: "Spread the Word",
+    5: "Protectors of the ship",
+    6: "Think Tank #3",
+    9: "Looks for good pitch but doesn’t play baseball, Always try to hit the target but not shooter. Who are we?"
+  },
+  down: {
+    1: "Selection committee",
+    2: "People of the money",
+    4: "Report to the captain penguin",
+    7: "Backbone of digital Era",
+    8: "Room is bored or people are bored?"
+  }
+};
+
+// Hints Dictionary
 const HINTS = {
-  1: "The plaque is mounted on the wall near the main entrance lobby. Look for a brass frame.",
-  2: "The spotlight is in the far-right corner of the gallery. Check the pedestal beneath it.",
-  3: "The chemical code is displayed on the large mixing tank. It starts with the letter B.",
-  4: "Count only the fixed glass panels — do not include the doors themselves.",
-  5: "The registration counter is staffed and located directly opposite the main entrance."
+  "IDENTITY": "jersey number 1-10 play in the ground floor and Jersey number 11-20 play in the first floor",
+  "CW": "You need to find the physical location through the clue and solve the riddle found there. Then pick the circled letters and unscramble for the answer.",
+  "BP": "Go to the marked location on the blueprint. Look for the number. 2 out of 4 locations are decoys.",
+  "MR": "The person in the tub occupies that column. Find the last not occupied cell and go to that department to get Pablo's passcode.",
+  "LR": "This one is easy, Sam goes 20M straight from protective, turn left from HR and walked another 15M. What letter is it ?",
+  "FR": "Didn't get the odd in the fact ? Look for any small letters or is it ? I think only odd number of facts have odd letters.",
+  "FINALE": "Vignere Cipher is solved using a key. Key can be more than 1 word with spaces ignored!"
 };
 
-const MASTER_ANSWERS = {
-  1: "1926",
-  2: "MATTE",
-  3: "B12",
-  4: "8",
-  5: "JOTUNUNITE"
+// Strict Token to Team Roster Database Map
+const TEAM_ROSTER = {
+  "j7x2": { name: "ROYAL BLUE", cohort: 1 },
+  "m3kw": { name: "MINTY BREEZE", cohort: 1 },
+  "r9nt": { name: "MOROCCAN MIST", cohort: 1 },
+  "w4qb": { name: "WOODSMOKE", cohort: 1 },
+  "v6lp": { name: "MEDITERRANEAN OLIVE", cohort: 2 },
+  "t8cz": { name: "TRAVERTINE CAIRO", cohort: 2 },
+  "e2ys": { name: "TIMELESS", cohort: 2 },
+  "u5fh": { name: "PURE OCEAN", cohort: 2 },
+  "n1gd": { name: "FOREVER JUNGLE", cohort: 3 },
+  "d0rv": { name: "DREAMY DESERT", cohort: 3 },
+  "i4mo": { name: "IVORY TOAST", cohort: 3 },
+  "s6jt": { name: "STONE GREY", cohort: 3 },
+  "p2xn": { name: "PASTEL MINT", cohort: 4 },
+  "b9ae": { name: "URBAN MIST", cohort: 4 },
+  "q3wk": { name: "PERSIAN PEARL", cohort: 4 },
+  "f7cv": { name: "DOVE GREY", cohort: 4 },
+  "g5rl": { name: "GOLDEN LILY", cohort: 5 },
+  "h8uz": { name: "EARTHSCAPE", cohort: 5 },
+  "c1mb": { name: "BRIGHT SIENNA", cohort: 5 },
+  "k0yd": { name: "MINIMALIST", cohort: 5 }
 };
 
-exports.checkAnswer = functions.https.onRequest(async (req, res) => {
-  res.set("Access-Control-Allow-Origin", "*");
-  res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type");
+// Rotational Schedule Sequence Matrix Maps
+const COHORTS = {
+  1: ["CW", "BP", "MR", "LR", "FR"],
+  2: ["BP", "CW", "LR", "FR", "MR"],
+  3: ["FR", "MR", "CW", "BP", "LR"],
+  4: ["MR", "LR", "FR", "CW", "BP"],
+  5: ["LR", "FR", "BP", "MR", "CW"]
+};
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).send("");
+// Helper function to resolve what puzzle a specific team is on based on their current stage index
+function getPuzzleForStage(cohortNum, stage) {
+  if (stage <= 1 || stage >= 7) return null;
+  const sequence = COHORTS[cohortNum];
+  const puzzleKey = sequence[stage - 2]; // Stage 2 maps to array element 0
+  return { key: puzzleKey, ...PUZZLE_DATA[puzzleKey] };
+}
+
+// 1. Fetch Current State Function
+exports.getGameState = functions.https.onCall(async (data, context) => {
+  const token = data.token;
+  if (!token || !TEAM_ROSTER[token]) {
+    throw new functions.https.HttpsError("not-found", "Invalid authorization link token.");
   }
 
-  try {
-    if (req.method === "GET") {
-      const token = req.query.team;
-      const checkName = req.query.checkName ? req.query.checkName.trim().toUpperCase() : null;
+  const teamInfo = TEAM_ROSTER[token];
+  const teamRef = db.ref(`gameData/teams/${token}`);
+  const snapshot = await teamRef.get();
 
-      if (!token || !AUTHORIZED_TEAMS[token]) {
-        return res.status(400).json({ success: false, message: "Invalid token value." });
-      }
-
-      const expectedName = AUTHORIZED_TEAMS[token];
-      const teamRef = db.ref(`gameData/teams/${token}`);
-      const snapshot = await teamRef.once("value");
-      const teamData = snapshot.val();
-
-      if (checkName) {
-        if (checkName !== expectedName) {
-          return res.json({ success: true, validTeam: false });
-        }
-
-        let currentStage = 1;
-        let hintsUsed = 0;
-
-        if (teamData && teamData.stage) {
-          currentStage = teamData.stage;
-          hintsUsed = teamData.hintsUsed || 0;
-        } else {
-          await teamRef.set({
-            teamName: expectedName,
-            stage: 1,
-            progress: "20%",
-            hintsUsed: 0,
-            finished: false,
-            lastActive: admin.database.ServerValue.TIMESTAMP
-          });
-        }
-
-        return res.json({
-          success: true,
-          validTeam: true,
-          stage: currentStage,
-          hint: CLUES[currentStage],
-          hintsUsed
-        });
-      }
-
-      if (teamData && teamData.stage) {
-        return res.json({
-          success: true,
-          registered: true,
-          stage: teamData.stage,
-          hint: CLUES[teamData.stage],
-          hintsUsed: teamData.hintsUsed || 0,
-          finished: teamData.finished || false
-        });
-      } else {
-        return res.json({ success: true, registered: false });
-      }
-    }
-
-    if (req.method === "POST") {
-      const { team: token, stage, submission, requestHint } = req.body;
-
-      if (!token || !AUTHORIZED_TEAMS[token]) {
-        return res.status(400).json({ success: false });
-      }
-
-      const teamRef = db.ref(`gameData/teams/${token}`);
-      const snapshot = await teamRef.once("value");
-      const teamData = snapshot.val();
-      const currentHintsUsed = teamData ? (teamData.hintsUsed || 0) : 0;
-
-      if (requestHint) {
-        if (currentHintsUsed >= MAX_HINTS) {
-          return res.json({ success: false, hintLimitReached: true });
-        }
-        const stageNum = parseInt(stage);
-        const newHintsUsed = currentHintsUsed + 1;
-        await teamRef.update({
-          hintsUsed: newHintsUsed,
-          lastActive: admin.database.ServerValue.TIMESTAMP
-        });
-        return res.json({
-          success: true,
-          hint: HINTS[stageNum],
-          hintsUsed: newHintsUsed
-        });
-      }
-
-      const cleanSubmission = submission.trim().toUpperCase();
-      const currentStageNum = parseInt(stage);
-
-      if (cleanSubmission === MASTER_ANSWERS[currentStageNum]) {
-        const nextStage = currentStageNum + 1;
-        const isGameFinished = nextStage > TOTAL_STAGES;
-        const progressPercent = isGameFinished ? 100 : Math.floor((nextStage / TOTAL_STAGES) * 100);
-        const progressDisplay = isGameFinished ? "100%" : `${progressPercent}%`;
-
-        const updateData = {
-          lastActive: admin.database.ServerValue.TIMESTAMP,
-          progress: progressDisplay
-        };
-
-        if (!isGameFinished) {
-          updateData.stage = nextStage;
-        } else {
-          updateData.finished = true;
-          updateData.finishedAt = admin.database.ServerValue.TIMESTAMP;
-        }
-
-        await teamRef.update(updateData);
-
-        return res.json({
-          correct: true,
-          nextStage: isGameFinished ? currentStageNum : nextStage,
-          nextHint: isGameFinished ? "🏆 Victory!" : CLUES[nextStage],
-          finished: isGameFinished
-        });
-      } else {
-        return res.json({ correct: false });
-      }
-    }
-  } catch (error) {
-    return res.status(500).json({ success: false });
+  let state = snapshot.val();
+  if (!state) {
+    state = {
+      teamName: teamInfo.name,
+      currentStage: 1,
+      hintsUsed: 0,
+      letters: "",
+      isCompleted: false,
+      lastActive: Date.now()
+    };
+    await teamRef.set(state);
   }
+
+  // Calculate clean display layout payload
+  const result = {
+    teamName: state.teamName,
+    currentStage: state.currentStage,
+    hintsUsed: state.hintsUsed,
+    letters: state.letters,
+    isCompleted: state.isCompleted,
+    totalStages: TOTAL_STAGES
+  };
+
+  if (state.currentStage === 1) {
+    result.viewType = "IDENTITY";
+  } else if (state.currentStage === 7) {
+    result.viewType = "FINALE";
+  } else {
+    const activePuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+    result.viewType = activePuzzle.key;
+    result.heading = activePuzzle.heading;
+    result.description = activePuzzle.description;
+    result.prompt = activePuzzle.prompt;
+    if (activePuzzle.key === "CW") {
+      result.crosswordClues = CROSSWORD_CLUES;
+    }
+  }
+  return result;
 });
+
+// 2. Identity Verification Mapping Function
+exports.verifyIdentity = functions.https.onCall(async (data, context) => {
+  const { token, inputName } = data;
+  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
+  
+  const registeredName = TEAM_ROSTER[token].name;
+  if (inputName.trim().toUpperCase() !== registeredName) {
+    throw new functions.https.HttpsError("already-exists", "Mismatched Team Identification.");
+  }
+
+  const teamRef = db.ref(`gameData/teams/${token}`);
+  await teamRef.update({ currentStage: 2, lastActive: Date.now() });
+  return { success: true };
+});
+
+// 3. Main Stage Answer Checking Validation Engine
+exports.submitStageAnswer = functions.https.onCall(async (data, context) => {
+  const { token, answer } = data;
+  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
+
+  const teamInfo = TEAM_ROSTER[token];
+  const teamRef = db.ref(`gameData/teams/${token}`);
+  const snapshot = await teamRef.get();
+  const state = snapshot.val();
+
+  if (state.currentStage < 2 || state.currentStage >= 7) {
+    throw new functions.https.HttpsError("failed-precondition", "Action out of sync.");
+  }
+
+  const currentPuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+  
+  if (answer.trim().toUpperCase() !== currentPuzzle.answer) {
+    return { correct: false };
+  }
+
+  // Calculate new accrued letters
+  let updatedLetters = state.letters || "";
+  updatedLetters += currentPuzzle.answer.substring(0, currentPuzzle.lettersDropped).toUpperCase();
+
+  const nextStage = state.currentStage + 1;
+  await teamRef.update({
+    currentStage: nextStage,
+    letters: updatedLetters,
+    lastActive: Date.now()
+  });
+
+  return { correct: true, nextStage: nextStage, animationType: getAnimationLabel(currentPuzzle.key) };
+});
+
+// 4. Request Clue/Hint Dispatcher Engine
+exports.requestHint = functions.https.onCall(async (data, context) => {
+  const token = data.token;
+  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
+
+  const teamInfo = TEAM_ROSTER[token];
+  const teamRef = db.ref(`gameData/teams/${token}`);
+  const snapshot = await teamRef.get();
+  const state = snapshot.val();
+
+  if (state.hintsUsed >= MAX_HINTS) {
+    return { success: false, msg: "Out of Hints" };
+  }
+
+  let hintText = "";
+  if (state.currentStage === 1) hintText = HINTS["IDENTITY"];
+  else if (state.currentStage === 7) hintText = HINTS["FINALE"];
+  else {
+    const activePuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+    hintText = HINTS[activePuzzle.key];
+  }
+
+  const newHintCount = state.hintsUsed + 1;
+  await teamRef.update({ hintsUsed: newHintCount });
+
+  return { success: true, hint: hintText, remaining: MAX_HINTS - newHintCount };
+});
+
+// 5. Final Grand End-game Cipher Verification
+exports.submitFinale = functions.https.onCall(async (data, context) => {
+  const { token, finalWord } = data;
+  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
+
+  if (finalWord.trim().toUpperCase() !== "JOTUNUNITE") {
+    return { correct: false };
+  }
+
+  const teamRef = db.ref(`gameData/teams/${token}`);
+  await teamRef.update({
+    currentStage: 7,
+    isCompleted: true,
+    lastActive: Date.now()
+  });
+
+  return { correct: true };
+});
+
+function getAnimationLabel(key) {
+  const animations = { "CW": "Brilliant", "BP": "Smart", "MR": "Marvellous", "LR": "Beautiful", "FR": "Colorful" };
+  return animations[key] || "Great";
+}

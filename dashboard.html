@@ -3,415 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Colorful Revamp — War Room</title>
-    <link rel="icon" href="data:,">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Core Firebase SDKs (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
+    <title>War Room Master Analytics Terminal</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --blue:    #003087;
-            --blue-lt: #1a4fab;
-            --yellow:  #F5C400;
-            --white:   #FFFFFF;
-            --offwhite:#F7F9FC;
-            --dark:    #0D1B36;
-            --text:    #0D1B36;
-            --muted:   #6B7A99;
-            --border:  #D8E0EE;
-            --surface: #FFFFFF;
-            --success: #1A7A4A;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--offwhite);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 20px 12px 40px;
-        }
-
-        .page-header {
-            max-width: 1060px;
-            margin: 0 auto 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .header-brand { display: flex; align-items: center; gap: 14px; }
-
-        .header-mark {
-            width: 48px;
-            height: 48px;
-            background: var(--blue);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .header-mark svg { display: block; }
-
-        .header-main {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 28px;
-            letter-spacing: 2px;
-            color: var(--blue);
-            line-height: 1.1;
-        }
-        .header-main span { color: var(--yellow); }
-        .header-sub {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-top: 4px;
-        }
-
-        .live-chip {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            background: #E6F4ED;
-            border: 1px solid #A8DEC1;
-            border-radius: 100px;
-            padding: 6px 14px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--success);
-            text-transform: uppercase;
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 1.8s ease-in-out infinite;
-        }
-
-        .table-card {
-            max-width: 1060px;
-            margin: 0 auto;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,48,135,0.06);
-        }
-
-        .table-card-header {
-            background: var(--blue);
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .table-card-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: 2.5px;
-            color: var(--white);
-        }
-
-        .table-refresh {
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 1px;
-        }
-
-        .table-responsive-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 540px; 
-        }
-
-        thead th {
-            padding: 13px 16px;
-            text-align: left;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--muted);
-            background: #F0F4FA;
-            border-bottom: 1px solid var(--border);
-        }
-
-        tbody td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #EDF1F9;
-            font-size: 13px;
-            vertical-align: middle;
-        }
-
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: #F7F9FE; }
-
-        .team-name {
-            font-weight: 700;
-            color: var(--blue);
-            font-size: 14px;
-            word-break: break-word;
-        }
-
-        .team-token {
-            font-size: 11px;
-            color: var(--muted);
-            font-family: monospace;
-            margin-top: 2px;
-        }
-
-        .stage-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #EEF3FB;
-            border: 1px solid #BDD0F5;
-            border-radius: 6px;
-            padding: 4px 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--blue);
-            white-space: nowrap;
-        }
-
-        .stage-badge.done {
-            background: #E6F4ED;
-            border-color: #A8DEC1;
-            color: var(--success);
-        }
-
-        .prog-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 140px;
-        }
-
-        .prog-bar-outer {
-            flex: 1;
-            height: 7px;
-            background: var(--border);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .prog-bar-inner {
-            height: 100%;
-            background: linear-gradient(90deg, var(--blue) 0%, var(--yellow) 100%);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .prog-label {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 15px;
-            color: var(--blue);
-            min-width: 42px;
-            text-align: right;
-        }
-
-        .ts-label {
-            font-size: 12px;
-            color: var(--muted);
-            white-space: nowrap;
-        }
-
-        .empty-row td {
-            text-align: center;
-            padding: 48px 20px;
-            color: var(--muted);
-            font-style: italic;
-            font-size: 14px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.8); }
-        }
-
-        @media (max-width: 480px) {
-            body { padding: 12px 8px 24px; }
-            .header-main { font-size: 24px; }
-            .table-card-header { padding: 12px 14px; }
-            tbody td, thead th { padding: 12px 10px; }
-            .prog-wrap { min-width: 100px; }
-        }
+        :root { --primary: #002D72; --victory: #10B981; --dark: #0F172A; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #F8FAFC; margin: 0; padding: 20px; color: var(--dark); }
+        .dashboard-container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 25px; }
+        h1 { color: var(--primary); margin-bottom: 20px; font-size: 26px; border-bottom: 3px solid #E2E8F0; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #F1F5F9; text-align: left; padding: 14px; font-weight: 600; border-bottom: 2px solid #E2E8F0; color: #475569; }
+        td { padding: 14px; border-bottom: 1px solid #E2E8F0; font-size: 15px; }
+        tr.completed { background: rgba(16, 185, 129, 0.08); font-weight: bold; }
+        .badge-stage { background: var(--primary); color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+        .badge-completed { background: var(--victory); color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; }
+        .letters-stream { font-family: monospace; letter-spacing: 2px; color: #DC2626; font-weight: bold; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <div class="page-header">
-        <div class="header-brand">
-            <div class="header-mark">
-                <svg width="26" height="28" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M13 1H18V15C18 18.866 14.866 22 11 22H9C5.134 22 2 18.866 2 15V13H7V15C7 16.105 7.895 17 9 17H11C12.105 17 13 16.105 13 15V1Z" fill="#F5C400"/>
-                </svg>
-            </div>
-            <div class="header-titles">
-                <div class="header-main"><span>Jotun</span> Colorful Revamp</div>
-                <div class="header-sub">Live Scavenger Tracking Portal</div>
-            </div>
-        </div>
-        <div class="live-chip">
-            <div class="live-dot"></div>
-            Live Feed
-        </div>
+    <div class="dashboard-container">
+        <h1>🏆 War Room Master Analytics Monitor</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank / Team Entity</th>
+                    <th>Current Stage Vector</th>
+                    <th>Accrued Vault Letters</th>
+                    <th>Hints Consumed</th>
+                    <th>Last Active Echo</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-stream-target">
+                <tr><td colspan="5" style="text-align:center; color:#94A3B8;">Awaiting database stream sync signals...</td></tr>
+            </tbody>
+        </table>
     </div>
 
-    <div class="table-card">
-        <div class="table-card-header">
-            <div class="table-card-title">Team Status Board</div>
-            <div class="table-refresh" id="last-updated">Establishing Connection…</div>
-        </div>
-        <div class="table-responsive-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Team</th>
-                        <th>Current Stage</th>
-                        <th>Progress</th>
-                        <th>Last Active</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-rows">
-                    <tr id="initial-state-row" class="empty-row">
-                        <td colspan="4">Establishing live data connection stream…</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-<script>
-    // Global fallback interceptor
-    window.onerror = function(msg, url, line) {
-        const tbody = document.getElementById('leaderboard-rows');
-        if (tbody) {
-            tbody.innerHTML = `<tr class="empty-row"><td colspan="4" style="color:#C0001A; font-weight:bold; padding:30px;">⚠️ Script Runtime Error: ${msg} (Line ${line})</td></tr>`;
-        }
-        return false;
-    };
-
-    // Full structured credential map to prevent silent app context dropping
-    const firebaseConfig = {
-        apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
-        authDomain: "jotunhunt2026.firebaseapp.com",
-        projectId: "jotunhunt2026",
-        databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    };
-
-    function timeAgo(ts) {
-        if (!ts) return '—';
-        const secs = Math.floor((Date.now() - ts) / 1000);
-        if (secs < 10)  return 'Just now';
-        if (secs < 60)  return `${secs}s ago`;
-        if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
-        return `${Math.floor(secs / 3600)}h ago`;
-    }
-
-    if (typeof firebase === 'undefined') {
-        document.getElementById('leaderboard-rows').innerHTML = 
-            `<tr class="empty-row"><td colspan="4" style="color:#C0001A; font-weight:bold; padding:30px;">⚠️ Firebase Library Blocked. Check corporate firewall parameters.</td></tr>`;
-    } else {
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
+            authDomain: "jotunhunt2026.firebaseapp.com",
+            projectId: "jotunhunt2026",
+            databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // Establish real-time persistent synchronization stream
         db.ref('gameData/teams').on('value', (snapshot) => {
-            const tbody = document.getElementById('leaderboard-rows');
-            if (!tbody) return;
-            
-            tbody.innerHTML = '';
-            
-            if (!snapshot.exists()) {
-                tbody.innerHTML = `<tr class="empty-row"><td colspan="4" style="padding:40px; color:var(--muted);">📦 Database connected successfully. No active team sessions detected. Ready for logins.</td></tr>`;
-                document.getElementById('last-updated').textContent = "Connected (Empty Node)";
+            const target = document.getElementById('leaderboard-stream-target');
+            if(!snapshot.exists()) {
+                target.innerHTML = `<tr><td colspan="5" style="text-align:center;">No active team footprints recorded.</td></tr>`;
                 return;
             }
 
-            const raw = snapshot.val();
-            const teams = Object.keys(raw).map(k => ({ token: k, ...raw[k] }))
-                .sort((a, b) => {
-                    if (a.finished && !b.finished) return -1;
-                    if (!a.finished && b.finished) return 1;
-                    const stageA = a.stage || 1;
-                    const stageB = b.stage || 1;
-                    if (stageB !== stageA) return stageB - stageA;
-                    return (b.lastActive || 0) - (a.lastActive || 0);
-                });
-
-            teams.forEach((team) => {
-                const name       = team.teamName || 'Initializing Room…';
-                const stage      = team.stage || 1;
-                const finished   = team.finished || false;
-                const rawProg    = team.progress || '20%';
-                const pct        = parseInt(rawProg) || 20;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>
-                        <div class="team-name">${name}</div>
-                        <div class="team-token">${team.token}</div>
-                    </td>
-                    <td>
-                        <span class="stage-badge ${finished ? 'done' : ''}">
-                            ${finished ? '✓ Complete' : `Stage ${stage} / 5`}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="prog-wrap">
-                            <div class="prog-bar-outer">
-                                <div class="prog-bar-inner" style="width:${pct}%"></div>
-                            </div>
-                            <div class="prog-label">${rawProg}</div>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="ts-label" data-ts="${team.lastActive || ''}">${timeAgo(team.lastActive)}</span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+            const teamsList = [];
+            snapshot.forEach((child) => {
+                teamsList.push({ id: child.key, ...child.val() });
             });
 
-            const now = new Date();
-            document.getElementById('last-updated').textContent =
-                `Live System Sync: ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            // Master sorting evaluation matrix logic sequence
+            teamsList.sort((a, b) => {
+                if (a.isCompleted && !b.isCompleted) return -1;
+                if (!a.isCompleted && b.isCompleted) return 1;
+                if (b.currentStage !== a.currentStage) return b.currentStage - a.currentStage;
+                return (a.lastActive || 0) - (b.lastActive || 0);
+            });
 
-        }, (err) => {
-            console.error(err);
-            document.getElementById('leaderboard-rows').innerHTML =
-                `<tr class="empty-row"><td colspan="4" style="color:#C0001A;">⚠️ Security Policy Rejection: ${err.message}</td></tr>`;
+            target.innerHTML = teamsList.map((team, idx) => {
+                const stageLabel = team.isCompleted 
+                    ? `<span class="badge-completed">FINISH 🏁</span>` 
+                    : `<span class="badge-stage">Stage ${team.currentStage} / 7</span>`;
+                
+                const timeString = team.lastActive ? new Date(team.lastActive).toLocaleTimeString() : 'N/A';
+                
+                return `
+                    <tr class="${team.isCompleted ? 'completed' : ''}">
+                        <td><strong>#${idx + 1}</strong> — ${team.teamName}</td>
+                        <td>${stageLabel}</td>
+                        <td><span class="letters-stream">${team.letters || '—'}</span></td>
+                        <td><strong>${team.hintsUsed || 0}</strong> / 2</td>
+                        <td>${timeString}</td>
+                    </tr>
+                `;
+            }).join('');
         });
-    }
-
-    setInterval(() => {
-        document.querySelectorAll('.ts-label').forEach(el => {
-            const timestampAttr = el.getAttribute('data-ts');
-            if (timestampAttr) {
-                el.textContent = timeAgo(parseInt(timestampAttr));
-            }
-        });
-    }, 15000);
-</script>
-
+    </script>
 </body>
 </html>
