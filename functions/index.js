@@ -2,7 +2,6 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const cors = require("cors")({ origin: true });
 
-// Target the Singapore database instance explicitly
 admin.initializeApp({
   databaseURL: "https://jotunhunt2026.asia-southeast1.firebasedatabase.app"
 });
@@ -80,7 +79,7 @@ exports.getGameState = functions.https.onRequest((req, res) => {
       const token = data.token;
       
       if (!token || !TEAM_ROSTER[token]) {
-        return res.status(404).json({ error: { message: "Invalid authorization link token." } });
+        return res.status(404).json({ error: { message: "Invalid token identification parameters." } });
       }
 
       const teamInfo = TEAM_ROSTER[token];
@@ -182,10 +181,7 @@ exports.submitStageAnswer = functions.https.onRequest((req, res) => {
         lastActive: Date.now()
       });
 
-      const animations = { "CW": "Brilliant", "BP": "Smart", "MR": "Marvellous", "LR": "Beautiful", "FR": "Colorful" };
-      const animationType = animations[currentPuzzle.key] || "Great";
-
-      return res.status(200).json({ result: { correct: true, nextStage: nextStage, animationType } });
+      return res.status(200).json({ result: { correct: true, nextStage: nextStage, animationType: "Correct" } });
     } catch (err) {
       return res.status(500).json({ error: { message: err.message } });
     }

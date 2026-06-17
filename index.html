@@ -49,6 +49,191 @@
 
     <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 style="color:var(--primary)">💡 Strategy Insight</h3>
+            <h3 style="color:var(--primary)">💡 Hint</h3>
             <p id="hint-modal-text" class="desc-text"></p>
-            <button class="btn-submit"
+            <button class="btn-submit" onclick="closeModal('hint-modal')">Submit</button>
+        </div>
+    </div>
+
+    <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="action-modal-title" style="color:var(--primary)">Asset Viewer</h3>
+            <div id="action-modal-body" style="min-height:100px;"></div>
+            <button class="btn-submit" onclick="closeModal('action-modal')">Submit</button>
+        </div>
+    </div>
+
+    <div id="splash-screen" class="splash-overlay"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBVc7yDM3Z1rzH3ALSQgqLLIJxHLRrm-DE",
+            authDomain: "jotunhunt2026.firebaseapp.com",
+            projectId: "jotunhunt2026"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        const CLOUD_FUNCTIONS_BASE_URL = "https://us-central1-jotunhunt2026.cloudfunctions.net";
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const teamToken = urlParams.get('id');
+
+        let localStateCache = null;
+
+        async function callCloudEndpoint(endpointName, payload) {
+            const response = await fetch(`${CLOUD_FUNCTIONS_BASE_URL}/${endpointName}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: payload })
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || "Network execution exception.");
+            }
+            const json = await response.json();
+            return json.result;
+        }
+
+        async function refreshViewEngine() {
+            if(!teamToken) {
+                document.getElementById('game-viewport').innerHTML = `<h2>Access Aborted</h2><p class="desc-text">Missing absolute URL token identifier parameters.</p>`;
+                return;
+            }
+            try {
+                const data = await callCloudEndpoint('getGameState', { token: teamToken });
+                localStateCache = data;
+                renderUI(localStateCache);
+            } catch(e) {
+                document.getElementById('game-viewport').innerHTML = `<h2>Status Integration Error</h2><p class="desc-text">${e.message}<br><br>Tip: If on mobile data, try refreshing or switching to Wi-Fi.</p>`;
+            }
+        }
+
+        function renderUI(data) {
+            const viewport = document.getElementById('game-viewport');
+            const header = document.getElementById('app-header');
+            
+            if(data.currentStage === 1) {
+                header.style.display = "none";
+                viewport.innerHTML = `
+                    <h2 style="text-align:center;">INAUGURATION TO A COLORFUL RESTART</h2>
+                    <p class="desc-text" style="text-align:center;">Input your official team name</p>
+                    <input type="text" id="identity-input" class="input-box" placeholder="">
+                    <button class="btn-submit" onclick="triggerIdentityCheck()">Submit</button>
+                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
+                `;
+                updateHintButtonLabel(data.hintsUsed);
+                return;
+            }
+
+            header.style.display = "flex";
+            document.getElementById('progress-indicator').innerText = `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
+            
+            const slots = document.getElementById('vault-slots').children;
+            for(let i=0; i<7; i++) {
+                if(data.letters && data.letters[i]) {
+                    slots[i].innerText = data.letters[i];
+                    slots[i].classList.add('filled');
+                } else {
+                    slots[i].innerText = "";
+                    slots[i].classList.remove('filled');
+                }
+            }
+
+            if(data.viewType === "FINALE") {
+                viewport.innerHTML = `
+                    <h2>Quest Finale: Unscramble & Decode</h2>
+                    <p class="desc-text">The Letter Vault has integrated into the center frame. Unscramble the letters gathered along your route and decode using the Vigenère engine block metrics.</p>
+                    <input type="text" id="answer-input" class="input-box" placeholder="">
+                    <button class="btn-submit" onclick="triggerFinaleCheck()">Submit</button>
+                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
+                `;
+            } else {
+                let actionAssetsHTML = '';
+                if(data.viewType === "CW") {
+                    actionAssetsHTML = `
+                        <div class="cw-grid-menu">
+                            <div class="cw-column"><h4>Across</h4>
+                                ${Object.entries(data.crosswordClues.across).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. View Clue</button>`).join('')}
+                            </div>
+                            <div class="cw-column"><h4>Down</h4>
+                                ${Object.entries(data.crosswordClues.down).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. View Clue</button>`).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                viewport.innerHTML = `
+                    <h2>${data.heading}</h2>
+                    <p class="desc-text">${data.description}</p>
+                    ${actionAssetsHTML}
+                    <p class="desc-text" style="font-weight:bold; margin-top:10px;">${data.prompt}</p>
+                    <input type="text" id="answer-input" class="input-box" placeholder="">
+                    <button class="btn-submit" onclick="triggerAnswerSubmission()">Submit</button>
+                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
+                `;
+            }
+            updateHintButtonLabel(data.hintsUsed);
+        }
+
+        async function triggerIdentityCheck() {
+            const inputVal = document.getElementById('identity-input').value;
+            if(!inputVal.trim()) return;
+            try {
+                await callCloudEndpoint('verifyIdentity', { token: teamToken, inputName: inputVal });
+                showSplashSplash(`Welcome ${inputVal}`, 1500);
+                setTimeout(refreshViewEngine, 1500);
+            } catch(e) { alert(e.message); }
+        }
+
+        async function triggerAnswerSubmission() {
+            const ans = document.getElementById('answer-input').value;
+            if(!ans.trim()) return;
+            try {
+                const res = await callCloudEndpoint('submitStageAnswer', { token: teamToken, answer: ans });
+                if(res.correct) {
+                    showSplashSplash(`${res.animationType}!`, 2000);
+                    setTimeout(refreshViewEngine, 2000);
+                } else { alert("Verification Sequence Denied. Check entry values."); }
+            } catch(e) { alert(e.message); }
+        }
+
+        async function triggerHintRequest() {
+            if(!confirm("Are you sure you want to request a hint?")) return;
+            try {
+                const res = await callCloudEndpoint('requestHint', { token: teamToken });
+                if(res.success) {
+                    document.getElementById('hint-modal-text').innerText = res.hint;
+                    document.getElementById('hint-modal').style.display = "flex";
+                    updateHintButtonLabel(localStateCache.hintsUsed + 1);
+                    localStateCache.hintsUsed++;
+                } else { alert(res.msg); }
+            } catch(e) { alert(e.message); }
+        }
+
+        async function triggerFinaleCheck() {
+            const finalWord = document.getElementById('answer-input').value;
+            if(!finalWord.trim()) return;
+            try {
+                const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord: finalWord });
+                if(res.correct) {
+                    showSplashSplash("VICTORY! Report to Counter.", 10000);
+                } else { alert("Incorrect finale decryption pattern."); }
+            } catch(e) { alert(e.message); }
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        function showSplashSplash(text, duration) {
+            const s = document.getElementById('splash-screen');
+            s.innerText = text; s.style.display = "flex";
+            setTimeout(() => { s.style.display = "none"; }, duration);
+        }
+        function updateHintButtonLabel(used) {
+            const btn = document.getElementById('hint-btn-anchor');
+            if(!btn) return;
+            if(used >= 2) { btn.innerText = "Out of Hints"; btn.disabled = true; btn.style.background = "#CBD5E1"; }
+            else { btn.innerText = `Hints (${2 - used} Remaining)`; }
+        }
+
+        refreshViewEngine();
+    </script>
+</body>
+</html>
