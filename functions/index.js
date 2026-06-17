@@ -1,6 +1,10 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-admin.initializeApp();
+
+// Initialize explicitly targeting your custom database instance
+admin.initializeApp({
+  databaseURL: "https://jotunhunt2026.asia-southeast1.firebasedatabase.app"
+});
 
 const db = admin.database();
 
@@ -68,9 +72,10 @@ function getPuzzleForStage(cohortNum, stage) {
   return { key: puzzleKey, ...PUZZLE_DATA[puzzleKey] };
 }
 
-// Fixed region wrapper to ensure global connectivity alignment
-exports.getGameState = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.getGameState = functions.https.onCall(async (data, context) => {
   const token = data.token;
+  
+  // Strict Roster Validation
   if (!token || !TEAM_ROSTER[token]) {
     throw new functions.https.HttpsError("not-found", "Invalid authorization link token.");
   }
@@ -80,6 +85,8 @@ exports.getGameState = functions.region("us-central1").https.onCall(async (data,
   const snapshot = await teamRef.get();
 
   let state = snapshot.val();
+  
+  // Fix: Auto-create team data path if it does not exist in the DB yet
   if (!state) {
     state = {
       teamName: teamInfo.name,
@@ -118,7 +125,7 @@ exports.getGameState = functions.region("us-central1").https.onCall(async (data,
   return result;
 });
 
-exports.verifyIdentity = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.verifyIdentity = functions.https.onCall(async (data, context) => {
   const { token, inputName } = data;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
   
@@ -132,7 +139,7 @@ exports.verifyIdentity = functions.region("us-central1").https.onCall(async (dat
   return { success: true };
 });
 
-exports.submitStageAnswer = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.submitStageAnswer = functions.https.onCall(async (data, context) => {
   const { token, answer } = data;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
 
@@ -164,7 +171,7 @@ exports.submitStageAnswer = functions.region("us-central1").https.onCall(async (
   return { correct: true, nextStage: nextStage, animationType: getAnimationLabel(currentPuzzle.key) };
 });
 
-exports.requestHint = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.requestHint = functions.https.onCall(async (data, context) => {
   const token = data.token;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
 
@@ -191,7 +198,7 @@ exports.requestHint = functions.region("us-central1").https.onCall(async (data, 
   return { success: true, hint: hintText, remaining: MAX_HINTS - newHintCount };
 });
 
-exports.submitFinale = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.submitFinale = functions.https.onCall(async (data, context) => {
   const { token, finalWord } = data;
   if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
 

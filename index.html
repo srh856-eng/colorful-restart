@@ -70,12 +70,10 @@
         const firebaseConfig = {
             apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
             authDomain: "jotunhunt2026.firebaseapp.com",
-            projectId: "jotunhunt2026",
-            databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
+            projectId: "jotunhunt2026"
         };
         firebase.initializeApp(firebaseConfig);
         
-        // Strictly force call structures to hit the us-central1 region instance
         const functions = firebase.app().functions("us-central1");
         
         const urlParams = new URLSearchParams(window.location.search);
