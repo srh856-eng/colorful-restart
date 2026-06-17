@@ -79,7 +79,7 @@ exports.getGameState = functions.https.onRequest((req, res) => {
       const token = data.token;
       
       if (!token || !TEAM_ROSTER[token]) {
-        return res.status(404).json({ error: { message: "Invalid token identification parameters." } });
+        return res.status(404).json({ error: { message: "Invalid authorization parameters." } });
       }
 
       const teamInfo = TEAM_ROSTER[token];
@@ -181,7 +181,7 @@ exports.submitStageAnswer = functions.https.onRequest((req, res) => {
         lastActive: Date.now()
       });
 
-      return res.status(200).json({ result: { correct: true, nextStage: nextStage, animationType: "Correct" } });
+      return res.status(200).json({ result: { correct: true, nextStage: nextStage } });
     } catch (err) {
       return res.status(500).json({ error: { message: err.message } });
     }

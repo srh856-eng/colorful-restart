@@ -22,7 +22,6 @@
         .btn-submit { background: var(--primary); color: white; }
         .btn-submit:hover { background: #001E4E; }
         .btn-hint { background: #E2E8F0; color: var(--dark); margin-top: auto; }
-        .btn-action { background: var(--accent); color: var(--primary); font-weight: bold; margin: 5px 0; }
         .cw-grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0; }
         .cw-column h4 { margin-bottom: 8px; color: var(--primary); border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; }
         .cw-btn { width: 100%; background: #F4F7FC; color: var(--dark); border: 1px solid #D2Dbe5; padding: 8px; margin-bottom: 6px; font-size: 13px; text-align: left; border-radius: 6px; }
@@ -52,14 +51,6 @@
             <h3 style="color:var(--primary)">💡 Hint</h3>
             <p id="hint-modal-text" class="desc-text"></p>
             <button class="btn-submit" onclick="closeModal('hint-modal')">Submit</button>
-        </div>
-    </div>
-
-    <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="action-modal-title" style="color:var(--primary)">Asset Viewer</h3>
-            <div id="action-modal-body" style="min-height:100px;"></div>
-            <button class="btn-submit" onclick="closeModal('action-modal')">Submit</button>
         </div>
     </div>
 
@@ -104,7 +95,7 @@
                 localStateCache = data;
                 renderUI(localStateCache);
             } catch(e) {
-                document.getElementById('game-viewport').innerHTML = `<h2>Status Integration Error</h2><p class="desc-text">${e.message}<br><br>Tip: If on mobile data, try refreshing or switching to Wi-Fi.</p>`;
+                document.getElementById('game-viewport').innerHTML = `<h2>Status Integration Error</h2><p class="desc-text">${e.message}<br><br>Tip: If using cellular data, try refreshing or checking connection permissions.</p>`;
             }
         }
 
@@ -142,7 +133,7 @@
             if(data.viewType === "FINALE") {
                 viewport.innerHTML = `
                     <h2>Quest Finale: Unscramble & Decode</h2>
-                    <p class="desc-text">The Letter Vault has integrated into the center frame. Unscramble the letters gathered along your route and decode using the Vigenère engine block metrics.</p>
+                    <p class="desc-text">The Letter Vault has integrated into the center frame. Unscramble the letters gathered along your route and decode using the Vigenère engine metrics.</p>
                     <input type="text" id="answer-input" class="input-box" placeholder="">
                     <button class="btn-submit" onclick="triggerFinaleCheck()">Submit</button>
                     <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
@@ -190,7 +181,7 @@
             try {
                 const res = await callCloudEndpoint('submitStageAnswer', { token: teamToken, answer: ans });
                 if(res.correct) {
-                    showSplashSplash(`${res.animationType}!`, 2000);
+                    showSplashSplash("Success!", 2000);
                     setTimeout(refreshViewEngine, 2000);
                 } else { alert("Verification Sequence Denied. Check entry values."); }
             } catch(e) { alert(e.message); }
