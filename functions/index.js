@@ -1,7 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const cors = require("cors")({ origin: true });
 
-// Initialize explicitly targeting your custom database instance
+// Target the Singapore database instance explicitly
 admin.initializeApp({
   databaseURL: "https://jotunhunt2026.asia-southeast1.firebasedatabase.app"
 });
@@ -72,151 +73,180 @@ function getPuzzleForStage(cohortNum, stage) {
   return { key: puzzleKey, ...PUZZLE_DATA[puzzleKey] };
 }
 
-exports.getGameState = functions.https.onCall(async (data, context) => {
-  const token = data.token;
-  
-  // Strict Roster Validation
-  if (!token || !TEAM_ROSTER[token]) {
-    throw new functions.https.HttpsError("not-found", "Invalid authorization link token.");
-  }
+exports.getGameState = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    try {
+      const data = req.body.data || {};
+      const token = data.token;
+      
+      if (!token || !TEAM_ROSTER[token]) {
+        return res.status(404).json({ error: { message: "Invalid authorization link token." } });
+      }
 
-  const teamInfo = TEAM_ROSTER[token];
-  const teamRef = db.ref(`gameData/teams/${token}`);
-  const snapshot = await teamRef.get();
+      const teamInfo = TEAM_ROSTER[token];
+      const teamRef = db.ref(`gameData/teams/${token}`);
+      const snapshot = await teamRef.get();
+      let state = snapshot.val();
+      
+      if (!state) {
+        state = {
+          teamName: teamInfo.name,
+          currentStage: 1,
+          hintsUsed: 0,
+          letters: "",
+          isCompleted: false,
+          lastActive: Date.now()
+        };
+        await teamRef.set(state);
+      }
 
-  let state = snapshot.val();
-  
-  // Fix: Auto-create team data path if it does not exist in the DB yet
-  if (!state) {
-    state = {
-      teamName: teamInfo.name,
-      currentStage: 1,
-      hintsUsed: 0,
-      letters: "",
-      isCompleted: false,
-      lastActive: Date.now()
-    };
-    await teamRef.set(state);
-  }
+      const result = {
+        teamName: state.teamName,
+        currentStage: state.currentStage,
+        hintsUsed: state.hintsUsed,
+        letters: state.letters,
+        isCompleted: state.isCompleted,
+        totalStages: TOTAL_STAGES
+      };
 
-  const result = {
-    teamName: state.teamName,
-    currentStage: state.currentStage,
-    hintsUsed: state.hintsUsed,
-    letters: state.letters,
-    isCompleted: state.isCompleted,
-    totalStages: TOTAL_STAGES
-  };
-
-  if (state.currentStage === 1) {
-    result.viewType = "IDENTITY";
-  } else if (state.currentStage === 7) {
-    result.viewType = "FINALE";
-  } else {
-    const activePuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
-    result.viewType = activePuzzle.key;
-    result.heading = activePuzzle.heading;
-    result.description = activePuzzle.description;
-    result.prompt = activePuzzle.prompt;
-    if (activePuzzle.key === "CW") {
-      result.crosswordClues = CROSSWORD_CLUES;
+      if (state.currentStage === 1) {
+        result.viewType = "IDENTITY";
+      } else if (state.currentStage === 7) {
+        result.viewType = "FINALE";
+      } else {
+        const activePuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+        result.viewType = activePuzzle.key;
+        result.heading = activePuzzle.heading;
+        result.description = activePuzzle.description;
+        result.prompt = activePuzzle.prompt;
+        if (activePuzzle.key === "CW") {
+          result.crosswordClues = CROSSWORD_CLUES;
+        }
+      }
+      return res.status(200).json({ result });
+    } catch (err) {
+      return res.status(500).json({ error: { message: err.message } });
     }
-  }
-  return result;
-});
-
-exports.verifyIdentity = functions.https.onCall(async (data, context) => {
-  const { token, inputName } = data;
-  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
-  
-  const registeredName = TEAM_ROSTER[token].name;
-  if (inputName.trim().toUpperCase() !== registeredName) {
-    throw new functions.https.HttpsError("invalid-argument", "Mismatched Team Identification.");
-  }
-
-  const teamRef = db.ref(`gameData/teams/${token}`);
-  await teamRef.update({ currentStage: 2, lastActive: Date.now() });
-  return { success: true };
-});
-
-exports.submitStageAnswer = functions.https.onCall(async (data, context) => {
-  const { token, answer } = data;
-  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
-
-  const teamInfo = TEAM_ROSTER[token];
-  const teamRef = db.ref(`gameData/teams/${token}`);
-  const snapshot = await teamRef.get();
-  const state = snapshot.val();
-
-  if (state.currentStage < 2 || state.currentStage >= 7) {
-    throw new functions.https.HttpsError("failed-precondition", "Action out of sync.");
-  }
-
-  const currentPuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
-  
-  if (answer.trim().toUpperCase() !== currentPuzzle.answer) {
-    return { correct: false };
-  }
-
-  let updatedLetters = state.letters || "";
-  updatedLetters += currentPuzzle.answer.substring(0, currentPuzzle.lettersDropped).toUpperCase();
-
-  const nextStage = state.currentStage + 1;
-  await teamRef.update({
-    currentStage: nextStage,
-    letters: updatedLetters,
-    lastActive: Date.now()
   });
-
-  return { correct: true, nextStage: nextStage, animationType: getAnimationLabel(currentPuzzle.key) };
 });
 
-exports.requestHint = functions.https.onCall(async (data, context) => {
-  const token = data.token;
-  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
+exports.verifyIdentity = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    try {
+      const data = req.body.data || {};
+      const { token, inputName } = data;
+      if (!token || !TEAM_ROSTER[token]) return res.status(400).json({ error: { message: "Access Denied." } });
+      
+      const registeredName = TEAM_ROSTER[token].name;
+      if (inputName.trim().toUpperCase() !== registeredName) {
+        return res.status(400).json({ error: { message: "Mismatched Team Identification." } });
+      }
 
-  const teamInfo = TEAM_ROSTER[token];
-  const teamRef = db.ref(`gameData/teams/${token}`);
-  const snapshot = await teamRef.get();
-  const state = snapshot.val();
-
-  if (state.hintsUsed >= MAX_HINTS) {
-    return { success: false, msg: "Out of Hints" };
-  }
-
-  let hintText = "";
-  if (state.currentStage === 1) hintText = HINTS["IDENTITY"];
-  else if (state.currentStage === 7) hintText = HINTS["FINALE"];
-  else {
-    const activePuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
-    hintText = HINTS[activePuzzle.key];
-  }
-
-  const newHintCount = state.hintsUsed + 1;
-  await teamRef.update({ hintsUsed: newHintCount });
-
-  return { success: true, hint: hintText, remaining: MAX_HINTS - newHintCount };
-});
-
-exports.submitFinale = functions.https.onCall(async (data, context) => {
-  const { token, finalWord } = data;
-  if (!token || !TEAM_ROSTER[token]) throw new functions.https.HttpsError("invalid-argument", "Access Denied.");
-
-  if (finalWord.trim().toUpperCase() !== "JOTUNUNITE") {
-    return { correct: false };
-  }
-
-  const teamRef = db.ref(`gameData/teams/${token}`);
-  await teamRef.update({
-    currentStage: 7,
-    isCompleted: true,
-    lastActive: Date.now()
+      const teamRef = db.ref(`gameData/teams/${token}`);
+      await teamRef.update({ currentStage: 2, lastActive: Date.now() });
+      return res.status(200).json({ result: { success: true } });
+    } catch (err) {
+      return res.status(500).json({ error: { message: err.message } });
+    }
   });
-
-  return { correct: true };
 });
 
-function getAnimationLabel(key) {
-  const animations = { "CW": "Brilliant", "BP": "Smart", "MR": "Marvellous", "LR": "Beautiful", "FR": "Colorful" };
-  return animations[key] || "Great";
-}
+exports.submitStageAnswer = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    try {
+      const data = req.body.data || {};
+      const { token, answer } = data;
+      if (!token || !TEAM_ROSTER[token]) return res.status(400).json({ error: { message: "Access Denied." } });
+
+      const teamInfo = TEAM_ROSTER[token];
+      const teamRef = db.ref(`gameData/teams/${token}`);
+      const snapshot = await teamRef.get();
+      const state = snapshot.val();
+
+      if (state.currentStage < 2 || state.currentStage >= 7) {
+        return res.status(400).json({ error: { message: "Action out of sync." } });
+      }
+
+      const currentPuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+      if (answer.trim().toUpperCase() !== currentPuzzle.answer) {
+        return res.status(200).json({ result: { correct: false } });
+      }
+
+      let updatedLetters = state.letters || "";
+      updatedLetters += currentPuzzle.answer.substring(0, currentPuzzle.lettersDropped).toUpperCase();
+
+      const nextStage = state.currentStage + 1;
+      await teamRef.update({
+        currentStage: nextStage,
+        letters: updatedLetters,
+        lastActive: Date.now()
+      });
+
+      const animations = { "CW": "Brilliant", "BP": "Smart", "MR": "Marvellous", "LR": "Beautiful", "FR": "Colorful" };
+      const animationType = animations[currentPuzzle.key] || "Great";
+
+      return res.status(200).json({ result: { correct: true, nextStage: nextStage, animationType } });
+    } catch (err) {
+      return res.status(500).json({ error: { message: err.message } });
+    }
+  });
+});
+
+exports.requestHint = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    try {
+      const data = req.body.data || {};
+      const token = data.token;
+      if (!token || !TEAM_ROSTER[token]) return res.status(400).json({ error: { message: "Access Denied." } });
+
+      const teamInfo = TEAM_ROSTER[token];
+      const teamRef = db.ref(`gameData/teams/${token}`);
+      const snapshot = await teamRef.get();
+      const state = snapshot.val();
+
+      if (state.hintsUsed >= MAX_HINTS) {
+        return res.status(200).json({ result: { success: false, msg: "Out of Hints" } });
+      }
+
+      let hintText = "";
+      if (state.currentStage === 1) hintText = HINTS["IDENTITY"];
+      else if (state.currentStage === 7) hintText = HINTS["FINALE"];
+      else {
+        const activePuzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+        hintText = HINTS[activePuzzle.key];
+      }
+
+      const newHintCount = state.hintsUsed + 1;
+      await teamRef.update({ hintsUsed: newHintCount });
+
+      return res.status(200).json({ result: { success: true, hint: hintText, remaining: MAX_HINTS - newHintCount } });
+    } catch (err) {
+      return res.status(500).json({ error: { message: err.message } });
+    }
+  });
+});
+
+exports.submitFinale = functions.https.onRequest((req, res) => {
+  return cors(req, res, async () => {
+    try {
+      const data = req.body.data || {};
+      const { token, finalWord } = data;
+      if (!token || !TEAM_ROSTER[token]) return res.status(400).json({ error: { message: "Access Denied." } });
+
+      if (finalWord.trim().toUpperCase() !== "JOTUNUNITE") {
+        return res.status(200).json({ result: { correct: false } });
+      }
+
+      const teamRef = db.ref(`gameData/teams/${token}`);
+      await teamRef.update({
+        currentStage: 7,
+        isCompleted: true,
+        lastActive: Date.now()
+      });
+
+      return res.status(200).json({ result: { correct: true } });
+    } catch (err) {
+      return res.status(500).json({ error: { message: err.message } });
+    }
+  });
+});
