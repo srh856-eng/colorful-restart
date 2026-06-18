@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jotun Hunt 2026</title>
+    <!-- Firebase Legacy Compat Core -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
@@ -13,765 +14,328 @@
             --jotun-navy-deep: #001A45;
             --jotun-navy-mid: #00408A;
             --jotun-red: #C8102E;
-            --jotun-red-light: #E8192F;
             --jotun-gold: #F0A500;
             --jotun-white: #FFFFFF;
             --surface: #F6F8FC;
             --surface-2: #EEF2F9;
             --text-primary: #0D1B35;
-            --text-secondary: #4A5778;
-            --border: #D4DCF0;
-            --radius: 10px;
-            --shadow: 0 4px 24px rgba(0,45,114,0.10);
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: var(--surface);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            --text-secondary: #4A5568;
+            --text-muted: #8A99AD;
+            --border: #CBD5E1;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-md: 0 8px 24px rgba(0,45,114,0.08);
         }
 
-        /* ── HEADER ── */
-        header {
-            display: none;
-            background: var(--jotun-navy);
-            padding: 0 24px;
-            height: 64px;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-        }
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .jotun-logomark {
-            width: 36px;
-            height: 36px;
-            background: var(--jotun-red);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            color: white;
-            letter-spacing: -0.5px;
-            flex-shrink: 0;
-        }
-        .header-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 17px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.9);
-            letter-spacing: 0.5px;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .progress-pill {
-            font-size: 12px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.7);
-            background: rgba(255,255,255,0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-        }
-        .vault-container {
-            display: flex;
-            gap: 4px;
-        }
-        .vault-slot {
-            width: 28px;
-            height: 30px;
-            border: 1.5px dashed rgba(255,255,255,0.25);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            color: transparent;
-            background: rgba(0,0,0,0.2);
-            transition: all 0.25s ease;
-        }
-        .vault-slot.filled {
-            border-color: var(--jotun-gold);
-            background: rgba(240,165,0,0.15);
-            color: var(--jotun-gold);
-            transform: scale(1.08);
-            animation: popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-        }
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1.08); opacity: 1; }
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--surface); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        header { background-color: var(--jotun-navy-deep); color: white; padding: 20px 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        header .logo-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px; }
+        header .jotun-flag { background-color: var(--jotun-red); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; }
+        header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+        header p { font-size: 12px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
-        /* ── MAIN CARD ── */
-        .game-wrap {
-            flex: 1;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 32px 16px 48px;
-        }
-        .main-card {
-            width: 100%;
-            max-width: 480px;
-            background: white;
-            border-radius: 14px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-        .card-header-band {
-            background: var(--jotun-navy);
-            padding: 20px 24px 18px;
-            position: relative;
-            overflow: hidden;
-        }
-        .card-header-band::after {
-            content: '';
-            position: absolute;
-            right: -20px;
-            top: -20px;
-            width: 100px;
-            height: 100px;
-            background: var(--jotun-red);
-            opacity: 0.15;
-            border-radius: 50%;
-        }
-        .stage-eyebrow {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 6px;
-        }
-        .card-heading {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 26px;
-            font-weight: 700;
-            color: white;
-            line-height: 1.1;
-        }
-        .card-body {
-            padding: 22px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .desc-text {
-            font-size: 14px;
-            line-height: 1.65;
-            color: var(--text-secondary);
-        }
-        .prompt-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--jotun-navy);
-            letter-spacing: 0.2px;
-        }
-        .input-box {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-primary);
-            background: var(--surface);
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .input-box:focus {
-            border-color: var(--jotun-navy);
-            box-shadow: 0 0 0 3px rgba(0,45,114,0.08);
-            background: white;
-        }
-        .btn {
-            width: 100%;
-            padding: 13px 16px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-        }
-        .btn-primary {
-            background: var(--jotun-navy);
-            color: white;
-        }
-        .btn-primary:hover { background: var(--jotun-navy-mid); transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-accent {
-            background: var(--jotun-red);
-            color: white;
-        }
-        .btn-accent:hover { background: var(--jotun-red-light); transform: translateY(-1px); }
-        .btn-ghost {
-            background: var(--surface-2);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-        .btn-ghost:hover { background: var(--surface); color: var(--text-primary); }
-        .btn-ghost:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .game-container { flex: 1; max-width: 480px; width: 100%; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: var(--jotun-white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-md); border: 1px solid rgba(226,232,240,0.8); }
 
-        /* ── CROSSWORD CLUES ── */
-        .cw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .cw-col-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--border);
-        }
-        .cw-clue-btn {
-            width: 100%;
-            text-align: left;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 8px 10px;
-            font-size: 12px;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-primary);
-            cursor: pointer;
-            margin-bottom: 5px;
-            transition: all 0.15s;
-        }
-        .cw-clue-btn:hover { background: var(--jotun-navy); color: white; border-color: var(--jotun-navy); }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        input[type="text"] { font-family: 'Inter', sans-serif; width: 100%; padding: 14px 16px; border: 2px solid var(--surface-2); border-radius: var(--radius-md); font-size: 15px; font-weight: 500; color: var(--text-primary); transition: all 0.2s ease; background-color: var(--surface-2); }
+        input[type="text"]:focus { outline: none; border-color: var(--jotun-navy-mid); background-color: var(--jotun-white); box-shadow: 0 0 0 4px rgba(0,64,138,0.1); }
 
-        .divider { height: 1px; background: var(--border); margin: 2px 0; }
+        .btn { font-family: 'Inter', sans-serif; width: 100%; padding: 15px; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background-color: var(--jotun-navy); color: white; }
+        .btn-primary:hover { background-color: var(--jotun-navy-mid); transform: translateY(-1px); }
+        .btn-secondary { background-color: var(--surface-2); color: var(--jotun-navy); }
+        .btn-secondary:hover { background-color: #E2E8F0; }
+        .btn:disabled { background-color: var(--surface-2) !important; color: var(--text-muted) !important; cursor: not-allowed; transform: none !important; }
 
-        /* ── ERROR STATE ── */
-        .error-state {
-            text-align: center;
-            padding: 40px 24px;
-        }
-        .error-icon {
-            width: 56px;
-            height: 56px;
-            background: rgba(200,16,46,0.08);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-        }
-        .error-icon svg { color: var(--jotun-red); }
-        .error-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
-        .error-msg { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+        .stage-header-badge-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--surface-2); padding-bottom: 16px; margin-bottom: 20px; }
+        .team-title-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--jotun-navy); text-transform: uppercase; }
+        .stage-badge-pill { background-color: rgba(240,165,0,0.1); color: var(--jotun-gold); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(240,165,0,0.2); }
 
-        /* ── LOADING STATE ── */
-        .loading-state {
-            text-align: center;
-            padding: 52px 24px;
-        }
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--border);
-            border-top-color: var(--jotun-navy);
-            border-radius: 50%;
-            margin: 0 auto 16px;
-            animation: spin 0.8s linear infinite;
-        }
+        .quest-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.2; }
+        .quest-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; }
+        
+        .inventory-wrapper { background: linear-gradient(135deg, var(--jotun-navy-deep) 0%, var(--jotun-navy) 100%); color: white; }
+        .inventory-label { font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: center; }
+        .letter-grid-row { display: flex; justify-content: center; gap: 6px; }
+        .letter-box-slot { width: 34px; height: 42px; border-radius: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: uppercase; }
+        .letter-box-slot.filled { background: var(--jotun-white); color: var(--jotun-navy-deep); border-color: var(--jotun-white); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background-color: #1E293B; color: white; padding: 14px 24px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; pointer-events: none; z-index: 2000; text-align: center; width: calc(100% - 32px); max-width: 400px; }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background-color: var(--jotun-red); }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,53,0.85); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 3000; }
+        .modal-content { background: var(--jotun-white); width: 100%; max-width: 400px; border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: var(--jotun-navy); margin-bottom: 12px; }
+        .modal-body-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+
+        .splash-overlay { position: fixed; inset: 0; background-color: var(--jotun-navy-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 9999; color: white; transition: opacity 0.4s ease; }
+        .spinner-wheel { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--jotun-gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-label { font-size: 13px; color: var(--text-secondary); }
-
-        /* ── MODAL ── */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,20,50,0.55);
-            backdrop-filter: blur(4px);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-        .modal-box {
-            background: white;
-            border-radius: 14px;
-            width: 100%;
-            max-width: 400px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.25s ease;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .modal-header {
-            background: var(--jotun-navy);
-            padding: 16px 20px;
-        }
-        .modal-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-        .modal-body {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .hint-text {
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            background: var(--surface);
-            border-left: 3px solid var(--jotun-gold);
-            padding: 12px 14px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* ── SPLASH ── */
-        .splash-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--jotun-navy);
-            color: white;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .splash-text {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 52px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-align: center;
-            animation: splashPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
-        }
-        .splash-bar {
-            width: 60px;
-            height: 4px;
-            background: var(--jotun-red);
-            border-radius: 2px;
-            margin-top: 16px;
-            animation: barGrow 0.4s ease 0.3s both;
-        }
-        @keyframes splashPop {
-            from { transform: scale(0.7); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes barGrow {
-            from { width: 0; }
-            to { width: 60px; }
-        }
-
-        /* ── TOAST ── */
-        .toast {
-            position: fixed;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--text-primary);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 3000;
-            transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
-            white-space: nowrap;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--jotun-red); }
-
-        /* ── FOOTER BRAND ── */
-        .footer-brand {
-            text-align: center;
-            padding: 20px;
-            font-size: 11px;
-            color: #B0BCDA;
-            letter-spacing: 0.5px;
-        }
+        footer { padding: 20px; text-align: center; font-size: 11px; color: var(--text-muted); margin-top: auto; }
     </style>
 </head>
 <body>
 
-    <header id="app-header">
-        <div class="header-brand">
-            <div class="jotun-logomark">J</div>
-            <span class="header-title">JOTUN HUNT 2026</span>
+    <div id="splash-screen" class="splash-overlay">
+        <div class="spinner-wheel"></div>
+        <div id="splash-text" style="font-family:'Barlow Condensed', sans-serif; font-size: 20px; letter-spacing: 0.5px;">Initializing Challenge Run Engine...</div>
+    </div>
+
+    <header>
+        <div class="logo-container">
+            <div class="jotun-flag">J</div>
+            <h1>Jotun Hunt 2026</h1>
         </div>
-        <div class="header-right">
-            <span class="progress-pill" id="progress-indicator">0%</span>
-            <div class="vault-container" id="vault-slots">
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-            </div>
-        </div>
+        <p>Operational Quest Network</p>
     </header>
 
-    <div class="game-wrap">
-        <div class="main-card" id="game-viewport">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p class="loading-label">Loading your quest…</p>
+    <div class="game-container">
+        
+        <!-- View Gate: Fallback configuration text field -->
+        <div id="view-gate" class="card" style="display: none;">
+            <div class="quest-heading" style="text-align: center; margin-bottom: 12px;">Team Verification</div>
+            <p class="quest-desc" style="text-align: center; margin-bottom: 20px;">Please enter your unique 4-character team security token configuration parameters to sync.</p>
+            <div class="form-group">
+                <input type="text" id="team-token-input" placeholder="e.g. j7x2" maxlength="10" autocomplete="off" style="text-align: center; font-family: monospace; font-size: 20px; letter-spacing: 2px;">
+            </div>
+            <button class="btn btn-primary" onclick="handleTokenVerificationSubmit()">Synchronize Session State</button>
+        </div>
+
+        <!-- Main Dynamic Active Puzzle Frame -->
+        <div id="view-quest" class="card" style="display: none;">
+            <div class="stage-header-badge-row">
+                <div id="team-display-name-lbl" class="team-title-tag">—</div>
+                <div id="stage-badge-lbl" class="stage-badge-pill">Stage —</div>
+            </div>
+            <div id="quest-title-anchor" class="quest-heading">—</div>
+            <p id="quest-desc-anchor" class="quest-desc">—</p>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label id="quest-prompt-label" for="quest-answer-input">Response Submission Field</label>
+                <input type="text" id="quest-answer-input" placeholder="Type your answer here..." autocomplete="off">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn btn-primary" onclick="handleChallengeAnswerSubmit()">Verify Answer</button>
+                <button id="hint-btn-anchor" class="btn btn-secondary" onclick="triggerHintRequestApi()">Request a Hint (2 remaining)</button>
             </div>
         </div>
-    </div>
 
-    <div class="footer-brand">JOTUN · HUNT 2026</div>
-
-    <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title">💡 Hint</div>
+        <!-- Finale Form View Frame -->
+        <div id="view-finale" class="card" style="display: none;">
+            <div class="stage-header-badge-row">
+                <div id="finale-team-display-name" class="team-title-tag">—</div>
+                <div class="stage-badge-pill" style="background-color: rgba(200,16,46,0.1); color: var(--jotun-red); border-color: rgba(200,16,46,0.2);">FINALE DISCOVERY</div>
             </div>
-            <div class="modal-body">
-                <p id="hint-modal-text" class="hint-text"></p>
-                <button class="btn btn-primary" onclick="closeModal('hint-modal')">Got it</button>
+            <div class="quest-heading">The Final Cryptograph Matrix</div>
+            <p class="quest-desc">Outstanding! You have solved all quests and gathered your total letter collection pool. Unscramble them to verify the final master activation phrase!</p>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <input type="text" id="finale-word-input" placeholder="ENTER 10-LETTER PHRASE" autocomplete="off" style="text-align: center; font-weight: 700; letter-spacing: 1px;">
             </div>
+            <button class="btn btn-primary" onclick="handleFinaleSubmissionSubmit()" style="background-color: var(--jotun-red);">Submit Final Phrase 👑</button>
         </div>
-    </div>
 
-    <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title" id="action-modal-title">Asset Viewer</div>
-            </div>
-            <div class="modal-body">
-                <div id="action-modal-body"></div>
-                <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close</button>
-            </div>
+        <!-- Finished Run Success State Frame -->
+        <div id="view-victory" class="card" style="display: none; text-align: center; border: 2px solid var(--jotun-gold);">
+            <div style="font-size: 56px; margin-bottom: 12px;">🏆</div>
+            <div class="quest-heading" style="color: var(--jotun-gold); font-size: 32px; margin-bottom: 8px;">Run Completed!</div>
+            <p class="quest-desc" style="margin-bottom: 24px;">Your response has been logged securely. Check the live tracking leaderboard array screen to view your rank!</p>
+            <div style="background-color: var(--surface-2); padding: 16px; border-radius: var(--radius-md); font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--jotun-navy);">CONGRATULATIONS TEAM</div>
         </div>
-    </div>
 
-    <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title" id="clue-modal-title">Clue</div>
-            </div>
-            <div class="modal-body">
-                <p id="clue-modal-text" class="hint-text"></p>
-                <button class="btn btn-primary" onclick="closeModal('clue-modal')">OK</button>
-            </div>
+        <!-- Fragment Tracking HUD Card Component -->
+        <div id="hud-inventory" class="card inventory-wrapper" style="display: none;">
+            <div class="inventory-label">Gathered Fragment Storage Inventory Array</div>
+            <div id="hud-letter-slots" class="letter-grid-row"></div>
         </div>
-    </div>
-
-    <div id="splash-screen" class="splash-overlay">
-        <div class="splash-text" id="splash-text"></div>
-        <div class="splash-bar"></div>
     </div>
 
     <div id="toast" class="toast"></div>
 
+    <div id="action-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="modal-title-field" class="modal-title">Notification</div>
+            <p id="modal-body-field" class="modal-body-text">Operational message parameters here.</p>
+            <button class="btn btn-primary" onclick="closeModal('action-modal')">Acknowledged</button>
+        </div>
+    </div>
+
+    <footer>&copy; Jotun Hunt 2026 · Internal Strategy Network</footer>
+
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
-            authDomain: "jotunhunt2026.firebaseapp.com",
-            projectId: "jotunhunt2026"
-        };
-        firebase.initializeApp(firebaseConfig);
+        // Maps cloud functions backend root
+        const API_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
+        let USER_SESSION_TOKEN = "";
 
-        const CLOUD_FUNCTIONS_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const teamToken = urlParams.get('id');
-
-        let localStateCache = null;
-
-        // ── API HELPER ──
-        async function callCloudEndpoint(endpointName, payload) {
-            const response = await fetch(`${CLOUD_FUNCTIONS_BASE_URL}/${endpointName}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ data: payload })
-            });
-            const json = await response.json();
-            if (!response.ok || json.error) {
-                throw new Error(json.error?.message || "Something went wrong. Please try again.");
-            }
-            return json.result;
+        // Captures ?id=XXXX query parameter straight from your address link strings
+        function grabQueryToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id') || localStorage.getItem('jotun_hunt_session_token') || "";
         }
 
-        // ── MAIN LOAD ──
         async function refreshViewEngine() {
-            if (!teamToken) {
-                renderErrorState(
-                    "Link Invalid",
-                    "Your access link is missing a team token. Please use the link provided to you by the organizer."
-                );
+            USER_SESSION_TOKEN = grabQueryToken().trim().toLowerCase();
+
+            if (!USER_SESSION_TOKEN) {
+                switchActiveView('view-gate');
+                hideInventoryHud();
+                hideSplash();
                 return;
             }
-            setLoading();
+
             try {
-                const data = await callCloudEndpoint('getGameState', { token: teamToken });
-                localStateCache = data;
-                renderUI(data);
-            } catch (e) {
-                renderErrorState("Unable to Load", e.message);
-            }
-        }
-
-        function setLoading() {
-            document.getElementById('game-viewport').innerHTML = `
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p class="loading-label">Loading your quest…</p>
-                </div>`;
-        }
-
-        function renderErrorState(title, msg) {
-            document.getElementById('game-viewport').innerHTML = `
-                <div class="error-state">
-                    <div class="error-icon">
-                        <svg width="24" height="24" fill="none" stroke="#C8102E" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="#C8102E" stroke="none"/>
-                        </svg>
-                    </div>
-                    <p class="error-title">${title}</p>
-                    <p class="error-msg">${msg}</p>
-                </div>`;
-        }
-
-        // ── RENDER ──
-        function renderUI(data) {
-            const viewport = document.getElementById('game-viewport');
-            const header = document.getElementById('app-header');
-
-            if (data.currentStage === 1) {
-                header.style.display = "none";
-                viewport.innerHTML = `
-                    <div class="card-header-band">
-                        <div class="stage-eyebrow">Welcome</div>
-                        <div class="card-heading">Identify Your Team</div>
-                    </div>
-                    <div class="card-body">
-                        <p class="desc-text">Enter your officially registered team name to begin. It must match exactly.</p>
-                        <div class="divider"></div>
-                        <label class="prompt-label">Team Name</label>
-                        <input type="text" id="identity-input" class="input-box" placeholder="" autocomplete="off">
-                        <button class="btn btn-primary" onclick="triggerIdentityCheck()">Begin the Hunt →</button>
-                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint (2 remaining)</button>
-                    </div>`;
-                updateHintButtonLabel(data.hintsUsed);
-                return;
-            }
-
-            header.style.display = "flex";
-            document.getElementById('progress-indicator').innerText =
-                `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
-
-            const slots = document.getElementById('vault-slots').children;
-            for (let i = 0; i < 7; i++) {
-                if (data.letters && data.letters[i]) {
-                    slots[i].innerText = data.letters[i];
-                    slots[i].classList.add('filled');
-                } else {
-                    slots[i].innerText = "";
-                    slots[i].classList.remove('filled');
+                const res = await fetch(`${API_BASE_URL}/getGameState?token=${encodeURIComponent(USER_SESSION_TOKEN)}`);
+                if (res.status === 401) {
+                    showToast("Session authentication invalid. Resetting verification steps.", true);
+                    switchActiveView('view-gate');
+                    hideInventoryHud();
+                    return;
                 }
-            }
+                if (!res.ok) throw new Error(`Server returned error status code: ${res.status}`);
 
-            if (data.viewType === "FINALE") {
-                viewport.innerHTML = `
-                    <div class="card-header-band">
-                        <div class="stage-eyebrow">Final Stage</div>
-                        <div class="card-heading">Decode & Conquer</div>
-                    </div>
-                    <div class="card-body">
-                        <p class="desc-text">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
-                        <button class="btn btn-accent" onclick="openConfirmationAsset('FINAL_IMAGE')">View Final Cryptogram</button>
-                        <button class="btn btn-accent" onclick="openConfirmationAsset('VIGENERE_WHEEL')">View Vigenère Cipher Wheel</button>
-                        <div class="divider"></div>
-                        <label class="prompt-label">Enter the Final Word</label>
-                        <input type="text" id="answer-input" class="input-box" placeholder="Enter decoded word" autocomplete="off">
-                        <button class="btn btn-primary" onclick="triggerFinaleCheck()">Submit Final Answer</button>
-                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
-                    </div>`;
-                updateHintButtonLabel(data.hintsUsed);
-                return;
-            }
+                const data = await res.json();
+                const profile = data.result || {};
 
-            let actionHTML = '';
-            if (data.viewType === "CW") {
-                actionHTML = `
-                    <button class="btn btn-accent" onclick="openConfirmationAsset('CW_SKELETON')">View Crossword Grid</button>
-                    <div class="cw-grid">
-                        <div>
-                            <div class="cw-col-label">Across</div>
-                            ${Object.entries(data.crosswordClues.across).map(([num, clue]) =>
-                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Across')">${num}. View clue</button>`
-                            ).join('')}
-                        </div>
-                        <div>
-                            <div class="cw-col-label">Down</div>
-                            ${Object.entries(data.crosswordClues.down).map(([num, clue]) =>
-                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Down')">${num}. View clue</button>`
-                            ).join('')}
-                        </div>
-                    </div>`;
-            } else if (data.viewType === "BP") {
-                actionHTML = `<button class="btn btn-accent" onclick="openConfirmationAsset('BP_IMAGE')">View Floor Blueprint</button>`;
-            } else if (data.viewType === "MR") {
-                actionHTML = `
-                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_RULES')">View Case File Rules</button>
-                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_SKELETON')">View Room Grid</button>`;
-            }
+                renderInventoryHudLetters(profile.letters || "_______");
 
-            viewport.innerHTML = `
-                <div class="card-header-band">
-                    <div class="stage-eyebrow">Stage ${data.currentStage} of ${data.totalStages}</div>
-                    <div class="card-heading">${data.heading}</div>
-                </div>
-                <div class="card-body">
-                    <p class="desc-text">${data.description}</p>
-                    ${actionHTML ? `<div class="divider"></div>${actionHTML}<div class="divider"></div>` : ''}
-                    <label class="prompt-label">${data.prompt}</label>
-                    <input type="text" id="answer-input" class="input-box" placeholder="Your answer" autocomplete="off">
-                    <button class="btn btn-primary" onclick="triggerAnswerSubmission()">Submit Answer</button>
-                    <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
-                </div>`;
-            updateHintButtonLabel(data.hintsUsed);
-        }
-
-        // ── ACTIONS ──
-        async function triggerIdentityCheck() {
-            const inputVal = document.getElementById('identity-input').value;
-            if (!inputVal.trim()) return;
-            try {
-                await callCloudEndpoint('verifyIdentity', { token: teamToken, inputName: inputVal });
-                showSplash(`Welcome, ${inputVal}!`, 1800);
-                setTimeout(refreshViewEngine, 1800);
-            } catch (e) { showToast(e.message, true); }
-        }
-
-        async function triggerAnswerSubmission() {
-            const ans = document.getElementById('answer-input').value;
-            if (!ans.trim()) return;
-            try {
-                const res = await callCloudEndpoint('submitStageAnswer', { token: teamToken, answer: ans });
-                if (res.correct) {
-                    showSplash(res.animationType + '!', 2000);
-                    setTimeout(refreshViewEngine, 2000);
+                if (profile.isCompleted) {
+                    switchActiveView('view-victory');
+                    showInventoryHud();
+                } else if (profile.atFinale) {
+                    document.getElementById('finale-team-display-name').innerText = profile.teamName || "TEAM PROFILE";
+                    switchActiveView('view-finale');
+                    showInventoryHud();
                 } else {
-                    showToast("That's not quite right. Try again.", true);
-                }
-            } catch (e) { showToast(e.message, true); }
-        }
-
-        // ── FIXED: Complete front-end request pipeline utilizing atomic server callbacks ──
-        async function triggerHintRequest() {
-            const btn = document.getElementById('hint-btn-anchor');
-            if (btn && btn.disabled) return; 
-            if (!confirm("Use one of your hints? You only have 2.")) return;
-            
-            if (btn) btn.disabled = true; // Instantly lock out malicious double clicks
-            
-            try {
-                const res = await callCloudEndpoint('requestHint', { token: teamToken });
-                if (res.success) {
-                    document.getElementById('hint-modal-text').innerText = res.hint;
-                    document.getElementById('hint-modal').style.display = "flex";
+                    document.getElementById('team-display-name-lbl').innerText = profile.teamName || "TEAM PROFILE";
+                    document.getElementById('stage-badge-lbl').innerText = `Stage ${profile.currentStage}/7`;
                     
-                    // 🛑 FIXED: Update client-side parameters cleanly from the verified server response metric
-                    localStateCache.hintsUsed = 2 - res.remaining; 
-                    updateHintButtonLabel(localStateCache.hintsUsed);
-                } else {
-                    showToast(res.message || "You've used all your hints.", true);
-                    updateHintButtonLabel(2); // Hard lock layout configuration to max configuration boundaries
+                    const p = profile.puzzle || {};
+                    document.getElementById('quest-title-anchor').innerText = p.heading || "Quest Challenge Stage";
+                    document.getElementById('quest-desc-anchor').innerText = p.description || "";
+                    document.getElementById('quest-prompt-label').innerText = p.prompt || "Response:";
+                    
+                    updateHintButtonLabel(profile.hintsUsed || 0);
+                    switchActiveView('view-quest');
+                    showInventoryHud();
                 }
-            } catch (e) { 
-                showToast(e.message, true); 
-                if (localStateCache) updateHintButtonLabel(localStateCache.hintsUsed);
+            } catch (err) {
+                console.error("Data syncing issue:", err);
+                showToast("Connection issue mapping backends. Retrying parameters.", true);
+                switchActiveView('view-gate');
+                hideInventoryHud();
+            } finally {
+                hideSplash();
             }
         }
 
-        async function triggerFinaleCheck() {
-            const finalWord = document.getElementById('answer-input').value;
-            if (!finalWord.trim()) return;
+        async function handleTokenVerificationSubmit() {
+            const input = document.getElementById('team-token-input');
+            const token = input.value.trim().toLowerCase();
+            if (!token) return;
+            localStorage.setItem('jotun_hunt_session_token', token);
+            window.location.search = `?id=${token}`;
+        }
+
+        async function handleChallengeAnswerSubmit() {
+            const input = document.getElementById('quest-answer-input');
+            const ans = input.value.trim();
+            if (!ans) return;
+
+            showSplash("Evaluating submission signatures...");
             try {
-                const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord });
-                if (res.correct) {
-                    showSplash("VICTORY! Report to the counter.", 12000);
+                const res = await fetch(`${API_BASE_URL}/submitAnswer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: { token: USER_SESSION_TOKEN, answer: ans } })
+                });
+                const payload = await res.json();
+                const data = payload.result || {};
+
+                if (data.correct) {
+                    input.value = "";
+                    openModal("Challenge Verified!", `Success! You have discovered characters: "${data.droppedLetters}". Moving forward.`);
+                    await refreshViewEngine();
                 } else {
-                    showToast("Incorrect. Check your cipher decoding.", true);
+                    showToast("Incorrect answer string mismatch.", true);
                 }
-            } catch (e) { showToast(e.message, true); }
-        }
-
-        function showClue(num, clue, direction) {
-            document.getElementById('clue-modal-title').innerText = `${direction} ${num}`;
-            document.getElementById('clue-modal-text').innerText = clue;
-            document.getElementById('clue-modal').style.display = "flex";
-        }
-
-        function openConfirmationAsset(type) {
-            if (!confirm("Open this asset?")) return;
-            const body = document.getElementById('action-modal-body');
-            const title = document.getElementById('action-modal-title');
-            body.innerHTML = '';
-
-            if (type === 'CW_SKELETON') {
-                title.innerText = "Crossword Grid";
-                body.innerHTML = `<div style="border:2px dashed var(--jotun-navy);padding:24px;text-align:center;font-weight:600;color:var(--text-secondary);border-radius:8px;">[Crossword Grid Layout]</div>`;
-            } else if (type === 'BP_IMAGE') {
-                title.innerText = "Floor Blueprint";
-                body.innerHTML = `<div style="background:var(--jotun-navy);color:white;padding:32px;text-align:center;font-family:monospace;border-radius:8px;font-size:13px;">[HTML Blueprint Matrix Map]</div>`;
-            } else if (type === 'MR_RULES') {
-                title.innerText = "Case File Rules";
-                body.innerHTML = `<div class="hint-text">1. No two workers can occupy the same room cell.<br><br>2. Entry points must remain unobstructed.</div>`;
-            } else if (type === 'MR_SKELETON') {
-                title.innerText = "Room Grid";
-                body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,44px);gap:6px;justify-content:center;">${Array(9).fill('<div style="border:1.5px solid var(--border);height:44px;border-radius:4px;"></div>').join('')}</div>`;
-            } else if (type === 'VIGENERE_WHEEL') {
-                title.innerText = "Vigenère Cipher Wheel";
-                body.innerHTML = `<div style="width:120px;height:120px;border-radius:50%;margin:auto;border:4px double var(--jotun-navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--jotun-navy);">CIPHER<br>WHEEL</div>`;
-            } else {
-                title.innerText = "Final Clue";
-                body.innerHTML = `<div style="font-weight:700;color:var(--jotun-red);text-align:center;padding:20px;">[Final Clue Asset]</div>`;
+            } catch (err) {
+                showToast("Verification pipeline synchronization failure.", true);
+            } finally {
+                hideSplash();
             }
+        }
+
+        async function triggerHintRequestApi() {
+            if (!confirm("Confirm hint deployment for this configuration stage parameters?")) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/requestHint`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: { token: USER_SESSION_TOKEN } })
+                });
+                const payload = await res.json();
+                const data = payload.result || {};
+                if (data.success) {
+                    openModal("Hint Briefing Layout", data.hint);
+                    await refreshViewEngine();
+                }
+            } catch (err) {
+                showToast("Failed to pull hint file structure.", true);
+            }
+        }
+
+        async function handleFinaleSubmissionSubmit() {
+            const input = document.getElementById('finale-word-input');
+            const word = input.value.trim().toUpperCase();
+            if (!word) return;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/submitFinale`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ data: { token: USER_SESSION_TOKEN, finalWord: word } })
+                });
+                const payload = await res.json();
+                const data = payload.result || {};
+                if (data.correct) {
+                    openModal("👑 VICTORY DETECTED! 👑", "Sensational run! Your group has officially finished the task tracks.");
+                    await refreshViewEngine();
+                } else {
+                    showToast("Phrase verification mismatch.", true);
+                }
+            } catch (err) {
+                showToast("Failed to verify submission tracks.", true);
+            }
+        }
+
+        function switchActiveView(id) {
+            ['view-gate', 'view-quest', 'view-finale', 'view-victory'].forEach(v => {
+                document.getElementById(v).style.display = (v === id) ? "block" : "none";
+            });
+        }
+
+        function renderInventoryHudLetters(letters) {
+            const container = document.getElementById('hud-letter-slots');
+            container.innerHTML = letters.split("").map(char => {
+                return (char && char !== "_") ? `<div class="letter-box-slot filled">${char}</div>` : `<div class="letter-box-slot">_</div>`;
+            }).join('');
+        }
+
+        function showInventoryHud() { document.getElementById('hud-inventory').style.display = "block"; }
+        function hideInventoryHud() { document.getElementById('hud-inventory').style.display = "none"; }
+        function hideSplash() { document.getElementById('splash-screen').style.display = "none"; }
+        function openModal(title, text) {
+            document.getElementById('modal-title-field').innerText = title;
+            document.getElementById('modal-body-field').innerText = text;
             document.getElementById('action-modal').style.display = "flex";
         }
-
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
-
-        function showSplash(text, duration) {
+        function showSplash(text) {
             document.getElementById('splash-text').innerText = text;
             document.getElementById('splash-screen').style.display = "flex";
-            setTimeout(() => { document.getElementById('splash-screen').style.display = "none"; }, duration);
         }
 
         let toastTimer;
@@ -788,16 +352,11 @@
             const btn = document.getElementById('hint-btn-anchor');
             if (!btn) return;
             const remaining = 2 - used;
-            if (remaining <= 0) {
-                btn.innerText = "No hints remaining";
-                btn.disabled = true;
-            } else {
-                btn.innerText = `Request a Hint (${remaining} remaining)`;
-                btn.disabled = false;
-            }
+            btn.innerText = (remaining <= 0) ? "No hints remaining" : `Request a Hint (${remaining} remaining)`;
+            btn.disabled = (remaining <= 0);
         }
 
-        refreshViewEngine();
+        window.addEventListener('DOMContentLoaded', refreshViewEngine);
     </script>
 </body>
 </html>
