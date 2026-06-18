@@ -1,46 +1,4 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>War Room Master Analytics Terminal</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <style>
-        :root { --primary: #002D72; --victory: #10B981; --dark: #0F172A; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: #F8FAFC; margin: 0; padding: 20px; color: var(--dark); }
-        .dashboard-container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 25px; }
-        h1 { color: var(--primary); margin-bottom: 20px; font-size: 26px; border-bottom: 3px solid #E2E8F0; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #F1F5F9; text-align: left; padding: 14px; font-weight: 600; border-bottom: 2px solid #E2E8F0; color: #475569; }
-        td { padding: 14px; border-bottom: 1px solid #E2E8F0; font-size: 15px; }
-        tr.completed { background: rgba(16, 185, 129, 0.08); font-weight: bold; }
-        .badge-stage { background: var(--primary); color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; }
-        .badge-completed { background: var(--victory); color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; }
-        .letters-stream { font-family: monospace; letter-spacing: 2px; color: #DC2626; font-weight: bold; font-size: 16px; }
-    </style>
-</head>
-<body>
-
-    <div class="dashboard-container">
-        <h1>🏆 War Room Master Analytics Monitor</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Rank / Team Entity</th>
-                    <th>Current Stage Vector</th>
-                    <th>Accrued Vault Letters</th>
-                    <th>Hints Consumed</th>
-                    <th>Last Active Echo</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-stream-target">
-                <tr><td colspan="5" style="text-align:center; color:#94A3B8;">Awaiting database stream sync signals...</td></tr>
-            </tbody>
-        </table>
-    </div>
-
-    <script>
+﻿<script>
         const firebaseConfig = {
             apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
             authDomain: "jotunhunt2026.firebaseapp.com",
@@ -50,43 +8,89 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        function getRankClass(idx) {
+            if (idx === 0) return 'gold';
+            if (idx === 1) return 'silver';
+            if (idx === 2) return 'bronze';
+            return '';
+        }
+
+        // ── TARGET THE EXACT NODE USED BY BACKEND ──
         db.ref('gameData/teams').on('value', (snapshot) => {
+            const data = snapshot.val();
             const target = document.getElementById('leaderboard-stream-target');
-            if(!snapshot.exists()) {
-                target.innerHTML = `<tr><td colspan="5" style="text-align:center;">No active team footprints recorded.</td></tr>`;
+
+            if (!data) {
+                target.innerHTML = `
+                    <tr class="empty-state">
+                        <td colspan="5">⏳ Waiting for teams to connect…</td>
+                    </tr>`;
+                updateStats([]);
                 return;
             }
 
-            const teamsList = [];
-            snapshot.forEach((child) => {
-                teamsList.push({ id: child.key, ...child.val() });
-            });
+            // Convert to sorting layout array
+            const teams = Object.keys(data).map(token => ({
+                token,
+                ...data[token]
+            }));
 
-            teamsList.sort((a, b) => {
+            // Sort: Completed first (by time), then by highest stage, then by least hints
+            teams.sort((a, b) => {
                 if (a.isCompleted && !b.isCompleted) return -1;
                 if (!a.isCompleted && b.isCompleted) return 1;
-                if (b.currentStage !== a.currentStage) return b.currentStage - a.currentStage;
-                return (a.lastActive || 0) - (b.lastActive || 0);
+                if (a.currentStage !== b.currentStage) return b.currentStage - a.currentStage;
+                return (a.hintsUsed || 0) - (b.hintsUsed || 0);
             });
 
-            target.innerHTML = teamsList.map((team, idx) => {
-                const stageLabel = team.isCompleted 
-                    ? `<span class="badge-completed">FINISH 🏁</span>` 
-                    : `<span class="badge-stage">Stage ${team.currentStage} / 7</span>`;
-                
-                const timeString = team.lastActive ? new Date(team.lastActive).toLocaleTimeString() : 'N/A';
-                
+            updateStats(teams);
+
+            target.innerHTML = teams.map((team, idx) => {
+                let stageBadge = `<span class="badge badge-stage">Stage ${team.currentStage} / 7</span>`;
+                if (team.isCompleted) {
+                    stageBadge = `<span class="badge badge-done">🏁 Finished</span>`;
+                }
+
+                const elapsedMin = Math.max(0, Math.floor((Date.now() - (team.lastActive || Date.now())) / 60000));
+                const timeStr = elapsedMin === 0 ? 'Just now' : `${elapsedMin}m ago`;
+
+                const hintsHTML = `<span class="hints-pill ${team.hintsUsed >= 2 ? 'maxed' : ''}">${team.hintsUsed || 0} / 2</span>`;
+
+                let lettersHTML = '';
+                for (let i = 0; i < 7; i++) {
+                    const char = (team.letters || '')[i] || '';
+                    lettersHTML += `<div class="dash-letter-box ${char ? 'active' : ''}">${char}</div>`;
+                }
+
+                const rankClass = getRankClass(idx);
+
                 return `
-                    <tr class="${team.isCompleted ? 'completed' : ''}">
-                        <td><strong>#${idx + 1}</strong> — ${team.teamName}</td>
-                        <td>${stageLabel}</td>
-                        <td><span class="letters-stream">${team.letters || '—'}</span></td>
-                        <td><strong>${team.hintsUsed || 0}</strong> / 2</td>
-                        <td>${timeString}</td>
-                    </tr>
-                `;
+                    <tr class="${team.isCompleted ? 'row-completed' : ''}">
+                        <td>
+                            <div class="rank-cell">
+                                <div class="rank-num ${rankClass}">${idx + 1}</div>
+                                <span class="team-name">${team.teamName}</span>
+                            </div>
+                        </td>
+                        <td>${stageBadge}</td>
+                        <td><div style="display:flex; gap:3px;">${lettersHTML}</div></td>
+                        <td>${hintsHTML}</td>
+                        <td class="time-cell">${timeStr}</td>
+                    </tr>`;
             }).join('');
         });
+
+        function updateStats(teams) {
+            const total = teams.length;
+            const done = teams.filter(t => t.isCompleted).length;
+            const active = total - done;
+            const avgStage = total > 0
+                ? (teams.reduce((s, t) => s + (t.currentStage || 1), 0) / total).toFixed(1)
+                : '—';
+
+            document.getElementById('stat-total').innerText = total || '—';
+            document.getElementById('stat-done').innerText = done || '—';
+            document.getElementById('stat-active').innerText = active || '—';
+            document.getElementById('stat-avg').innerText = total > 0 ? avgStage : '—';
+        }
     </script>
-</body>
-</html>

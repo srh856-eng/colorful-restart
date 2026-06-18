@@ -3,125 +3,606 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Interactive Scavenger Hub</title>
+    <title>Jotun Hunt 2026</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #002D72; --accent: #FFC72C; --dark: #1C2434; --light: #F4F7FC; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: var(--light); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; }
-        header { background: var(--primary); padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 100; }
-        .progress-box { font-weight: bold; background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 20px; }
-        .vault-container { display: flex; gap: 4px; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); }
-        .vault-slot { width: 28px; height: 28px; border: 1px dashed rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: var(--accent); background: rgba(0,0,0,0.3); border-radius: 4px; text-transform: uppercase; }
-        .vault-slot.filled { border-style: solid; border-color: var(--accent); background: var(--primary); transform: scale(1.1); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .main-card { flex: 1; max-width: 500px; width: 100%; margin: 20px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); display: flex; flex-direction: column; gap: 15px; }
-        h2 { color: var(--primary); font-size: 22px; border-bottom: 2px solid var(--light); padding-bottom: 8px; }
-        .desc-text { line-height: 1.5; color: #55637D; font-size: 15px; }
-        .input-box { width: 100%; padding: 12px 16px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 16px; outline: none; transition: 0.2s; text-transform: uppercase; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-submit { background: var(--primary); color: white; }
-        .btn-submit:hover { background: #001E4E; }
-        .btn-hint { background: #E2E8F0; color: var(--dark); margin-top: auto; }
-        .cw-grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 10px 0; }
-        .cw-column h4 { margin-bottom: 8px; color: var(--primary); border-bottom: 1px solid #E2E8F0; padding-bottom: 4px; }
-        .cw-btn { width: 100%; background: #F4F7FC; color: var(--dark); border: 1px solid #D2Dbe5; padding: 8px; margin-bottom: 6px; font-size: 13px; text-align: left; border-radius: 6px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; text-align: center; display: flex; flex-direction: column; gap: 15px; }
-        .splash-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary); color: white; flex-direction: column; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; z-index: 2000; text-transform: uppercase; }
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1.1); } }
+        :root {
+            --jotun-navy: #002D72;
+            --jotun-navy-deep: #001A45;
+            --jotun-navy-mid: #00408A;
+            --jotun-red: #C8102E;
+            --jotun-red-light: #E8192F;
+            --jotun-gold: #F0A500;
+            --jotun-white: #FFFFFF;
+            --surface: #F6F8FC;
+            --surface-2: #EEF2F9;
+            --text-primary: #0D1B35;
+            --text-secondary: #4A5778;
+            --border: #D4DCF0;
+            --radius: 10px;
+            --shadow: 0 4px 24px rgba(0,45,114,0.10);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── HEADER ── */
+        header {
+            display: none;
+            background: var(--jotun-navy);
+            padding: 0 24px;
+            height: 64px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .jotun-logomark {
+            width: 36px;
+            height: 36px;
+            background: var(--jotun-red);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
+        }
+        .header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            letter-spacing: 0.5px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-pill {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+        .vault-container {
+            display: flex;
+            gap: 4px;
+        }
+        .vault-slot {
+            width: 28px;
+            height: 30px;
+            border: 1.5px dashed rgba(255,255,255,0.25);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: transparent;
+            background: rgba(0,0,0,0.2);
+            transition: all 0.25s ease;
+        }
+        .vault-slot.filled {
+            border-color: var(--jotun-gold);
+            background: rgba(240,165,0,0.15);
+            color: var(--jotun-gold);
+            transform: scale(1.08);
+            animation: popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1.08); opacity: 1; }
+        }
+
+        /* ── MAIN CARD ── */
+        .game-wrap {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 32px 16px 48px;
+        }
+        .main-card {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .card-header-band {
+            background: var(--jotun-navy);
+            padding: 20px 24px 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-header-band::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 100px;
+            height: 100px;
+            background: var(--jotun-red);
+            opacity: 0.15;
+            border-radius: 50%;
+        }
+        .stage-eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 6px;
+        }
+        .card-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.1;
+        }
+        .card-body {
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .desc-text {
+            font-size: 14px;
+            line-height: 1.65;
+            color: var(--text-secondary);
+        }
+        .prompt-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--jotun-navy);
+            letter-spacing: 0.2px;
+        }
+        .input-box {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background: var(--surface);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .input-box:focus {
+            border-color: var(--jotun-navy);
+            box-shadow: 0 0 0 3px rgba(0,45,114,0.08);
+            background: white;
+        }
+        .btn {
+            width: 100%;
+            padding: 13px 16px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+        .btn-primary {
+            background: var(--jotun-navy);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--jotun-navy-mid); transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-accent {
+            background: var(--jotun-red);
+            color: white;
+        }
+        .btn-accent:hover { background: var(--jotun-red-light); transform: translateY(-1px); }
+        .btn-ghost {
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-ghost:hover { background: var(--surface); color: var(--text-primary); }
+        .btn-ghost:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── CROSSWORD CLUES ── */
+        .cw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cw-col-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cw-clue-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: all 0.15s;
+        }
+        .cw-clue-btn:hover { background: var(--jotun-navy); color: white; border-color: var(--jotun-navy); }
+
+        .divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+        /* ── ERROR STATE ── */
+        .error-state {
+            text-align: center;
+            padding: 40px 24px;
+        }
+        .error-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(200,16,46,0.08);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .error-icon svg { color: var(--jotun-red); }
+        .error-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .error-msg { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ── LOADING STATE ── */
+        .loading-state {
+            text-align: center;
+            padding: 52px 24px;
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--jotun-navy);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-label { font-size: 13px; color: var(--text-secondary); }
+
+        /* ── MODAL ── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,20,50,0.55);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            background: var(--jotun-navy);
+            padding: 16px 20px;
+        }
+        .modal-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+        .modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .hint-text {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            background: var(--surface);
+            border-left: 3px solid var(--jotun-gold);
+            padding: 12px 14px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* ── SPLASH ── */
+        .splash-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--jotun-navy);
+            color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .splash-text {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            animation: splashPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        .splash-bar {
+            width: 60px;
+            height: 4px;
+            background: var(--jotun-red);
+            border-radius: 2px;
+            margin-top: 16px;
+            animation: barGrow 0.4s ease 0.3s both;
+        }
+        @keyframes splashPop {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes barGrow {
+            from { width: 0; }
+            to { width: 60px; }
+        }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 3000;
+            transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+            white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--jotun-red); }
+
+        /* ── FOOTER BRAND ── */
+        .footer-brand {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: #B0BCDA;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
 
-    <header id="app-header" style="display:none;">
-        <div class="progress-box" id="progress-indicator">0%</div>
-        <div class="vault-container" id="vault-slots">
-            <div class="vault-slot"></div><div class="vault-slot"></div><div class="vault-slot"></div>
-            <div class="vault-slot"></div><div class="vault-slot"></div><div class="vault-slot"></div>
-            <div class="vault-slot"></div>
+    <header id="app-header">
+        <div class="header-brand">
+            <div class="jotun-logomark">J</div>
+            <span class="header-title">JOTUN HUNT 2026</span>
+        </div>
+        <div class="header-right">
+            <span class="progress-pill" id="progress-indicator">0%</span>
+            <div class="vault-container" id="vault-slots">
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+            </div>
         </div>
     </header>
 
-    <main class="main-card" id="game-viewport">
-        <h2 style="text-align:center; padding: 40px 0;">Synchronizing Engine Vector...</h2>
-    </main>
-
-    <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 style="color:var(--primary)">💡 Hint</h3>
-            <p id="hint-modal-text" class="desc-text"></p>
-            <button class="btn-submit" onclick="closeModal('hint-modal')">Submit</button>
+    <div class="game-wrap">
+        <div class="main-card" id="game-viewport">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p class="loading-label">Loading your quest…</p>
+            </div>
         </div>
     </div>
 
-    <div id="splash-screen" class="splash-overlay"></div>
+    <div class="footer-brand">JOTUN · HUNT 2026</div>
+
+    <!-- Hint Modal -->
+    <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">💡 Hint</div>
+            </div>
+            <div class="modal-body">
+                <p id="hint-modal-text" class="hint-text"></p>
+                <button class="btn btn-primary" onclick="closeModal('hint-modal')">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Modal -->
+    <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="action-modal-title">Asset Viewer</div>
+            </div>
+            <div class="modal-body">
+                <div id="action-modal-body"></div>
+                <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clue Modal -->
+    <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="clue-modal-title">Clue</div>
+            </div>
+            <div class="modal-body">
+                <p id="clue-modal-text" class="hint-text"></p>
+                <button class="btn btn-primary" onclick="closeModal('clue-modal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="splash-screen" class="splash-overlay">
+        <div class="splash-text" id="splash-text"></div>
+        <div class="splash-bar"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBVc7yDM3Z1rzH3ALSQgqLLIJxHLRrm-DE",
+            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
             authDomain: "jotunhunt2026.firebaseapp.com",
             projectId: "jotunhunt2026"
         };
         firebase.initializeApp(firebaseConfig);
-        
-        const CLOUD_FUNCTIONS_BASE_URL = "https://us-central1-jotunhunt2026.cloudfunctions.net";
-        
+
+        // ── FIX: Use the correct region matching your Firebase backend ──
+        const CLOUD_FUNCTIONS_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
+
         const urlParams = new URLSearchParams(window.location.search);
         const teamToken = urlParams.get('id');
 
         let localStateCache = null;
 
+        // ── API HELPER ──
         async function callCloudEndpoint(endpointName, payload) {
             const response = await fetch(`${CLOUD_FUNCTIONS_BASE_URL}/${endpointName}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ data: payload })
             });
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error?.message || "Network execution exception.");
-            }
             const json = await response.json();
+            if (!response.ok || json.error) {
+                throw new Error(json.error?.message || "Something went wrong. Please try again.");
+            }
             return json.result;
         }
 
+        // ── MAIN LOAD ──
         async function refreshViewEngine() {
-            if(!teamToken) {
-                document.getElementById('game-viewport').innerHTML = `<h2>Access Aborted</h2><p class="desc-text">Missing absolute URL token identifier parameters.</p>`;
+            if (!teamToken) {
+                renderErrorState(
+                    "Link Invalid",
+                    "Your access link is missing a team token. Please use the link provided to you by the organizer."
+                );
                 return;
             }
+            setLoading();
             try {
                 const data = await callCloudEndpoint('getGameState', { token: teamToken });
                 localStateCache = data;
-                renderUI(localStateCache);
-            } catch(e) {
-                document.getElementById('game-viewport').innerHTML = `<h2>Status Integration Error</h2><p class="desc-text">${e.message}<br><br>Tip: If using cellular data, try refreshing or checking connection permissions.</p>`;
+                renderUI(data);
+            } catch (e) {
+                renderErrorState("Unable to Load", e.message);
             }
         }
 
+        function setLoading() {
+            document.getElementById('game-viewport').innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p class="loading-label">Loading your quest…</p>
+                </div>`;
+        }
+
+        function renderErrorState(title, msg) {
+            document.getElementById('game-viewport').innerHTML = `
+                <div class="error-state">
+                    <div class="error-icon">
+                        <svg width="24" height="24" fill="none" stroke="#C8102E" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="#C8102E" stroke="none"/>
+                        </svg>
+                    </div>
+                    <p class="error-title">${title}</p>
+                    <p class="error-msg">${msg}</p>
+                </div>`;
+        }
+
+        // ── RENDER ──
         function renderUI(data) {
             const viewport = document.getElementById('game-viewport');
             const header = document.getElementById('app-header');
-            
-            if(data.currentStage === 1) {
+
+            // ── STAGE 1: Identity ──
+            if (data.currentStage === 1) {
                 header.style.display = "none";
                 viewport.innerHTML = `
-                    <h2 style="text-align:center;">INAUGURATION TO A COLORFUL RESTART</h2>
-                    <p class="desc-text" style="text-align:center;">Input your official team name</p>
-                    <input type="text" id="identity-input" class="input-box" placeholder="">
-                    <button class="btn-submit" onclick="triggerIdentityCheck()">Submit</button>
-                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
-                `;
+                    <div class="card-header-band">
+                        <div class="stage-eyebrow">Welcome</div>
+                        <div class="card-heading">Identify Your Team</div>
+                    </div>
+                    <div class="card-body">
+                        <p class="desc-text">Enter your officially registered team name to begin. It must match exactly.</p>
+                        <div class="divider"></div>
+                        <label class="prompt-label">Team Name</label>
+                        <input type="text" id="identity-input" class="input-box" placeholder="e.g. ROYAL BLUE" autocomplete="off">
+                        <button class="btn btn-primary" onclick="triggerIdentityCheck()">Begin the Hunt →</button>
+                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint (2 remaining)</button>
+                    </div>`;
                 updateHintButtonLabel(data.hintsUsed);
                 return;
             }
 
+            // ── Show header ──
             header.style.display = "flex";
-            document.getElementById('progress-indicator').innerText = `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
-            
+            document.getElementById('progress-indicator').innerText =
+                `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
+
             const slots = document.getElementById('vault-slots').children;
-            for(let i=0; i<7; i++) {
-                if(data.letters && data.letters[i]) {
+            for (let i = 0; i < 7; i++) {
+                if (data.letters && data.letters[i]) {
                     slots[i].innerText = data.letters[i];
                     slots[i].classList.add('filled');
                 } else {
@@ -130,98 +611,186 @@
                 }
             }
 
-            if(data.viewType === "FINALE") {
+            // ── STAGE 7: Finale ──
+            if (data.viewType === "FINALE") {
                 viewport.innerHTML = `
-                    <h2>Quest Finale: Unscramble & Decode</h2>
-                    <p class="desc-text">The Letter Vault has integrated into the center frame. Unscramble the letters gathered along your route and decode using the Vigenère engine metrics.</p>
-                    <input type="text" id="answer-input" class="input-box" placeholder="">
-                    <button class="btn-submit" onclick="triggerFinaleCheck()">Submit</button>
-                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
-                `;
-            } else {
-                let actionAssetsHTML = '';
-                if(data.viewType === "CW") {
-                    actionAssetsHTML = `
-                        <div class="cw-grid-menu">
-                            <div class="cw-column"><h4>Across</h4>
-                                ${Object.entries(data.crosswordClues.across).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. View Clue</button>`).join('')}
-                            </div>
-                            <div class="cw-column"><h4>Down</h4>
-                                ${Object.entries(data.crosswordClues.down).map(([num, clue])=>`<button class="cw-btn" onclick="alert('Clue ${num}: ${clue}')">${num}. View Clue</button>`).join('')}
-                            </div>
-                        </div>`;
-                }
-
-                viewport.innerHTML = `
-                    <h2>${data.heading}</h2>
-                    <p class="desc-text">${data.description}</p>
-                    ${actionAssetsHTML}
-                    <p class="desc-text" style="font-weight:bold; margin-top:10px;">${data.prompt}</p>
-                    <input type="text" id="answer-input" class="input-box" placeholder="">
-                    <button class="btn-submit" onclick="triggerAnswerSubmission()">Submit</button>
-                    <button class="btn-hint" id="hint-btn-anchor" onclick="triggerHintRequest()">Hints (2 Remaining)</button>
-                `;
+                    <div class="card-header-band">
+                        <div class="stage-eyebrow">Final Stage</div>
+                        <div class="card-heading">Decode & Conquer</div>
+                    </div>
+                    <div class="card-body">
+                        <p class="desc-text">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
+                        <button class="btn btn-accent" onclick="openConfirmationAsset('FINAL_IMAGE')">View Final Cryptogram</button>
+                        <button class="btn btn-accent" onclick="openConfirmationAsset('VIGENERE_WHEEL')">View Vigenère Cipher Wheel</button>
+                        <div class="divider"></div>
+                        <label class="prompt-label">Enter the Final Word</label>
+                        <input type="text" id="answer-input" class="input-box" placeholder="Enter decoded word" autocomplete="off">
+                        <button class="btn btn-primary" onclick="triggerFinaleCheck()">Submit Final Answer</button>
+                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
+                    </div>`;
+                updateHintButtonLabel(data.hintsUsed);
+                return;
             }
+
+            // ── STAGES 2–6: Puzzle ──
+            let actionHTML = '';
+            if (data.viewType === "CW") {
+                actionHTML = `
+                    <button class="btn btn-accent" onclick="openConfirmationAsset('CW_SKELETON')">View Crossword Grid</button>
+                    <div class="cw-grid">
+                        <div>
+                            <div class="cw-col-label">Across</div>
+                            ${Object.entries(data.crosswordClues.across).map(([num, clue]) =>
+                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Across')">${num}. View clue</button>`
+                            ).join('')}
+                        </div>
+                        <div>
+                            <div class="cw-col-label">Down</div>
+                            ${Object.entries(data.crosswordClues.down).map(([num, clue]) =>
+                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Down')">${num}. View clue</button>`
+                            ).join('')}
+                        </div>
+                    </div>`;
+            } else if (data.viewType === "BP") {
+                actionHTML = `<button class="btn btn-accent" onclick="openConfirmationAsset('BP_IMAGE')">View Floor Blueprint</button>`;
+            } else if (data.viewType === "MR") {
+                actionHTML = `
+                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_RULES')">View Case File Rules</button>
+                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_SKELETON')">View Room Grid</button>`;
+            }
+
+            viewport.innerHTML = `
+                <div class="card-header-band">
+                    <div class="stage-eyebrow">Stage ${data.currentStage} of ${data.totalStages}</div>
+                    <div class="card-heading">${data.heading}</div>
+                </div>
+                <div class="card-body">
+                    <p class="desc-text">${data.description}</p>
+                    ${actionHTML ? `<div class="divider"></div>${actionHTML}<div class="divider"></div>` : ''}
+                    <label class="prompt-label">${data.prompt}</label>
+                    <input type="text" id="answer-input" class="input-box" placeholder="Your answer" autocomplete="off">
+                    <button class="btn btn-primary" onclick="triggerAnswerSubmission()">Submit Answer</button>
+                    <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
+                </div>`;
             updateHintButtonLabel(data.hintsUsed);
         }
 
+        // ── ACTIONS ──
         async function triggerIdentityCheck() {
             const inputVal = document.getElementById('identity-input').value;
-            if(!inputVal.trim()) return;
+            if (!inputVal.trim()) return;
             try {
                 await callCloudEndpoint('verifyIdentity', { token: teamToken, inputName: inputVal });
-                showSplashSplash(`Welcome ${inputVal}`, 1500);
-                setTimeout(refreshViewEngine, 1500);
-            } catch(e) { alert(e.message); }
+                showSplash(`Welcome, ${inputVal}!`, 1800);
+                setTimeout(refreshViewEngine, 1800);
+            } catch (e) { showToast(e.message, true); }
         }
 
         async function triggerAnswerSubmission() {
             const ans = document.getElementById('answer-input').value;
-            if(!ans.trim()) return;
+            if (!ans.trim()) return;
             try {
                 const res = await callCloudEndpoint('submitStageAnswer', { token: teamToken, answer: ans });
-                if(res.correct) {
-                    showSplashSplash("Success!", 2000);
+                if (res.correct) {
+                    showSplash(res.animationType + '!', 2000);
                     setTimeout(refreshViewEngine, 2000);
-                } else { alert("Verification Sequence Denied. Check entry values."); }
-            } catch(e) { alert(e.message); }
+                } else {
+                    showToast("That's not quite right. Try again.", true);
+                }
+            } catch (e) { showToast(e.message, true); }
         }
 
         async function triggerHintRequest() {
-            if(!confirm("Are you sure you want to request a hint?")) return;
+            if (!confirm("Use one of your hints? You only have 2.")) return;
             try {
                 const res = await callCloudEndpoint('requestHint', { token: teamToken });
-                if(res.success) {
+                if (res.success) {
                     document.getElementById('hint-modal-text').innerText = res.hint;
                     document.getElementById('hint-modal').style.display = "flex";
-                    updateHintButtonLabel(localStateCache.hintsUsed + 1);
                     localStateCache.hintsUsed++;
-                } else { alert(res.msg); }
-            } catch(e) { alert(e.message); }
+                    updateHintButtonLabel(localStateCache.hintsUsed);
+                } else {
+                    showToast("You've used all your hints.", true);
+                }
+            } catch (e) { showToast(e.message, true); }
         }
 
         async function triggerFinaleCheck() {
             const finalWord = document.getElementById('answer-input').value;
-            if(!finalWord.trim()) return;
+            if (!finalWord.trim()) return;
             try {
-                const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord: finalWord });
-                if(res.correct) {
-                    showSplashSplash("VICTORY! Report to Counter.", 10000);
-                } else { alert("Incorrect finale decryption pattern."); }
-            } catch(e) { alert(e.message); }
+                const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord });
+                if (res.correct) {
+                    showSplash("VICTORY! Report to the counter.", 12000);
+                } else {
+                    showToast("Incorrect. Check your cipher decoding.", true);
+                }
+            } catch (e) { showToast(e.message, true); }
+        }
+
+        function showClue(num, clue, direction) {
+            document.getElementById('clue-modal-title').innerText = `${direction} ${num}`;
+            document.getElementById('clue-modal-text').innerText = clue;
+            document.getElementById('clue-modal').style.display = "flex";
+        }
+
+        function openConfirmationAsset(type) {
+            if (!confirm("Open this asset?")) return;
+            const body = document.getElementById('action-modal-body');
+            const title = document.getElementById('action-modal-title');
+            body.innerHTML = '';
+
+            if (type === 'CW_SKELETON') {
+                title.innerText = "Crossword Grid";
+                body.innerHTML = `<div style="border:2px dashed var(--jotun-navy);padding:24px;text-align:center;font-weight:600;color:var(--text-secondary);border-radius:8px;">[Crossword Grid Layout]</div>`;
+            } else if (type === 'BP_IMAGE') {
+                title.innerText = "Floor Blueprint";
+                body.innerHTML = `<div style="background:var(--jotun-navy);color:white;padding:32px;text-align:center;font-family:monospace;border-radius:8px;font-size:13px;">[HTML Blueprint Matrix Map]</div>`;
+            } else if (type === 'MR_RULES') {
+                title.innerText = "Case File Rules";
+                body.innerHTML = `<div class="hint-text">1. No two workers can occupy the same room cell.<br><br>2. Entry points must remain unobstructed.</div>`;
+            } else if (type === 'MR_SKELETON') {
+                title.innerText = "Room Grid";
+                body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,44px);gap:6px;justify-content:center;">${Array(9).fill('<div style="border:1.5px solid var(--border);height:44px;border-radius:4px;"></div>').join('')}</div>`;
+            } else if (type === 'VIGENERE_WHEEL') {
+                title.innerText = "Vigenère Cipher Wheel";
+                body.innerHTML = `<div style="width:120px;height:120px;border-radius:50%;margin:auto;border:4px double var(--jotun-navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--jotun-navy);">CIPHER<br>WHEEL</div>`;
+            } else {
+                title.innerText = "Final Clue";
+                body.innerHTML = `<div style="font-weight:700;color:var(--jotun-red);text-align:center;padding:20px;">[Final Clue Asset]</div>`;
+            }
+            document.getElementById('action-modal').style.display = "flex";
         }
 
         function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        function showSplashSplash(text, duration) {
-            const s = document.getElementById('splash-screen');
-            s.innerText = text; s.style.display = "flex";
-            setTimeout(() => { s.style.display = "none"; }, duration);
+
+        function showSplash(text, duration) {
+            document.getElementById('splash-text').innerText = text;
+            document.getElementById('splash-screen').style.display = "flex";
+            setTimeout(() => { document.getElementById('splash-screen').style.display = "none"; }, duration);
         }
+
+        let toastTimer;
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            clearTimeout(toastTimer);
+            requestAnimationFrame(() => { t.classList.add('show'); });
+            toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
         function updateHintButtonLabel(used) {
             const btn = document.getElementById('hint-btn-anchor');
-            if(!btn) return;
-            if(used >= 2) { btn.innerText = "Out of Hints"; btn.disabled = true; btn.style.background = "#CBD5E1"; }
-            else { btn.innerText = `Hints (${2 - used} Remaining)`; }
+            if (!btn) return;
+            const remaining = 2 - used;
+            if (remaining <= 0) {
+                btn.innerText = "No hints remaining";
+                btn.disabled = true;
+            } else {
+                btn.innerText = `Request a Hint (${remaining} remaining)`;
+                btn.disabled = false;
+            }
         }
 
         refreshViewEngine();
