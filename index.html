@@ -1,72 +1,668 @@
-/**
- * Jotun Hunt 2026 — Firebase Cloud Functions Backend (v2 Compatible)
- * Region: asia-southeast1
- */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jotun Hunt 2026</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --jotun-navy: #002D72;
+            --jotun-navy-deep: #001A45;
+            --jotun-navy-mid: #00408A;
+            --jotun-red: #C8102E;
+            --jotun-red-light: #E8192F;
+            --jotun-gold: #F0A500;
+            --jotun-gold-deep: #B88000;
+            --jotun-white: #FFFFFF;
+            --surface: #F6F8FC;
+            --surface-2: #EEF2F9;
+            --text-primary: #0D1B35;
+            --text-secondary: #4A5778;
+            --border: #D4DCF0;
+            --radius: 10px;
+            --shadow: 0 4px 24px rgba(0,45,114,0.10);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--surface);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-"use strict";
+        header {
+            display: none;
+            background: var(--jotun-navy);
+            padding: 0 24px;
+            height: 64px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .jotun-logomark {
+            width: 36px; height: 36px; background: var(--jotun-red); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; color: white;
+        }
+        .header-title {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 600;
+            color: rgba(255,255,255,0.9); letter-spacing: 0.5px;
+        }
+        .header-right { display: flex; align-items: center; gap: 14px; }
+        .progress-pill {
+            font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px;
+        }
+        .vault-container { display: flex; gap: 4px; }
+        .vault-slot {
+            width: 28px; height: 30px; border: 1.5px dashed rgba(255,255,255,0.25);
+            border-radius: 5px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px;
+            color: transparent; background: rgba(0,0,0,0.2); transition: all 0.25s ease;
+        }
+        .vault-slot.filled {
+            border-color: var(--jotun-gold); background: rgba(240,165,0,0.15); color: var(--jotun-gold);
+        }
 
-const { onRequest } = require("firebase-functions/v2/https");
-const { setGlobalOptions } = require("firebase-functions/v2");
-const admin = require("firebase-admin");
-const cors = require("cors")({ origin: true });
+        .game-wrap { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px 48px; }
+        .main-card {
+            width: 100%; max-width: 480px; background: white; border-radius: 14px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; transition: all 0.5s ease;
+        }
+        
+        /* Fix 3: Hidden Treasure Room View UI Styles */
+        .main-card.treasure-room {
+            background: #0B132B; border-color: var(--jotun-gold);
+            box-shadow: 0 0 35px rgba(240, 165, 0, 0.35); color: #E2E8F0;
+        }
+        .main-card.treasure-room .card-header-band {
+            background: linear-gradient(135deg, #001A45 0%, #0B132B 100%); border-bottom: 2px solid var(--jotun-gold);
+        }
+        .main-card.treasure-room .card-heading { color: var(--jotun-gold); text-shadow: 0 2px 8px rgba(240,165,0,0.4); }
+        .main-card.treasure-room .prompt-label { color: var(--jotun-gold); }
+        .main-card.treasure-room .desc-text { color: #94A3B8; }
+        
+        .secret-key-clue {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800;
+            color: #FFFFFF; background: rgba(240, 165, 0, 0.12); border: 2px dashed var(--jotun-gold);
+            padding: 14px; border-radius: 8px; text-align: center; margin: 10px 0;
+            letter-spacing: 0.7px; text-transform: uppercase; box-shadow: inset 0 0 15px rgba(240,165,0,0.1);
+        }
 
-setGlobalOptions({ region: "asia-southeast1" });
+        .card-header-band { background: var(--jotun-navy); padding: 20px 24px 18px; position: relative; }
+        .stage-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+        .card-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; color: white; line-height: 1.1; }
+        .card-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+        .desc-text { font-size: 14px; line-height: 1.65; color: var(--text-secondary); }
+        .prompt-label { font-size: 13px; font-weight: 600; color: var(--jotun-navy); }
+        
+        .input-box {
+            width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius);
+            font-size: 15px; background: var(--surface); outline: none; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .main-card.treasure-room .input-box { background: #1E293B; border-color: #475569; color: #FFFFFF; }
+        .main-card.treasure-room .input-box:focus { border-color: var(--jotun-gold); box-shadow: 0 0 0 3px rgba(240,165,0,0.2); }
 
-admin.initializeApp({
-  databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
+        .btn { width: 100%; padding: 13px 16px; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--jotun-navy); color: white; }
+        .btn-primary:hover { background: var(--jotun-navy-mid); }
+        .main-card.treasure-room .btn-primary { background: var(--jotun-gold); color: var(--jotun-navy-deep); }
+        .main-card.treasure-room .btn-primary:hover { background: #F5B723; }
+        .btn-accent { background: var(--jotun-red); color: white; }
+        .btn-accent:hover { background: var(--jotun-red-light); }
+        .btn-ghost { background: var(--surface-2); color: var(--text-secondary); border: 1px solid var(--border); }
+        .main-card.treasure-room .btn-ghost { background: #1E293B; color: #94A3B8; border-color: #475569; }
 
-const db = admin.database();
+        /* Fix 5: Center-Aligned Target Drop-Down Pile CSS Keyframe Animation Parameters */
+        .pile-center-container {
+            display: flex; justify-content: center; gap: 6px; padding: 14px;
+            background: rgba(255, 255, 255, 0.05); border-radius: 8px; border: 1px dashed #334155;
+            margin: 6px 0; animation: centerPileEntrance 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        }
+        .pile-char-token {
+            width: 34px; height: 36px; background: linear-gradient(135deg, var(--jotun-gold-deep) 0%, var(--jotun-gold) 100%);
+            color: var(--jotun-navy-deep); border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+        .pile-char-token.blank { background: transparent; color: transparent; border: 1.5px dashed #475569; box-shadow: none; }
+        @keyframes centerPileEntrance {
+            0% { transform: translateY(-30px) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
 
-const TOTAL_STAGES = 7;
-const MAX_HINTS    = 2;
+        /* Fix 2: Interactive Concentric Vigenère Cipher Wheel Mechanics Styles */
+        .wheel-framework { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 10px; background: #1E293B; border-radius: 12px; margin: 10px 0; }
+        .wheel-viewport {
+            position: relative; width: 280px; height: 280px; border-radius: 50%; background: #0F172A;
+            border: 4px solid var(--jotun-gold); box-shadow: 0 8px 24px rgba(0,0,0,0.5); overflow: hidden;
+            display: flex; align-items: center; justify-content: center; touch-action: none;
+        }
+        .wheel-ring { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.12s ease-out; will-change: transform; }
+        .wheel-ring.outer { width: 270px; height: 270px; background: #1E293B; z-index: 1; }
+        .wheel-ring.inner { width: 180px; height: 180px; background: #334155; border: 3px solid var(--jotun-gold); z-index: 2; transform: rotate(0deg); }
+        .wheel-center-hub {
+            position: absolute; width: 80px; height: 80px; background: var(--jotun-navy-deep); border: 2px solid var(--jotun-gold);
+            border-radius: 50%; z-index: 3; display: flex; align-items: center; justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif; color: var(--jotun-gold); font-weight: 700; font-size: 14px; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .wheel-letter { position: absolute; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; text-align: center; transform-origin: center bottom; }
+        .outer .wheel-letter { font-size: 14px; height: 124px; bottom: 135px; color: #E2E8F0; }
+        .inner .wheel-letter { font-size: 13px; height: 80px; bottom: 90px; color: var(--jotun-gold); }
+        .wheel-alignment-marker { position: absolute; top: 4px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 12px solid var(--jotun-red); z-index: 10; }
+        .wheel-controls-panel { display: flex; gap: 15px; margin-top: 15px; width: 100%; }
+        .wheel-nav-btn { flex: 1; padding: 10px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
+        .wheel-nav-btn:hover { background: #475569; }
 
-// Strict mapping keeping VSBKIKB letter tracking aligned 
-const PUZZLE_DATA = {
-  CW: { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? What is the unscrambled word?", answer: "BEAUTIFUL", letterPayload: "BI", targetIndices: [3, 4] },
-  BP: { heading: "Quest BP", description: "Are you good at additions? Find the marked locations — but watch out for decoys.", prompt: "What is the total of the numbers you found?", answer: "5698", letterPayload: "K", targetIndices: [5] },
-  MR: { heading: "Quest MR", description: "Pablo the penguin is missing. Find where every other office member was, and Pablo will be in the last remaining cell. Pablo left a passcode hidden in that room.", prompt: "Enter Pablo's passcode", answer: "PABLOLOVESYOU", letterPayload: "VS", targetIndices: [0, 1] },
-  LR: { heading: "Quest LR", description: "Sam is the new intern at the Protective department. He walked to HR, then was sent to IT. His route traced a letter — can you find it?", prompt: "What letter did Sam's route trace?", answer: "L", letterPayload: "B", targetIndices: [2] },
-  FR: { heading: "Quest FR", description: "Head to the pantries and read the facts. Some have something odd hidden inside — be careful, not all of them do.", prompt: "Unscramble the odd letters you found", answer: "EARTH", letterPayload: "K", targetIndices: [6] }
-};
+        .cw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cw-col-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+        .cw-clue-btn { width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; font-size: 12px; color: var(--text-primary); cursor: pointer; margin-bottom: 5px; }
+        .cw-clue-btn:hover { background: var(--jotun-navy); color: white; }
 
-const CROSSWORD_CLUES = {
-  across: { 3: "Spread the Word", 5: "Protectors of the ship", 6: "Think Tank #3", 9: "Looks for good pitch but doesn't play baseball. Always tries to hit the target but isn't a shooter. Who are we?" },
-  down: { 1: "Selection committee", 2: "People of the money", 4: "Report to the captain penguin", 7: "Backbone of the digital era", 8: "Room is bored or people are bored?" }
-};
+        .divider { height: 1px; background: var(--border); margin: 2px 0; }
+        .main-card.treasure-room .divider { background: #334155; }
+        .loading-state { text-align: center; padding: 52px 24px; }
+        .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--jotun-navy); border-radius: 50%; margin: 0 auto 16px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-const HINTS = {
-  IDENTITY: "Jersey numbers 1–10 play on the ground floor and jersey numbers 11–20 play on the first floor.",
-  CW:       "Find the physical location through the clue and solve the riddle there. Pick the circled letters and unscramble them for the answer.",
-  BP:       "Go to the marked location on the blueprint. Look for the number. 2 out of 4 locations are decoys.",
-  MR:       "The person in the tub occupies that column. Find the last unoccupied cell and go to that department to get Pablo's passcode.",
-  LR:       "Sam goes 20 m straight from Protective, turns left at HR, and walks another 15 m. What letter does that path form?",
-  FR:       "Look carefully — only facts with an odd number have odd letters hidden inside them.",
-  FINALE:   "Use the Vigenère cipher wheel tool. Align the outer ring letter with your inner key character to decipher parameters."
-};
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,20,50,0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-box { background: white; border-radius: 14px; width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.25s ease; }
+        .modal-box.dark-theme { background: #1E293B; color: white; border: 1px solid #475569; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { background: var(--jotun-navy); padding: 16px 20px; }
+        .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: white; }
+        .modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+        .hint-text { font-size: 14px; line-height: 1.7; color: var(--text-secondary); background: var(--surface); border-left: 3px solid var(--jotun-gold); padding: 12px 14px; border-radius: 0 8px 8px 0; }
+        .modal-box.dark-theme .hint-text { background: #0F172A; color: #94A3B8; }
 
-const TEAM_ROSTER = {
-  "j7x2": { name: "ROYAL BLUE",          cohort: 1 },
-  "m3kw": { name: "MINTY BREEZE",         cohort: 1 },
-  "r9nt": { name: "MOROCCAN MIST",        cohort: 1 },
-  "w4qb": { name: "WOODSMOKE",            cohort: 1 },
-  "v6lp": { name: "MEDITERRANEAN OLIVE",  cohort: 2 },
-  "t8cz": { name: "TRAVERTINE CAIRO",     cohort: 2 },
-  "e2ys": { name: "TIMELESS",             cohort: 2 },
-  "u5fh": { name: "PURE OCEAN",           cohort: 2 },
-  "n1gd": { name: "FOREVER JUNGLE",       cohort: 3 },
-  "d0rv": { name: "DREAMY DESERT",        cohort: 3 },
-  "i4mo": { name: "IVORY TOAST",          cohort: 3 },
-  "s6jt": { name: "STONE GREY",           cohort: 3 },
-  "p2xn": { name: "PASTEL MINT",          cohort: 4 },
-  "b9ae": { name: "URBAN MIST",           cohort: 4 },
-  "q3wk": { name: "PERSIAN PEARL",        cohort: 4 },
-  "f7cv": { name: "DOVE GREY",            cohort: 4 },
-  "g5rl": { name: "GOLDEN LILY",          cohort: 5 },
-  "h8uz": { name: "EARTHSCAPE",           cohort: 5 },
-  "c1mb": { name: "BRIGHT SIENNA",        cohort: 5 },
-  "k0yd": { name: "MINIMALIST",           cohort: 5 }
-};
+        .splash-overlay { display: none; position: fixed; inset: 0; background: var(--jotun-navy); color: white; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        .splash-text { font-family: 'Barlow Condensed', sans-serif; font-size: 52px; font-weight: 700; text-transform: uppercase; text-align: center; }
+        .splash-bar { width: 60px; height: 4px; background: var(--jotun-red); border-radius: 2px; margin-top: 16px; }
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-primary); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; z-index: 3000; transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--jotun-red); }
+        .footer-brand { text-align: center; padding: 20px; font-size: 11px; color: #B0BCDA; }
+    </style>
+</head>
+<body>
 
-const COHORTS = {
-  1:
+    <header id="app-header">
+        <div class="header-brand">
+            <div class="jotun-logomark">J</div>
+            <span class="header-title">JOTUN HUNT 2026</span>
+        </div>
+        <div class="header-right">
+            <span class="progress-pill" id="progress-indicator">0%</span>
+            <div class="vault-container" id="vault-slots">
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+                <div class="vault-slot"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="game-wrap">
+        <div class="main-card" id="game-viewport">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                <p class="loading-label">Loading your quest…</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-brand">JOTUN · HUNT 2026</div>
+
+    <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header"><div class="modal-title">💡 Hint</div></div>
+            <div class="modal-body">
+                <p id="hint-modal-text" class="hint-text"></p>
+                <button class="btn btn-primary" onclick="closeModal('hint-modal')">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="wheel-modal" class="modal" onclick="closeModal('wheel-modal')">
+        <div class="modal-box dark-theme" onclick="event.stopPropagation()">
+            <div class="modal-header" style="background: #0F172A; border-bottom: 1px solid #334155;">
+                <div class="modal-title" style="color: var(--jotun-gold);">⚙️ Vigenère Cipher Wheel</div>
+            </div>
+            <div class="modal-body">
+                <p class="desc-text" style="color: #94A3B8; font-size: 12px;">Drag to spin the inner wheel manually or use the navigational click controls below.</p>
+                <div class="wheel-framework">
+                    <div class="wheel-viewport" id="wheel-touch-zone">
+                        <div class="wheel-alignment-marker"></div>
+                        <div class="wheel-ring outer" id="wheel-outer-ring"></div>
+                        <div class="wheel-ring inner" id="wheel-inner-ring"></div>
+                        <div class="wheel-center-hub">JOTUN</div>
+                    </div>
+                </div>
+                <div class="wheel-controls-panel">
+                    <button class="wheel-nav-btn" onclick="rotateWheelStep(-1)">↺ Spin Left</button>
+                    <button class="wheel-nav-btn" onclick="rotateWheelStep(1)">Spin Right ↻</button>
+                </div>
+                <button class="btn btn-primary" onclick="closeModal('wheel-modal')">Close Tool</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header"><div class="modal-title" id="action-modal-title">Asset Viewer</div></div>
+            <div class="modal-body">
+                <div id="action-modal-body"></div>
+                <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header"><div class="modal-title" id="clue-modal-title">Clue</div></div>
+            <div class="modal-body">
+                <p id="clue-modal-text" class="hint-text"></p>
+                <button class="btn btn-primary" onclick="closeModal('clue-modal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="splash-screen" class="splash-overlay">
+        <div class="splash-text" id="splash-text"></div>
+        <div class="splash-bar"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
+            authDomain: "jotunhunt2026.firebaseapp.com",
+            projectId: "jotunhunt2026"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const CLOUD_FUNCTIONS_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
+        const urlParams = new URLSearchParams(window.location.search);
+        const teamToken = urlParams.get('id');
+
+        let localStateCache = null;
+        let innerWheelRotationDegrees = 0;
+
+        async function callCloudEndpoint(endpointName, payload) {
+            const response = await fetch(`${CLOUD_FUNCTIONS_BASE_URL}/${endpointName}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data: payload })
+            });
+            const json = await response.json();
+            if (!response.ok || json.error) throw new Error(json.error?.message || "Internal server connection failure.");
+            return json.result;
+        }
+
+        async function refreshViewEngine() {
+            if (!teamToken) {
+                renderErrorState("Link Invalid", "Your tracking configuration is missing an access token identifier.");
+                return;
+            }
+            setLoading();
+            try {
+                const data = await callCloudEndpoint('getGameState', { token: teamToken });
+                localStateCache = data;
+                renderUI(data);
+            } catch (e) { renderErrorState("Unable to Load", e.message); }
+        }
+
+        function setLoading() {
+            document.getElementById('game-viewport').innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p class="loading-label">Loading your quest…</p>
+                </div>`;
+        }
+
+        function renderErrorState(title, msg) {
+            document.getElementById('game-viewport').innerHTML = `
+                <div style="padding:40px 24px; text-align:center;">
+                    <p style="font-weight:700;color:var(--jotun-red);margin-bottom:8px;">${title}</p>
+                    <p style="font-size:13px;color:var(--text-secondary);">${msg}</p>
+                </div>`;
+        }
+
+        // Confirmation: Build drop pile HTML exclusively if the current layout profile is FINALE
+        function buildLetterPileContainerHTML(lettersString) {
+            let html = `<div class="pile-center-container">`;
+            for(let i=0; i<7; i++) {
+                const char = (lettersString && lettersString[i]) ? lettersString[i] : "_";
+                if(char === "_") {
+                    html += `<div class="pile-char-token blank"></div>`;
+                } else {
+                    html += `<div class="pile-char-token">${char}</div>`;
+                }
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function renderUI(data) {
+            const viewport = document.getElementById('game-viewport');
+            const header = document.getElementById('app-header');
+            viewport.classList.remove('treasure-room');
+
+            if (data.currentStage === 1) {
+                header.style.display = "none";
+                viewport.innerHTML = `
+                    <div class="card-header-band">
+                        <div class="stage-eyebrow">Welcome</div>
+                        <div class="card-heading">Identify Your Team</div>
+                    </div>
+                    <div class="card-body">
+                        <p class="desc-text">Enter your officially registered team name to begin.</p>
+                        <div class="divider"></div>
+                        <label class="prompt-label">Team Name</label>
+                        <input type="text" id="identity-input" class="input-box" autocomplete="off">
+                        <button class="btn btn-primary" onclick="triggerIdentityCheck()">Begin the Hunt →</button>
+                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
+                    </div>`;
+                updateHintButtonLabel(data.hintsUsed);
+                return;
+            }
+
+            header.style.display = "flex";
+            document.getElementById('progress-indicator').innerText = `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
+
+            // Fix 4: Set slots cleanly based on static array layout values
+            const slots = document.getElementById('vault-slots').children;
+            const currentLettersStr = data.letters || "_______";
+            for (let i = 0; i < 7; i++) {
+                if (currentLettersStr[i] && currentLettersStr[i] !== "_") {
+                    slots[i].innerText = currentLettersStr[i];
+                    slots[i].classList.add('filled');
+                } else {
+                    slots[i].innerText = "";
+                    slots[i].classList.remove('filled');
+                }
+            }
+
+            // Fix 3: Hidden Treasure Room Configuration View & Clue Integration 
+            if (data.viewType === "FINALE") {
+                viewport.classList.add('treasure-room');
+                viewport.innerHTML = `
+                    <div class="card-header-band">
+                        <div class="stage-eyebrow">Grand Finale</div>
+                        <div class="card-heading">The Hidden Treasure Room</div>
+                    </div>
+                    <div class="card-body">
+                        <p class="desc-text">You've breached the threshold and stand within the vault room. Secret patterns are etched across the stone walls.</p>
+                        
+                        <div class="secret-key-clue">The key is to protect.</div>
+                        
+                        ${buildLetterPileContainerHTML(currentLettersStr)}
+                        
+                        <p class="desc-text">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
+                        
+                        <button class="btn btn-accent" onclick="openCipherWheelModal()">Use Vigenère Cipher Wheel</button>
+                        
+                        <div class="divider"></div>
+                        <label class="prompt-label">Enter the Final Word</label>
+                        <input type="text" id="answer-input" class="input-box" placeholder="Enter decoded word" autocomplete="off">
+                        <button class="btn btn-primary" onclick="triggerFinaleCheck()">Submit Final Answer</button>
+                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
+                    </div>`;
+                updateHintButtonLabel(data.hintsUsed);
+                return;
+            }
+
+            let actionHTML = '';
+            if (data.viewType === "CW") {
+                actionHTML = `
+                    <button class="btn btn-accent" onclick="openConfirmationAsset('CW_SKELETON')">View Crossword Grid</button>
+                    <div class="cw-grid">
+                        <div>
+                            <div class="cw-col-label">Across</div>
+                            ${Object.entries(data.crosswordClues.across).map(([num, clue]) =>
+                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Across')">${num}. View clue</button>`
+                            ).join('')}
+                        </div>
+                        <div>
+                            <div class="cw-col-label">Down</div>
+                            ${Object.entries(data.crosswordClues.down).map(([num, clue]) =>
+                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Down')">${num}. View clue</button>`
+                            ).join('')}
+                        </div>
+                    </div>`;
+            } else if (data.viewType === "BP") {
+                actionHTML = `<button class="btn btn-accent" onclick="openConfirmationAsset('BP_IMAGE')">View Floor Blueprint</button>`;
+            } else if (data.viewType === "MR") {
+                actionHTML = `
+                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_RULES')">View Case File Rules</button>
+                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_SKELETON')">View Room Grid</button>`;
+            }
+
+            // Normal stage viewport (Notice: No central pile container rendered here)
+            viewport.innerHTML = `
+                <div class="card-header-band">
+                    <div class="stage-eyebrow">Stage ${data.currentStage} of ${data.totalStages}</div>
+                    <div class="card-heading">${data.heading}</div>
+                </div>
+                <div class="card-body">
+                    <p class="desc-text">${data.description}</p>
+                    ${actionHTML ? `<div class="divider"></div>${actionHTML}<div class="divider"></div>` : ''}
+                    <label class="prompt-label">${data.prompt}</label>
+                    <input type="text" id="answer-input" class="input-box" placeholder="Your answer" autocomplete="off">
+                    <button class="btn btn-primary" onclick="triggerAnswerSubmission()">Submit Answer</button>
+                    <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
+                </div>`;
+            updateHintButtonLabel(data.hintsUsed);
+        }
+
+        async function triggerIdentityCheck() {
+            const inputVal = document.getElementById('identity-input').value;
+            if (!inputVal.trim()) return;
+            try {
+                await callCloudEndpoint('verifyIdentity', { token: teamToken, inputName: inputVal });
+                showSplash(`Welcome, ${inputVal}!`, 1800);
+                setTimeout(refreshViewEngine, 1800);
+            } catch (e) { showToast(e.message, true); }
+        }
+
+        async function triggerAnswerSubmission() {
+            const ans = document.getElementById('answer-input').value;
+            if (!ans.trim()) return;
+            try {
+                const res = await callCloudEndpoint('submitStageAnswer', { token: teamToken, answer: ans });
+                if (res.correct) {
+                    showSplash(`${res.animationType}! Letter pile gained: ${res.justDropped}`, 2200);
+                    setTimeout(refreshViewEngine, 2200);
+                } else {
+                    showToast("That's not quite right. Try again.", true);
+                }
+            } catch (e) { showToast(e.message, true); }
+        }
+
+        async function triggerHintRequest() {
+            const btn = document.getElementById('hint-btn-anchor');
+            if (btn && btn.disabled) return; 
+            if (!confirm("Use one of your hints? You only have 2.")) return;
+            try {
+                const res = await callCloudEndpoint('requestHint', { token: teamToken });
+                if (res.success) {
+                    document.getElementById('hint-modal-text').innerText = res.hint;
+                    document.getElementById('hint-modal').style.display = "flex";
+                    localStateCache.hintsUsed = 2 - res.remaining; 
+                    updateHintButtonLabel(localStateCache.hintsUsed);
+                } else {
+                    showToast(res.message || "You've exhausted your hints.", true);
+                    updateHintButtonLabel(2);
+                }
+            } catch (e) { showToast(e.message, true); }
+        }
+
+        async function triggerFinaleCheck() {
+            const finalWord = document.getElementById('answer-input').value;
+            if (!finalWord.trim()) return;
+            try {
+                const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord });
+                if (res.correct) {
+                    showSplash("VICTORY! Report to the master counter.", 15000);
+                } else {
+                    showToast("Incorrect final word solution mapping parameter parameters.", true);
+                }
+            } catch (e) { showToast(e.message, true); }
+        }
+
+        function showClue(num, clue, direction) {
+            document.getElementById('clue-modal-title').innerText = `${direction} ${num}`;
+            document.getElementById('clue-modal-text').innerText = clue;
+            document.getElementById('clue-modal').style.display = "flex";
+        }
+
+        // Fix 2: Layout generator rendering letters perfectly matching geometric alignments
+        function initializeWheelGraphics() {
+            const outerRing = document.getElementById('wheel-outer-ring');
+            const innerRing = document.getElementById('wheel-inner-ring');
+            if(!outerRing || !innerRing) return;
+            
+            outerRing.innerHTML = '';
+            innerRing.innerHTML = '';
+            
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            alphabet.forEach((letter, index) => {
+                const angle = (index * 360) / 26;
+                
+                const outerLetterEl = document.createElement('div');
+                outerLetterEl.className = 'wheel-letter';
+                outerLetterEl.innerText = letter;
+                outerLetterEl.style.transform = `rotate(${angle}deg)`;
+                outerRing.appendChild(outerLetterEl);
+                
+                const innerLetterEl = document.createElement('div');
+                innerLetterEl.className = 'wheel-letter';
+                innerLetterEl.innerText = letter;
+                innerLetterEl.style.transform = `rotate(${angle}deg)`;
+                innerRing.appendChild(innerLetterEl);
+            });
+            setupWheelTouchListeners();
+        }
+
+        function openCipherWheelModal() {
+            document.getElementById('wheel-modal').style.display = "flex";
+            setTimeout(initializeWheelGraphics, 50);
+        }
+
+        function rotateWheelStep(direction) {
+            const innerRing = document.getElementById('wheel-inner-ring');
+            if(!innerRing) return;
+            innerWheelRotationDegrees += (direction * (360 / 26));
+            innerRing.style.transform = `rotate(${innerWheelRotationDegrees}deg)`;
+        }
+
+        function setupWheelTouchListeners() {
+            const innerRing = document.getElementById('wheel-inner-ring');
+            const touchZone = document.getElementById('wheel-touch-zone');
+            if(!innerRing || !touchZone) return;
+            
+            let isDragging = false;
+            let startAngle = 0;
+            let currentRingAngle = innerWheelRotationDegrees;
+            
+            function getTouchAngle(e) {
+                const rect = touchZone.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+            }
+            
+            function handleStart(e) {
+                isDragging = true;
+                startAngle = getTouchAngle(e) - currentRingAngle;
+            }
+            function handleMove(e) {
+                if(!isDragging) return;
+                e.preventDefault();
+                currentRingAngle = getTouchAngle(e) - startAngle;
+                innerRing.style.transform = `rotate(${currentRingAngle}deg)`;
+            }
+            function handleEnd() {
+                if(!isDragging) return;
+                isDragging = false;
+                const letterStep = 360 / 26;
+                innerWheelRotationDegrees = Math.round(currentRingAngle / letterStep) * letterStep;
+                innerRing.style.transform = `rotate(${innerWheelRotationDegrees}deg)`;
+                currentRingAngle = innerWheelRotationDegrees;
+            }
+            
+            touchZone.addEventListener('mousedown', handleStart);
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleEnd);
+            touchZone.addEventListener('touchstart', handleStart, { passive: false });
+            window.addEventListener('touchmove', handleMove, { passive: false });
+            window.addEventListener('touchend', handleEnd);
+        }
+
+        function openConfirmationAsset(type) {
+            if (!confirm("Open this asset?")) return;
+            const body = document.getElementById('action-modal-body');
+            const title = document.getElementById('action-modal-title');
+            body.innerHTML = '';
+
+            if (type === 'CW_SKELETON') {
+                title.innerText = "Crossword Grid";
+                body.innerHTML = `<div style="border:2px dashed var(--jotun-navy);padding:24px;text-align:center;font-weight:600;color:var(--text-secondary);border-radius:8px;">[Crossword Layout Matrix]</div>`;
+            } else if (type === 'BP_IMAGE') {
+                title.innerText = "Floor Blueprint";
+                body.innerHTML = `<div style="background:var(--jotun-navy);color:white;padding:32px;text-align:center;font-family:monospace;border-radius:8px;">[Blueprint Blueprint Map]</div>`;
+            } else if (type === 'MR_RULES') {
+                title.innerText = "Case File Rules";
+                body.innerHTML = `<div class="hint-text">1. No two workers can occupy the same room cell.<br><br>2. Entry points must remain unobstructed.</div>`;
+            } else if (type === 'MR_SKELETON') {
+                title.innerText = "Room Grid";
+                body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,44px);gap:6px;justify-content:center;">${Array(9).fill('<div style="border:1.5px solid var(--border);height:44px;border-radius:4px;"></div>').join('')}</div>`;
+            }
+            document.getElementById('action-modal').style.display = "flex";
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+        function showSplash(text, duration) {
+            document.getElementById('splash-text').innerText = text;
+            document.getElementById('splash-screen').style.display = "flex";
+            setTimeout(() => { document.getElementById('splash-screen').style.display = "none"; }, duration);
+        }
+
+        let toastTimer;
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.className = 'toast' + (isError ? ' error' : '');
+            clearTimeout(toastTimer);
+            requestAnimationFrame(() => { t.classList.add('show'); });
+            toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
+        }
+
+        function updateHintButtonLabel(used) {
+            const btn = document.getElementById('hint-btn-anchor');
+            if (!btn) return;
+            const remaining = 2 - used;
+            if (remaining <= 0) {
+                btn.innerText = "No hints remaining"; btn.disabled = true;
+            } else {
+                btn.innerText = `Request a Hint (${remaining} remaining)`; btn.disabled = false;
+            }
+        }
+
+        refreshViewEngine();
+    </script>
+</body>
+</html>
