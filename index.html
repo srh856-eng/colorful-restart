@@ -1,362 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jotun Hunt 2026</title>
-    <!-- Firebase Legacy Compat Core -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --jotun-navy: #002D72;
-            --jotun-navy-deep: #001A45;
-            --jotun-navy-mid: #00408A;
-            --jotun-red: #C8102E;
-            --jotun-gold: #F0A500;
-            --jotun-white: #FFFFFF;
-            --surface: #F6F8FC;
-            --surface-2: #EEF2F9;
-            --text-primary: #0D1B35;
-            --text-secondary: #4A5568;
-            --text-muted: #8A99AD;
-            --border: #CBD5E1;
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --shadow-md: 0 8px 24px rgba(0,45,114,0.08);
-        }
+/**
+ * Jotun Hunt 2026 — Firebase Cloud Functions Backend (v2 Compatible)
+ * Region: asia-southeast1
+ */
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--surface); color: var(--text-primary); min-height: 100vh; display: flex; flex-direction: column; }
-        
-        header { background-color: var(--jotun-navy-deep); color: white; padding: 20px 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        header .logo-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px; }
-        header .jotun-flag { background-color: var(--jotun-red); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; }
-        header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
-        header p { font-size: 12px; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+"use strict";
 
-        .game-container { flex: 1; max-width: 480px; width: 100%; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 20px; }
-        .card { background: var(--jotun-white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-md); border: 1px solid rgba(226,232,240,0.8); }
+const { onRequest } = require("firebase-functions/v2/https");
+const { setGlobalOptions } = require("firebase-functions/v2");
+const admin = require("firebase-admin");
+const cors = require("cors")({ origin: true });
 
-        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-        label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
-        input[type="text"] { font-family: 'Inter', sans-serif; width: 100%; padding: 14px 16px; border: 2px solid var(--surface-2); border-radius: var(--radius-md); font-size: 15px; font-weight: 500; color: var(--text-primary); transition: all 0.2s ease; background-color: var(--surface-2); }
-        input[type="text"]:focus { outline: none; border-color: var(--jotun-navy-mid); background-color: var(--jotun-white); box-shadow: 0 0 0 4px rgba(0,64,138,0.1); }
+setGlobalOptions({ region: "asia-southeast1" });
 
-        .btn { font-family: 'Inter', sans-serif; width: 100%; padding: 15px; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background-color: var(--jotun-navy); color: white; }
-        .btn-primary:hover { background-color: var(--jotun-navy-mid); transform: translateY(-1px); }
-        .btn-secondary { background-color: var(--surface-2); color: var(--jotun-navy); }
-        .btn-secondary:hover { background-color: #E2E8F0; }
-        .btn:disabled { background-color: var(--surface-2) !important; color: var(--text-muted) !important; cursor: not-allowed; transform: none !important; }
+admin.initializeApp({
+  databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
 
-        .stage-header-badge-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--surface-2); padding-bottom: 16px; margin-bottom: 20px; }
-        .team-title-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--jotun-navy); text-transform: uppercase; }
-        .stage-badge-pill { background-color: rgba(240,165,0,0.1); color: var(--jotun-gold); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(240,165,0,0.2); }
+const db = admin.database();
 
-        .quest-heading { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.2; }
-        .quest-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; }
-        
-        .inventory-wrapper { background: linear-gradient(135deg, var(--jotun-navy-deep) 0%, var(--jotun-navy) 100%); color: white; }
-        .inventory-label { font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: center; }
-        .letter-grid-row { display: flex; justify-content: center; gap: 6px; }
-        .letter-box-slot { width: 34px; height: 42px; border-radius: 6px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: #FFFFFF; text-transform: uppercase; }
-        .letter-box-slot.filled { background: var(--jotun-white); color: var(--jotun-navy-deep); border-color: var(--jotun-white); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+const TOTAL_STAGES = 7;
+const MAX_HINTS    = 2;
 
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background-color: #1E293B; color: white; padding: 14px 24px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; pointer-events: none; z-index: 2000; text-align: center; width: calc(100% - 32px); max-width: 400px; }
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .toast.error { background-color: var(--jotun-red); }
+// Strict mapping keeping VSBKIKB letter tracking aligned 
+const PUZZLE_DATA = {
+  CW: { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? What is the unscrambled word?", answer: "BEAUTIFUL", letterPayload: "BI", targetIndices: [3, 4] },
+  BP: { heading: "Quest BP", description: "Are you good at additions? Find the marked locations — but watch out for decoys.", prompt: "What is the total of the numbers you found?", answer: "5698", letterPayload: "K", targetIndices: [5] },
+  MR: { heading: "Quest MR", description: "Pablo the penguin is missing. Find where every other office member was, and Pablo will be in the last remaining cell. Pablo left a passcode hidden in that room.", prompt: "Enter Pablo's passcode", answer: "PABLOLOVESYOU", letterPayload: "VS", targetIndices: [0, 1] },
+  LR: { heading: "Quest LR", description: "Sam is the new intern at the Protective department. He walked to HR, then was sent to IT. His route traced a letter — can you find it?", prompt: "What letter did Sam's route trace?", answer: "L", letterPayload: "B", targetIndices: [2] },
+  FR: { heading: "Quest FR", description: "Head to the pantries and read the facts. Some have something odd hidden inside — be careful, not all of them do.", prompt: "Unscramble the odd letters you found", answer: "EARTH", letterPayload: "K", targetIndices: [6] }
+};
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(13,27,53,0.85); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 3000; }
-        .modal-content { background: var(--jotun-white); width: 100%; max-width: 400px; border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: var(--jotun-navy); margin-bottom: 12px; }
-        .modal-body-text { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+const CROSSWORD_CLUES = {
+  across: { 3: "Spread the Word", 5: "Protectors of the ship", 6: "Think Tank #3", 9: "Looks for good pitch but doesn't play baseball. Always tries to hit the target but isn't a shooter. Who are we?" },
+  down: { 1: "Selection committee", 2: "People of the money", 4: "Report to the captain penguin", 7: "Backbone of the digital era", 8: "Room is bored or people are bored?" }
+};
 
-        .splash-overlay { position: fixed; inset: 0; background-color: var(--jotun-navy-deep); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 9999; color: white; transition: opacity 0.4s ease; }
-        .spinner-wheel { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--jotun-gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        footer { padding: 20px; text-align: center; font-size: 11px; color: var(--text-muted); margin-top: auto; }
-    </style>
-</head>
-<body>
+const HINTS = {
+  IDENTITY: "Jersey numbers 1–10 play on the ground floor and jersey numbers 11–20 play on the first floor.",
+  CW:       "Find the physical location through the clue and solve the riddle there. Pick the circled letters and unscramble them for the answer.",
+  BP:       "Go to the marked location on the blueprint. Look for the number. 2 out of 4 locations are decoys.",
+  MR:       "The person in the tub occupies that column. Find the last unoccupied cell and go to that department to get Pablo's passcode.",
+  LR:       "Sam goes 20 m straight from Protective, turns left at HR, and walks another 15 m. What letter does that path form?",
+  FR:       "Look carefully — only facts with an odd number have odd letters hidden inside them.",
+  FINALE:   "Use the Vigenère cipher wheel tool. Align the outer ring letter with your inner key character to decipher parameters."
+};
 
-    <div id="splash-screen" class="splash-overlay">
-        <div class="spinner-wheel"></div>
-        <div id="splash-text" style="font-family:'Barlow Condensed', sans-serif; font-size: 20px; letter-spacing: 0.5px;">Initializing Challenge Run Engine...</div>
-    </div>
+const TEAM_ROSTER = {
+  "j7x2": { name: "ROYAL BLUE",          cohort: 1 },
+  "m3kw": { name: "MINTY BREEZE",         cohort: 1 },
+  "r9nt": { name: "MOROCCAN MIST",        cohort: 1 },
+  "w4qb": { name: "WOODSMOKE",            cohort: 1 },
+  "v6lp": { name: "MEDITERRANEAN OLIVE",  cohort: 2 },
+  "t8cz": { name: "TRAVERTINE CAIRO",     cohort: 2 },
+  "e2ys": { name: "TIMELESS",             cohort: 2 },
+  "u5fh": { name: "PURE OCEAN",           cohort: 2 },
+  "n1gd": { name: "FOREVER JUNGLE",       cohort: 3 },
+  "d0rv": { name: "DREAMY DESERT",        cohort: 3 },
+  "i4mo": { name: "IVORY TOAST",          cohort: 3 },
+  "s6jt": { name: "STONE GREY",           cohort: 3 },
+  "p2xn": { name: "PASTEL MINT",          cohort: 4 },
+  "b9ae": { name: "URBAN MIST",           cohort: 4 },
+  "q3wk": { name: "PERSIAN PEARL",        cohort: 4 },
+  "f7cv": { name: "DOVE GREY",            cohort: 4 },
+  "g5rl": { name: "GOLDEN LILY",          cohort: 5 },
+  "h8uz": { name: "EARTHSCAPE",           cohort: 5 },
+  "c1mb": { name: "BRIGHT SIENNA",        cohort: 5 },
+  "k0yd": { name: "MINIMALIST",           cohort: 5 }
+};
 
-    <header>
-        <div class="logo-container">
-            <div class="jotun-flag">J</div>
-            <h1>Jotun Hunt 2026</h1>
-        </div>
-        <p>Operational Quest Network</p>
-    </header>
-
-    <div class="game-container">
-        
-        <!-- View Gate: Fallback configuration text field -->
-        <div id="view-gate" class="card" style="display: none;">
-            <div class="quest-heading" style="text-align: center; margin-bottom: 12px;">Team Verification</div>
-            <p class="quest-desc" style="text-align: center; margin-bottom: 20px;">Please enter your unique 4-character team security token configuration parameters to sync.</p>
-            <div class="form-group">
-                <input type="text" id="team-token-input" placeholder="e.g. j7x2" maxlength="10" autocomplete="off" style="text-align: center; font-family: monospace; font-size: 20px; letter-spacing: 2px;">
-            </div>
-            <button class="btn btn-primary" onclick="handleTokenVerificationSubmit()">Synchronize Session State</button>
-        </div>
-
-        <!-- Main Dynamic Active Puzzle Frame -->
-        <div id="view-quest" class="card" style="display: none;">
-            <div class="stage-header-badge-row">
-                <div id="team-display-name-lbl" class="team-title-tag">—</div>
-                <div id="stage-badge-lbl" class="stage-badge-pill">Stage —</div>
-            </div>
-            <div id="quest-title-anchor" class="quest-heading">—</div>
-            <p id="quest-desc-anchor" class="quest-desc">—</p>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label id="quest-prompt-label" for="quest-answer-input">Response Submission Field</label>
-                <input type="text" id="quest-answer-input" placeholder="Type your answer here..." autocomplete="off">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="btn btn-primary" onclick="handleChallengeAnswerSubmit()">Verify Answer</button>
-                <button id="hint-btn-anchor" class="btn btn-secondary" onclick="triggerHintRequestApi()">Request a Hint (2 remaining)</button>
-            </div>
-        </div>
-
-        <!-- Finale Form View Frame -->
-        <div id="view-finale" class="card" style="display: none;">
-            <div class="stage-header-badge-row">
-                <div id="finale-team-display-name" class="team-title-tag">—</div>
-                <div class="stage-badge-pill" style="background-color: rgba(200,16,46,0.1); color: var(--jotun-red); border-color: rgba(200,16,46,0.2);">FINALE DISCOVERY</div>
-            </div>
-            <div class="quest-heading">The Final Cryptograph Matrix</div>
-            <p class="quest-desc">Outstanding! You have solved all quests and gathered your total letter collection pool. Unscramble them to verify the final master activation phrase!</p>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <input type="text" id="finale-word-input" placeholder="ENTER 10-LETTER PHRASE" autocomplete="off" style="text-align: center; font-weight: 700; letter-spacing: 1px;">
-            </div>
-            <button class="btn btn-primary" onclick="handleFinaleSubmissionSubmit()" style="background-color: var(--jotun-red);">Submit Final Phrase 👑</button>
-        </div>
-
-        <!-- Finished Run Success State Frame -->
-        <div id="view-victory" class="card" style="display: none; text-align: center; border: 2px solid var(--jotun-gold);">
-            <div style="font-size: 56px; margin-bottom: 12px;">🏆</div>
-            <div class="quest-heading" style="color: var(--jotun-gold); font-size: 32px; margin-bottom: 8px;">Run Completed!</div>
-            <p class="quest-desc" style="margin-bottom: 24px;">Your response has been logged securely. Check the live tracking leaderboard array screen to view your rank!</p>
-            <div style="background-color: var(--surface-2); padding: 16px; border-radius: var(--radius-md); font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--jotun-navy);">CONGRATULATIONS TEAM</div>
-        </div>
-
-        <!-- Fragment Tracking HUD Card Component -->
-        <div id="hud-inventory" class="card inventory-wrapper" style="display: none;">
-            <div class="inventory-label">Gathered Fragment Storage Inventory Array</div>
-            <div id="hud-letter-slots" class="letter-grid-row"></div>
-        </div>
-    </div>
-
-    <div id="toast" class="toast"></div>
-
-    <div id="action-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="modal-title-field" class="modal-title">Notification</div>
-            <p id="modal-body-field" class="modal-body-text">Operational message parameters here.</p>
-            <button class="btn btn-primary" onclick="closeModal('action-modal')">Acknowledged</button>
-        </div>
-    </div>
-
-    <footer>&copy; Jotun Hunt 2026 · Internal Strategy Network</footer>
-
-    <script>
-        // Maps cloud functions backend root
-        const API_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
-        let USER_SESSION_TOKEN = "";
-
-        // Captures ?id=XXXX query parameter straight from your address link strings
-        function grabQueryToken() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('id') || localStorage.getItem('jotun_hunt_session_token') || "";
-        }
-
-        async function refreshViewEngine() {
-            USER_SESSION_TOKEN = grabQueryToken().trim().toLowerCase();
-
-            if (!USER_SESSION_TOKEN) {
-                switchActiveView('view-gate');
-                hideInventoryHud();
-                hideSplash();
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/getGameState?token=${encodeURIComponent(USER_SESSION_TOKEN)}`);
-                if (res.status === 401) {
-                    showToast("Session authentication invalid. Resetting verification steps.", true);
-                    switchActiveView('view-gate');
-                    hideInventoryHud();
-                    return;
-                }
-                if (!res.ok) throw new Error(`Server returned error status code: ${res.status}`);
-
-                const data = await res.json();
-                const profile = data.result || {};
-
-                renderInventoryHudLetters(profile.letters || "_______");
-
-                if (profile.isCompleted) {
-                    switchActiveView('view-victory');
-                    showInventoryHud();
-                } else if (profile.atFinale) {
-                    document.getElementById('finale-team-display-name').innerText = profile.teamName || "TEAM PROFILE";
-                    switchActiveView('view-finale');
-                    showInventoryHud();
-                } else {
-                    document.getElementById('team-display-name-lbl').innerText = profile.teamName || "TEAM PROFILE";
-                    document.getElementById('stage-badge-lbl').innerText = `Stage ${profile.currentStage}/7`;
-                    
-                    const p = profile.puzzle || {};
-                    document.getElementById('quest-title-anchor').innerText = p.heading || "Quest Challenge Stage";
-                    document.getElementById('quest-desc-anchor').innerText = p.description || "";
-                    document.getElementById('quest-prompt-label').innerText = p.prompt || "Response:";
-                    
-                    updateHintButtonLabel(profile.hintsUsed || 0);
-                    switchActiveView('view-quest');
-                    showInventoryHud();
-                }
-            } catch (err) {
-                console.error("Data syncing issue:", err);
-                showToast("Connection issue mapping backends. Retrying parameters.", true);
-                switchActiveView('view-gate');
-                hideInventoryHud();
-            } finally {
-                hideSplash();
-            }
-        }
-
-        async function handleTokenVerificationSubmit() {
-            const input = document.getElementById('team-token-input');
-            const token = input.value.trim().toLowerCase();
-            if (!token) return;
-            localStorage.setItem('jotun_hunt_session_token', token);
-            window.location.search = `?id=${token}`;
-        }
-
-        async function handleChallengeAnswerSubmit() {
-            const input = document.getElementById('quest-answer-input');
-            const ans = input.value.trim();
-            if (!ans) return;
-
-            showSplash("Evaluating submission signatures...");
-            try {
-                const res = await fetch(`${API_BASE_URL}/submitAnswer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: { token: USER_SESSION_TOKEN, answer: ans } })
-                });
-                const payload = await res.json();
-                const data = payload.result || {};
-
-                if (data.correct) {
-                    input.value = "";
-                    openModal("Challenge Verified!", `Success! You have discovered characters: "${data.droppedLetters}". Moving forward.`);
-                    await refreshViewEngine();
-                } else {
-                    showToast("Incorrect answer string mismatch.", true);
-                }
-            } catch (err) {
-                showToast("Verification pipeline synchronization failure.", true);
-            } finally {
-                hideSplash();
-            }
-        }
-
-        async function triggerHintRequestApi() {
-            if (!confirm("Confirm hint deployment for this configuration stage parameters?")) return;
-            try {
-                const res = await fetch(`${API_BASE_URL}/requestHint`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: { token: USER_SESSION_TOKEN } })
-                });
-                const payload = await res.json();
-                const data = payload.result || {};
-                if (data.success) {
-                    openModal("Hint Briefing Layout", data.hint);
-                    await refreshViewEngine();
-                }
-            } catch (err) {
-                showToast("Failed to pull hint file structure.", true);
-            }
-        }
-
-        async function handleFinaleSubmissionSubmit() {
-            const input = document.getElementById('finale-word-input');
-            const word = input.value.trim().toUpperCase();
-            if (!word) return;
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/submitFinale`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: { token: USER_SESSION_TOKEN, finalWord: word } })
-                });
-                const payload = await res.json();
-                const data = payload.result || {};
-                if (data.correct) {
-                    openModal("👑 VICTORY DETECTED! 👑", "Sensational run! Your group has officially finished the task tracks.");
-                    await refreshViewEngine();
-                } else {
-                    showToast("Phrase verification mismatch.", true);
-                }
-            } catch (err) {
-                showToast("Failed to verify submission tracks.", true);
-            }
-        }
-
-        function switchActiveView(id) {
-            ['view-gate', 'view-quest', 'view-finale', 'view-victory'].forEach(v => {
-                document.getElementById(v).style.display = (v === id) ? "block" : "none";
-            });
-        }
-
-        function renderInventoryHudLetters(letters) {
-            const container = document.getElementById('hud-letter-slots');
-            container.innerHTML = letters.split("").map(char => {
-                return (char && char !== "_") ? `<div class="letter-box-slot filled">${char}</div>` : `<div class="letter-box-slot">_</div>`;
-            }).join('');
-        }
-
-        function showInventoryHud() { document.getElementById('hud-inventory').style.display = "block"; }
-        function hideInventoryHud() { document.getElementById('hud-inventory').style.display = "none"; }
-        function hideSplash() { document.getElementById('splash-screen').style.display = "none"; }
-        function openModal(title, text) {
-            document.getElementById('modal-title-field').innerText = title;
-            document.getElementById('modal-body-field').innerText = text;
-            document.getElementById('action-modal').style.display = "flex";
-        }
-        function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        function showSplash(text) {
-            document.getElementById('splash-text').innerText = text;
-            document.getElementById('splash-screen').style.display = "flex";
-        }
-
-        let toastTimer;
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = 'toast' + (isError ? ' error' : '');
-            clearTimeout(toastTimer);
-            requestAnimationFrame(() => { t.classList.add('show'); });
-            toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
-        }
-
-        function updateHintButtonLabel(used) {
-            const btn = document.getElementById('hint-btn-anchor');
-            if (!btn) return;
-            const remaining = 2 - used;
-            btn.innerText = (remaining <= 0) ? "No hints remaining" : `Request a Hint (${remaining} remaining)`;
-            btn.disabled = (remaining <= 0);
-        }
-
-        window.addEventListener('DOMContentLoaded', refreshViewEngine);
-    </script>
-</body>
-</html>
+const COHORTS = {
+  1:
