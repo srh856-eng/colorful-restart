@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jotun Hunt 2026 · Analytics</title>
+    <!-- Firebase Legacy Compat Libraries -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,245 +16,232 @@
             --jotun-navy-mid: #00408A;
             --jotun-red: #C8102E;
             --jotun-green: #10B981;
-            --jotun-gold: #F0A500;
             --surface: #F4F7FC;
             --surface-2: #EBF0FA;
             --text-main: #1E293B;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
-            --radius-lg: 16px;
-            --radius-md: 10px;
+            --text-sub: #64748B;
         }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--surface); color: var(--text-main); min-height: 100vh; padding: 40px 24px; }
-        .container { max-width: 1100px; margin: 0 auto; }
-        header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-        .brand-block { display: flex; align-items: center; gap: 16px; }
-        .logo { width: 44px; height: 44px; background: var(--jotun-red); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 24px; }
-        h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 700; color: var(--jotun-navy); }
-        .subtitle { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
-
-        /* Dynamic Champion Crown Box Display Banner */
-        .winner-crown-banner {
-            display: none; background: linear-gradient(135deg, #001A45 0%, #002D72 100%);
-            border: 3px solid var(--jotun-gold); border-radius: var(--radius-lg); padding: 24px;
-            margin-bottom: 32px; align-items: center; gap: 20px; box-shadow: 0 12px 40px rgba(240,165,0,0.25);
-            animation: bannerPulse 2s infinite ease-in-out;
-        }
-        .crown-icon { font-size: 54px; filter: drop-shadow(0 4px 8px rgba(240,165,0,0.5)); }
-        .winner-title-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: var(--jotun-gold); letter-spacing: 2px; text-transform: uppercase; }
-        .winner-team-name { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 800; color: white; margin-top: 2px; }
-        @keyframes bannerPulse { 0%, 100% { border-color: var(--jotun-gold); } 50% { border-color: #FFE699; } }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; transition: opacity 0.4s ease; }
-        .stat-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; box-shadow: 0 4px 12px rgba(0,45,114,0.03); }
-        .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; }
-        .stat-value { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 700; color: var(--jotun-navy); margin-top: 4px; }
-
-        .table-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,45,114,0.04); overflow: hidden; transition: opacity 0.4s ease; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th { background: var(--surface-2); color: var(--jotun-navy); font-weight: 600; padding: 16px 24px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 16px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-        tr { transition: opacity 0.4s ease; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--surface); color: var(--text-main); padding: 30px; min-height: 100vh; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 3px solid var(--jotun-navy); padding-bottom: 15px; }
+        h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 32px; color: var(--jotun-navy); letter-spacing: 0.5px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 35px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,45,114,0.04); border: 1px solid rgba(0,45,114,0.06); text-align: center; }
+        .stat-card h3 { font-size: 13px; text-transform: uppercase; color: var(--text-sub); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .stat-card p { font-size: 28px; font-weight: 700; color: var(--jotun-navy-deep); }
+        
+        .table-container { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,45,114,0.05); border: 1px solid rgba(0,45,114,0.06); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: var(--jotun-navy-deep); color: white; padding: 16px 20px; font-size: 13px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        td { padding: 18px 20px; border-bottom: 1px solid var(--surface-2); font-size: 15px; font-weight: 500; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         
-        /* Dashboard Faded State Profile Styles */
-        .faded-out { opacity: 0.25; pointer-events: none; }
-        .champion-highlight-row { background: rgba(240,165,0,0.06) !important; font-weight: 600; }
+        .rank-num { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--text-sub); }
+        .rank-num.gold { background: #FFDF00; color: #8A6D00; }
+        .rank-num.silver { background: #E4E4E4; color: #555555; }
+        .rank-num.bronze { background: #CD7F32; color: #FFFFFF; }
+        .team-name { font-weight: 600; color: var(--jotun-navy-deep); }
         
-        .team-identity { font-weight: 600; color: var(--jotun-navy); font-size: 15px; }
-        .token-tag { font-family: monospace; font-size: 12px; color: var(--text-muted); background: var(--surface); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); }
+        .progress-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 300px; }
+        .progress-track { background: var(--surface-2); height: 8px; border-radius: 4px; flex-grow: 1; overflow: hidden; }
+        .progress-bar { background: var(--jotun-navy); height: 100%; width: 0%; transition: width 0.4s ease; border-radius: 4px; }
+        .progress-bar.finished { background: var(--jotun-green); }
+        .progress-text { font-size: 14px; font-weight: 700; color: var(--jotun-navy-deep); min-width: 45px; text-align: right; }
         
-        .stage-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #F1F5F9; color: #475569; }
-        .stage-badge.done { background: rgba(16,185,129,0.1); color: var(--jotun-green); }
-        
-        .pile-preview-row { display: flex; gap: 3px; }
-        .pile-preview-dot {
-            width: 18px; height: 20px; border-radius: 3px; font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;
-            background: #E2E8F0; color: #94A3B8;
-        }
-        .pile-preview-dot.active { background: var(--jotun-navy); color: #FFFFFF; }
-        .stage-badge.done + .pile-preview-row .pile-preview-dot { background: var(--jotun-green); color: white; }
-
-        .progress-wrapper { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 220px; }
-        .progress-track { flex: 1; height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--jotun-navy); border-radius: 3px; transition: width 0.4s ease; }
-        .progress-bar.complete { background: var(--jotun-green); }
-        .progress-text { font-size: 12px; font-weight: 600; color: var(--text-muted); width: 36px; text-align: right; }
-        .time-cell { font-size: 13px; color: var(--text-muted); }
+        .row-greyed { opacity: 0.4; background-color: #FAFAFA; filter: grayscale(40%); }
+        .row-completed { background-color: rgba(16,185,129,0.02); }
+        .time-cell { color: var(--text-sub); font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <div class="brand-block">
-                <div class="logo">J</div>
-                <div>
-                    <h1>Jotun Hunt 2026</h1>
-                    <div class="subtitle">Live Administrative Console & Cohort Metrics</div>
-                </div>
-            </div>
-        </header>
+    <header>
+        <h1>An Inauguration to a Colorful Restart</h1>
+    </header>
 
-        <div id="global-winner-banner" class="winner-crown-banner">
-            <div class="crown-icon">👑</div>
-            <div>
-                <div class="winner-title-label">Jotun Hunt Champion Definitively Crowned</div>
-                <div id="champion-team-display-name" class="winner-team-name">—</div>
-            </div>
-        </div>
+    <div class="stats-grid">
+        <div class="stat-card"><h3>Total Teams</h3><p id="stat-total">20</p></div>
+<!--
+        <div class="stat-card"><h3>Completed</h3><p id="stat-done">0</p></div>
+        <div class="stat-card"><h3>Active Hunting</h3><p id="stat-active">0</p></div>
+-->
+        <div class="stat-card"><h3>Average Progress</h3><p id="stat-avg">0%</p></div>
+    </div>
 
-        <div class="stats-grid" id="stats-panel-wrapper">
-            <div class="stat-card">
-                <div class="stat-label">Registered Teams</div>
-                <div class="stat-value" id="stat-total">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Hunts</div>
-                <div class="stat-value" id="stat-active">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Completed Runs</div>
-                <div class="stat-value" id="stat-done">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Mean Progress</div>
-                <div class="stat-value" id="stat-avg">0%</div>
-            </div>
-        </div>
-
-        <div class="table-card" id="table-panel-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Team Identity</th>
-                        <th>Current Phase</th>
-                        <th>Fixed Pile Array Status</th>
-                        <th>Completion Metric</th>
-                        <th>Last Synchronization</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-rows">
-                    </tbody>
-            </table>
-        </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 8%;">Rank</th>
+                    <th style="width: 42%;">Team Identity</th>
+                    <th style="width: 35%;">Game Progress</th>
+                    <th style="width: 15%;">Last Activity</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-stream-target">
+            </tbody>
+        </table>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
-            authDomain: "jotunhunt2026.firebaseapp.com",
-            projectId: "jotunhunt2026",
-            databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app"
+        // Exact Team Master Roster explicitly linked to its internal backend configuration mapping
+        const TEAM_MASTER_ROSTER = {
+          "j7x2": { name: "ROYAL BLUE",          cohort: 1 },
+          "m3kw": { name: "MINTY BREEZE",         cohort: 1 },
+          "r9nt": { name: "MOROCCAN MIST",        cohort: 1 },
+          "w4qb": { name: "WOODSMOKE",            cohort: 1 },
+          "v6lp": { name: "MEDITERRANEAN OLIVE",  cohort: 2 },
+          "t8cz": { name: "TRAVERTINE CAIRO",     cohort: 2 },
+          "e2ys": { name: "TIMELESS",             cohort: 2 },
+          "u5fh": { name: "PURE OCEAN",           cohort: 2 },
+          "n1gd": { name: "FOREVER JUNGLE",       cohort: 3 },
+          "d0rv": { name: "DREAMY DESERT",        cohort: 3 },
+          "i4mo": { name: "IVORY TOAST",          cohort: 3 },
+          "s6jt": { name: "STONE GREY",           cohort: 3 },
+          "p2xn": { name: "PASTEL MINT",          cohort: 4 },
+          "b9ae": { name: "URBAN MIST",           cohort: 4 },
+          "q3wk": { name: "PERSIAN PEARL",        cohort: 4 },
+          "f7cv": { name: "DOVE GREY",            cohort: 4 },
+          "g5rl": { name: "GOLDEN LILY",          cohort: 5 },
+          "h8uz": { name: "EARTHSCAPE",           cohort: 5 },
+          "c1mb": { name: "BRIGHT SIENNA",        cohort: 5 },
+          "k0yd": { name: "MINIMALIST",           cohort: 5 }
         };
-        firebase.initializeApp(firebaseConfig);
+
+        // Exact puzzle sequences for each cohort from your backend configuration
+        const COHORT_SEQUENCES = {
+          1: ["CW", "BP", "MR", "LR", "FR"],
+          2: ["BP", "CW", "LR", "FR", "MR"],
+          3: ["FR", "MR", "CW", "BP", "LR"],
+          4: ["MR", "LR", "FR", "CW", "BP"],
+          5: ["LR", "FR", "BP", "MR", "CW"]
+        };
+
+        // Custom puzzle weight distributions provided by you
+        const WEIGHTS = {
+          "IDENTITY": 10, // Team name entry
+          "CW": 20,       // Crossword
+          "BP": 15,       // Blueprint
+          "MR": 15,       // Murdle
+          "FR": 20,       // Frame / Pantry facts
+          "LR": 10        // Letter route
+        };
+
+        const firebaseConfig = {
+            databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
 
-        const TEAM_DATA_MAP = {
-          "j7x2": "ROYAL BLUE", "m3kw": "MINTY BREEZE", "r9nt": "MOROCCAN MIST", "w4qb": "WOODSMOKE",
-          "v6lp": "MEDITERRANEAN OLIVE", "t8cz": "TRAVERTINE CAIRO", "e2ys": "TIMELESS", "u5fh": "PURE OCEAN",
-          "n1gd": "FOREVER JUNGLE", "d0rv": "DREAMY DESERT", "i4mo": "IVORY TOAST", "s6jt": "STONE GREY",
-          "p2xn": "PASTEL MINT", "b9ae": "URBAN MIST", "q3wk": "PERSIAN PEARL", "f7cv": "DOVE GREY",
-          "g5rl": "GOLDEN LILY", "h8uz": "EARTHSCAPE", "c1mb": "BRIGHT SIENNA", "k0yd": "MINIMALIST"
-        };
+        function getRankClass(idx) {
+            if (idx === 0) return 'gold';
+            if (idx === 1) return 'silver';
+            if (idx === 2) return 'bronze';
+            return '';
+        }
 
-        // Live multi-node listener matching updates to game endpoints
-        db.ref('gameData').on('value', (snapshot) => {
-            try {
-                const rootData = snapshot.val() || {};
-                const liveTeams = rootData.teams || {};
-                const globalWinner = rootData.globalGameWinner || null;
-                const compilation = [];
+        // Dynamically processes and calculates customized percentage values based on team cohort orders
+        function calculateWeightedProgress(cohortNum, currentStage, isCompleted) {
+            if (isCompleted || currentStage >= 7) return 100;
+            if (currentStage === 1) return 0;
 
-                const banner = document.getElementById('global-winner-banner');
-                const statsWrapper = document.getElementById('stats-panel-wrapper');
+            let percentageSum = WEIGHTS["IDENTITY"]; // 10% awarded immediately for finishing registration
 
-                // Toggle Dashboard UI state if a winner has emerged
-                if (globalWinner) {
-                    document.getElementById('champion-team-display-name').innerText = globalWinner.toUpperCase();
-                    banner.style.display = "flex";
-                    if (statsWrapper) statsWrapper.classList.add('faded-out');
-                } else {
-                    banner.style.display = "none";
-                    if (statsWrapper) statsWrapper.classList.remove('faded-out');
+            const sequence = COHORT_SEQUENCES[cohortNum];
+            if (!sequence) return percentageSum;
+
+            // Add up weights for every individual puzzle solved prior to entering the current stage
+            const completedCount = currentStage - 2;
+            for (let i = 0; i < completedCount; i++) {
+                const puzzleKey = sequence[i];
+                if (WEIGHTS[puzzleKey]) {
+                    percentageSum += WEIGHTS[puzzleKey];
                 }
+            }
 
-                Object.entries(TEAM_DATA_MAP).forEach(([token, fallbackName]) => {
-                    const record = liveTeams[token] || {};
-                    const stage = record.currentStage || 1;
-                    const isDone = record.isCompleted || false;
-                    
-                    let percentage = 0;
-                    if (isDone) percentage = 100;
-                    else if (stage > 1) percentage = Math.round(((stage - 1) / 7) * 100);
+            // Bound rounding safely to the closest 5% rule as requested
+            return Math.round(percentageSum / 5) * 5;
+        }
 
-                    compilation.push({
-                        token,
-                        name: record.teamName || fallbackName,
-                        stage,
-                        isRegistered: !!record.teamName,
-                        letters: record.letters || "_______",
-                        isCompleted: isDone,
-                        progressPct: percentage,
-                        lastActive: record.lastActive || 0
-                    });
+        db.ref('gameData/teams').on('value', (snapshot) => {
+            try {
+                const liveData = snapshot.val() || {};
+                const target = document.getElementById('leaderboard-stream-target');
+                if (!target) return;
+
+                // Loop cleanly over the token registry array to build the precise lineup metrics
+                const tokensArray = Object.keys(TEAM_MASTER_ROSTER);
+                const fullLineup = tokensArray.map((token, index) => {
+                    const rosterInfo = TEAM_MASTER_ROSTER[token];
+                    const match = liveData[token];
+
+                    if (match) {
+                        const pct = calculateWeightedProgress(rosterInfo.cohort, match.currentStage || 1, match.isCompleted || false);
+                        return {
+                            token: token,
+                            isRegistered: (match.currentStage > 1), 
+                            teamName: rosterInfo.name,
+                            currentStage: match.currentStage || 1,
+                            isCompleted: match.isCompleted || false,
+                            lastActive: match.lastActive || null,
+                            progressPct: pct,
+                            displayLabel: rosterInfo.name
+                        };
+                    } else {
+                        // Display uninitialized state using team placeholder positions safely
+                        return {
+                            token: token,
+                            isRegistered: false,
+                            teamName: `Team ${index + 1}`,
+                            currentStage: 1,
+                            isCompleted: false,
+                            lastActive: null,
+                            progressPct: 0,
+                            displayLabel: `Team ${index + 1}`
+                        };
+                    }
                 });
 
-                // Sort by progress percentage, then latest activity time stamp
-                compilation.sort((a, b) => b.progressPct - a.progressPct || b.lastActive - a.lastActive);
-                updateGlobalAnalytics(compilation);
+                // Leaderboard Sorting Rule context: Highest percentage first, ties resolved by latest activity timestamp
+                fullLineup.sort((a, b) => {
+                    if (b.progressPct !== a.progressPct) {
+                        return b.progressPct - a.progressPct;
+                    }
+                    return (b.lastActive || 0) - (a.lastActive || 0);
+                });
 
-                const container = document.getElementById('leaderboard-rows');
-                container.innerHTML = compilation.map(team => {
-                    let phaseText = `Stage ${team.stage}/7`;
-                    let badgeClass = '';
-                    let isWinnerRow = (globalWinner && globalWinner === team.name);
-                    let rowClass = '';
+                updateGlobalAnalytics(fullLineup);
 
-                    if (team.isCompleted) {
-                        phaseText = "FINISHED";
-                        badgeClass = "done";
-                    } else if (team.stage === 1) {
-                        phaseText = "UNREGISTERED";
-                    } else if (team.stage === 7) {
-                        phaseText = "FINALE ROUND";
+                target.innerHTML = fullLineup.map((team, idx) => {
+                    const rankClass = getRankClass(idx);
+                    let rowModifier = "";
+                    
+                    if (!team.isRegistered) {
+                        rowModifier = "row-greyed";
+                    } else if (team.isCompleted) {
+                        rowModifier = "row-completed";
                     }
 
-                    // Handle Row Modifications during Winner Fades
-                    if (globalWinner) {
-                        if (isWinnerRow) {
-                            rowClass = 'champion-highlight-row';
-                            phaseText = "🏆 WINNER 👑";
-                            badgeClass = "done";
-                        } else {
-                            rowClass = 'faded-out';
-                        }
+                    let timeStr = "—";
+                    if (team.lastActive) {
+                        const elapsedMin = Math.max(0, Math.floor((Date.now() - team.lastActive) / 60000));
+                        timeStr = elapsedMin === 0 ? 'Just now' : `${elapsedMin}m ago`;
                     }
 
-                    const timeStr = team.lastActive ? new Date(team.lastActive).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : '—';
-                    const isDoneClass = team.isCompleted ? 'complete' : '';
-
-                    let pileHtml = `<div class="pile-preview-row">`;
-                    for(let i=0; i<7; i++) {
-                        const char = team.letters[i] || "_";
-                        if(char !== "_") {
-                            pileHtml += `<div class="pile-preview-dot active">${char}</div>`;
-                        } else {
-                            pileHtml += `<div class="pile-preview-dot">_</div>`;
-                        }
-                    }
-                    pileHtml += `</div>`;
+                    const isDoneClass = team.isCompleted ? "finished" : "";
 
                     return `
-                        <tr class="${rowClass}">
+                        <tr class="${rowModifier}">
                             <td>
-                                <div class="team-identity">${team.name} ${isWinnerRow ? '👑' : ''}</div>
-                                <div style="margin-top:4px;"><span class="token-tag">${team.token}</span></div>
+                                <div class="rank-num ${rankClass}">${idx + 1}</div>
                             </td>
-                            <td><span class="stage-badge ${badgeClass}">${phaseText}</span></td>
-                            <td>${pileHtml}</td>
+                            <td>
+                                <span class="team-name">${team.displayLabel}</span>
+                            </td>
                             <td>
                                 <div class="progress-wrapper">
                                     <div class="progress-track">
@@ -267,7 +255,7 @@
                 }).join('');
 
             } catch (err) {
-                console.error("Dashboard error:", err);
+                console.error("Dashboard metric rendering engine crash:", err);
             }
         });
 
