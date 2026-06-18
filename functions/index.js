@@ -238,27 +238,51 @@ exports.requestHint = onRequest((req, res) => {
 
       if (!teamInfo) return res.status(401).json({ error: { message: "Access denied." } });
 
-      const teamRef  = db.ref(`gameData/teams/${token}`);
-      const snapshot = await teamRef.get();
-      const state    = snapshot.val();
+      const teamRef = db.ref(`gameData/teams/${token}`);
+      let hintText = "";
+      let finalHintCount = 0;
 
-      if (!state) return res.status(404).json({ error: { message: "Team state not found." } });
-      if (state.hintsUsed >= MAX_HINTS) {
+      // 🛑 FIXED: Uses an atomic database transaction block to eliminate race conditions
+      const transactionResult = await teamRef.transaction((currentState) => {
+        if (!currentState) return currentState; // Let it abort if path does not exist
+        
+        // Block processing if the locked value has hit or exceeded the ceiling metrics
+        if ((currentState.hintsUsed || 0) >= MAX_HINTS) {
+          return; // Abort transaction cleanly without writing data
+        }
+        
+        // Execute isolated arithmetic inside the locked database memory ring
+        currentState.hintsUsed = (currentState.hintsUsed || 0) + 1;
+        currentState.lastActive = Date.now();
+        return currentState;
+      });
+
+      // If the transaction returns clear (meaning it was aborted because hints were filled)
+      if (!transactionResult.committed) {
         return res.status(200).json({ result: { success: false, message: "Out of hints." } });
       }
 
-      let hintText = "";
-      if (state.currentStage === 1) hintText = HINTS.IDENTITY;
-      else if (state.currentStage === TOTAL_STAGES) hintText = HINTS.FINALE;
-      else {
-        const puzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
+      // Re-read safe metrics calculated inside the synchronized tracking block
+      const updatedState = transactionResult.snapshot.val();
+      finalHintCount = updatedState.hintsUsed;
+
+      if (updatedState.currentStage === 1) {
+        hintText = HINTS.IDENTITY;
+      } else if (updatedState.currentStage === TOTAL_STAGES) {
+        hintText = HINTS.FINALE;
+      } else {
+        const puzzle = getPuzzleForStage(teamInfo.cohort, updatedState.currentStage);
         hintText = puzzle ? HINTS[puzzle.key] : "No hint available.";
       }
 
-      const newHintCount = state.hintsUsed + 1;
-      await teamRef.update({ hintsUsed: newHintCount });
+      return res.status(200).json({ 
+        result: { 
+          success: true, 
+          hint: hintText, 
+          remaining: Math.max(0, MAX_HINTS - finalHintCount) 
+        } 
+      });
 
-      return res.status(200).json({ result: { success: true, hint: hintText, remaining: MAX_HINTS - newHintCount } });
     } catch (err) {
       return res.status(500).json({ error: { message: err.message } });
     }

@@ -454,7 +454,6 @@
 
     <div class="footer-brand">JOTUN · HUNT 2026</div>
 
-    <!-- Hint Modal -->
     <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -467,7 +466,6 @@
         </div>
     </div>
 
-    <!-- Asset Modal -->
     <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -480,7 +478,6 @@
         </div>
     </div>
 
-    <!-- Clue Modal -->
     <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -508,7 +505,6 @@
         };
         firebase.initializeApp(firebaseConfig);
 
-        // ── FIX: Use the correct region matching your Firebase backend ──
         const CLOUD_FUNCTIONS_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -575,7 +571,6 @@
             const viewport = document.getElementById('game-viewport');
             const header = document.getElementById('app-header');
 
-            // ── STAGE 1: Identity ──
             if (data.currentStage === 1) {
                 header.style.display = "none";
                 viewport.innerHTML = `
@@ -595,7 +590,6 @@
                 return;
             }
 
-            // ── Show header ──
             header.style.display = "flex";
             document.getElementById('progress-indicator').innerText =
                 `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
@@ -611,7 +605,6 @@
                 }
             }
 
-            // ── STAGE 7: Finale ──
             if (data.viewType === "FINALE") {
                 viewport.innerHTML = `
                     <div class="card-header-band">
@@ -632,7 +625,6 @@
                 return;
             }
 
-            // ── STAGES 2–6: Puzzle ──
             let actionHTML = '';
             if (data.viewType === "CW") {
                 actionHTML = `
@@ -700,19 +692,31 @@
             } catch (e) { showToast(e.message, true); }
         }
 
+        // ── FIXED: Complete front-end request pipeline utilizing atomic server callbacks ──
         async function triggerHintRequest() {
+            const btn = document.getElementById('hint-btn-anchor');
+            if (btn && btn.disabled) return; 
             if (!confirm("Use one of your hints? You only have 2.")) return;
+            
+            if (btn) btn.disabled = true; // Instantly lock out malicious double clicks
+            
             try {
                 const res = await callCloudEndpoint('requestHint', { token: teamToken });
                 if (res.success) {
                     document.getElementById('hint-modal-text').innerText = res.hint;
                     document.getElementById('hint-modal').style.display = "flex";
-                    localStateCache.hintsUsed++;
+                    
+                    // 🛑 FIXED: Update client-side parameters cleanly from the verified server response metric
+                    localStateCache.hintsUsed = 2 - res.remaining; 
                     updateHintButtonLabel(localStateCache.hintsUsed);
                 } else {
-                    showToast("You've used all your hints.", true);
+                    showToast(res.message || "You've used all your hints.", true);
+                    updateHintButtonLabel(2); // Hard lock layout configuration to max configuration boundaries
                 }
-            } catch (e) { showToast(e.message, true); }
+            } catch (e) { 
+                showToast(e.message, true); 
+                if (localStateCache) updateHintButtonLabel(localStateCache.hintsUsed);
+            }
         }
 
         async function triggerFinaleCheck() {
