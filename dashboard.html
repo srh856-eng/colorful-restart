@@ -49,6 +49,7 @@
         .hints-pill.maxed { background: rgba(200,16,46,0.1); color: var(--jotun-red); }
         .time-cell { color: var(--text-sub); font-size: 13px; }
         .empty-state { text-align: center; color: var(--text-sub); padding: 40px !important; font-style: italic; }
+        .row-completed { background-color: rgba(16,185,129,0.03); }
     </style>
 </head>
 <body>
@@ -58,9 +59,9 @@
     </header>
 
     <div class="stats-grid">
-        <div class="stat-card"><h3>Total Teams</h3><p id="stat-total">—</p></div>
-        <div class="stat-card"><h3>Completed</h3><p id="stat-done">—</p></div>
-        <div class="stat-card"><h3>Active Hunting</h3><p id="stat-active">—</p></div>
+        <div class="stat-card"><h3>Total Teams</h3><p id="stat-total">0</p></div>
+        <div class="stat-card"><h3>Completed</h3><p id="stat-done">0</p></div>
+        <div class="stat-card"><h3>Active Hunting</h3><p id="stat-active">0</p></div>
         <div class="stat-card"><h3>Average Stage</h3><p id="stat-avg">—</p></div>
     </div>
 
@@ -77,20 +78,22 @@
             </thead>
             <tbody id="leaderboard-stream-target">
                 <tr class="empty-state">
-                    <td colspan="5">⏳ Synchronizing connection metrics with database ecosystem...</td>
+                    <td colspan="5">⏳ Connecting to Firebase Realtime Database...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <script>
+        // Realtime Database Web Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
-            authDomain: "jotunhunt2026.firebaseapp.com",
-            projectId: "jotunhunt2026",
             databaseURL: "https://jotunhunt2026-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
-        firebase.initializeApp(firebaseConfig);
+        
+        // Safe Initialization Block
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
 
         function getRankClass(idx) {
@@ -100,68 +103,79 @@
             return '';
         }
 
+        // Direct Stream listener on the correct path 'gameData/teams'
         db.ref('gameData/teams').on('value', (snapshot) => {
-            const data = snapshot.val();
-            const target = document.getElementById('leaderboard-stream-target');
+            try {
+                const data = snapshot.val();
+                const target = document.getElementById('leaderboard-stream-target');
 
-            if (!data) {
-                target.innerHTML = `
-                    <tr class="empty-state">
-                        <td colspan="5">⏳ Waiting for teams to log in and initialize progress...</td>
-                    </tr>`;
-                updateStats([]);
-                return;
+                if (!target) return; // Prevent loop crash if element isn't ready
+
+                if (!data) {
+                    target.innerHTML = `
+                        <tr class="empty-state">
+                            <td colspan="5">⏳ Waiting for teams to log in and begin the hunt...</td>
+                        </tr>`;
+                    updateStats([]);
+                    return;
+                }
+
+                // Map data parameters cleanly
+                const teams = Object.keys(data).map(token => ({
+                    token: token,
+                    ...data[token]
+                }));
+
+                // Sort: Finished teams first, then highest stage, then fewest hints used
+                teams.sort((a, b) => {
+                    if (a.isCompleted && !b.isCompleted) return -1;
+                    if (!a.isCompleted && b.isCompleted) return 1;
+                    if ((b.currentStage || 1) !== (a.currentStage || 1)) {
+                        return (b.currentStage || 1) - (a.currentStage || 1);
+                    }
+                    return (a.hintsUsed || 0) - (b.hintsUsed || 0);
+                });
+
+                updateStats(teams);
+
+                target.innerHTML = teams.map((team, idx) => {
+                    let stageBadge = `<span class="badge badge-stage">Stage ${team.currentStage || 1} / 7</span>`;
+                    if (team.isCompleted) {
+                        stageBadge = `<span class="badge badge-done">🏁 Finished</span>`;
+                    }
+
+                    // Active time tracking calculation
+                    const elapsedMin = Math.max(0, Math.floor((Date.now() - (team.lastActive || Date.now())) / 60000));
+                    const timeStr = elapsedMin === 0 ? 'Just now' : `${elapsedMin}m ago`;
+                    const hintsHTML = `<span class="hints-pill ${(team.hintsUsed || 0) >= 2 ? 'maxed' : ''}">${team.hintsUsed || 0} / 2</span>`;
+
+                    let lettersHTML = '<div style="display: flex;">';
+                    for (let i = 0; i < 7; i++) {
+                        const char = (team.letters || '')[i] || '';
+                        lettersHTML += `<div class="dash-letter-box ${char ? 'active' : ''}">${char}</div>`;
+                    }
+                    lettersHTML += '</div>';
+
+                    const rankClass = getRankClass(idx);
+
+                    return `
+                        <tr class="${team.isCompleted ? 'row-completed' : ''}">
+                            <td>
+                                <div class="rank-cell">
+                                    <div class="rank-num ${rankClass}">${idx + 1}</div>
+                                    <span class="team-name">${team.teamName || 'Unnamed Team'}</span>
+                                </div>
+                            </td>
+                            <td>${stageBadge}</td>
+                            <td>${lettersHTML}</td>
+                            <td>${hintsHTML}</td>
+                            <td class="time-cell">${timeStr}</td>
+                        </tr>`;
+                }).join('');
+
+            } catch (err) {
+                console.error("Dashboard error during layout parsing:", err);
             }
-
-            // Safe parsing conversion array
-            const teams = Object.keys(data).map(token => ({
-                token: token,
-                ...data[token]
-            }));
-
-            // Leaderboard Sorting Rules logic
-            teams.sort((a, b) => {
-                if (a.isCompleted && !b.isCompleted) return -1;
-                if (!a.isCompleted && b.isCompleted) return 1;
-                if (a.currentStage !== b.currentStage) return b.currentStage - a.currentStage;
-                return (a.hintsUsed || 0) - (b.hintsUsed || 0);
-            });
-
-            updateStats(teams);
-
-            target.innerHTML = teams.map((team, idx) => {
-                let stageBadge = `<span class="badge badge-stage">Stage ${team.currentStage || 1} / 7</span>`;
-                if (team.isCompleted) {
-                    stageBadge = `<span class="badge badge-done">🏁 Finished</span>`;
-                }
-
-                const elapsedMin = Math.max(0, Math.floor((Date.now() - (team.lastActive || Date.now())) / 60000));
-                const timeStr = elapsedMin === 0 ? 'Just now' : `${elapsedMin}m ago`;
-                const hintsHTML = `<span class="hints-pill ${team.hintsUsed >= 2 ? 'maxed' : ''}">${team.hintsUsed || 0} / 2</span>`;
-
-                let lettersHTML = '<div>';
-                for (let i = 0; i < 7; i++) {
-                    const char = (team.letters || '')[i] || '';
-                    lettersHTML += `<div class="dash-letter-box ${char ? 'active' : ''}">${char}</div>`;
-                }
-                lettersHTML += '</div>';
-
-                const rankClass = getRankClass(idx);
-
-                return `
-                    <tr class="${team.isCompleted ? 'row-completed' : ''}">
-                        <td>
-                            <div class="rank-cell">
-                                <div class="rank-num ${rankClass}">${idx + 1}</div>
-                                <span class="team-name">${team.teamName || 'Unnamed Team'}</span>
-                            </div>
-                        </td>
-                        <td>${stageBadge}</td>
-                        <td>${lettersHTML}</td>
-                        <td>${hintsHTML}</td>
-                        <td class="time-cell">${timeStr}</td>
-                    </tr>`;
-            }).join('');
         });
 
         function updateStats(teams) {
@@ -172,10 +186,15 @@
                 ? (teams.reduce((s, t) => s + (t.currentStage || 1), 0) / total).toFixed(1)
                 : '—';
 
-            document.getElementById('stat-total').innerText = total || '0';
-            document.getElementById('stat-done').innerText = done || '0';
-            document.getElementById('stat-active').innerText = active || '0';
-            document.getElementById('stat-avg').innerText = avgStage;
+            const totalEl = document.getElementById('stat-total');
+            const doneEl = document.getElementById('stat-done');
+            const activeEl = document.getElementById('stat-active');
+            const avgEl = document.getElementById('stat-avg');
+
+            if (totalEl) totalEl.innerText = total;
+            if (doneEl) doneEl.innerText = done;
+            if (activeEl) activeEl.innerText = active;
+            if (avgEl) avgEl.innerText = avgStage;
         }
     </script>
 </body>
