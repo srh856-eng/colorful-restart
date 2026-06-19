@@ -286,7 +286,7 @@ exports.submitStageAnswer = onRequest((req, res) => {
         lastActive:      Date.now()
       });
 
-      const ANIMATIONS = { CW: "Brilliant", BP: "Smart", MR: "Marvellous", LR: "Beautiful", FR: "Colourful" };
+      const ANIMATIONS = { CW: "Vibrant", BP: "Flawless Finish", MR: "True Colour", LR: "Premium Coat", FR: "Pure Pigment" };
       return res.status(200).json({ result: { correct: true, nextStage, animationType: ANIMATIONS[puzzle.key] || "Great" } });
     } catch (err) {
       return res.status(500).json({ error: { message: err.message } });
@@ -366,7 +366,7 @@ exports.submitFinale = onRequest((req, res) => {
       if (!state) return res.status(404).json({ error: { message: "State not found." } });
       if (state.isCompleted) return res.status(200).json({ result: { correct: true, alreadyCompleted: true } });
 
-      if (normalise(finalWord) !== "JOTUNUNITE") {
+      if (normalise(finalWord) !== "CENTURY") {
         return res.status(200).json({ result: { correct: false } });
       }
 

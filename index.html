@@ -111,12 +111,14 @@
             border-color: var(--jotun-gold);
             background: rgba(240,165,0,0.15);
             color: var(--jotun-gold);
-            transform: scale(1.08);
-            animation: popIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+            animation: vaultPop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
         }
-        @keyframes popIn {
-            0% { transform: scale(0.5); opacity: 0; }
-            100% { transform: scale(1.08); opacity: 1; }
+        @keyframes vaultPop {
+            0%   { transform: scale(0.3) rotate(-25deg) translateY(-14px); opacity: 0; box-shadow: 0 0 0 rgba(240,165,0,0); }
+            45%  { transform: scale(1.35) rotate(10deg) translateY(2px); opacity: 1; box-shadow: 0 0 18px rgba(240,165,0,0.8); }
+            65%  { transform: scale(0.92) rotate(-4deg) translateY(0); box-shadow: 0 0 10px rgba(240,165,0,0.5); }
+            85%  { transform: scale(1.08) rotate(2deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; box-shadow: 0 0 4px rgba(240,165,0,0.25); }
         }
 
         /* ── MAIN CARD ── */
@@ -611,6 +613,7 @@
             align-items: center;
             gap: 5px;
             padding: 10px 0 4px;
+            position: relative;
         }
         .letter-tile {
             width: 32px;
@@ -626,14 +629,16 @@
             color: var(--jotun-gold);
             background: rgba(240,165,0,0.08);
             opacity: 0;
-            transform: translateY(-24px) scale(0.7);
+            transform: translate(140px, -90px) rotate(60deg) scale(0.4);
         }
         .letter-tile.drop {
-            animation: letterDrop 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+            animation: letterFlyIn 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
         }
-        @keyframes letterDrop {
-            from { opacity: 0; transform: translateY(-24px) scale(0.7); }
-            to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        @keyframes letterFlyIn {
+            0%   { opacity: 0; transform: translate(140px, -90px) rotate(60deg) scale(0.4); box-shadow: 0 0 0 rgba(240,165,0,0); }
+            55%  { opacity: 1; transform: translate(-6px, 6px) rotate(-8deg) scale(1.15); box-shadow: 0 0 16px rgba(240,165,0,0.7); }
+            75%  { transform: translate(2px, -2px) rotate(4deg) scale(0.95); }
+            100% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); box-shadow: 0 0 4px rgba(240,165,0,0.2); }
         }
 
         /* ── FINALE INPUT THEME ── */
@@ -974,7 +979,6 @@
             let actionHTML = '';
             if (data.viewType === "CW") {
                 actionHTML = `
-                    <button class="btn btn-accent" onclick="openConfirmationAsset('CW_SKELETON')">View Crossword Grid</button>
                     <div class="cw-grid">
                         <div>
                             <div class="cw-col-label">Across</div>
@@ -990,11 +994,9 @@
                         </div>
                     </div>`;
             } else if (data.viewType === "BP") {
-                actionHTML = `<button class="btn btn-accent" onclick="openConfirmationAsset('BP_IMAGE')">View Floor Blueprint</button>`;
+                actionHTML = '';
             } else if (data.viewType === "MR") {
-                actionHTML = `
-                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_RULES')">View Case File Rules</button>
-                    <button class="btn btn-accent" onclick="openConfirmationAsset('MR_SKELETON')">View Room Grid</button>`;
+                actionHTML = '';
             }
 
             viewport.className = "main-card";
@@ -1169,10 +1171,11 @@
 
             const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             let innerRotation = 0; // degrees
+            let keyShift = 0; // 0-25, A=0
 
             body.innerHTML = `
                 <div class="wheel-wrap">
-                    <p class="wheel-label">Drag or use buttons to rotate the inner ring</p>
+                    <p class="wheel-label">Rotate the inner ring so its <strong>A</strong> lines up with your key letter on the outer ring</p>
                     <div class="wheel-svg-wrap" id="wheel-svg-wrap">
                         <svg id="wheel-outer" width="260" height="260" viewBox="0 0 260 260"></svg>
                         <svg id="wheel-inner" width="180" height="180" viewBox="0 0 180 180"></svg>
@@ -1180,10 +1183,33 @@
                     <div class="wheel-controls">
                         <button class="wheel-btn" onclick="rotateWheel(-1)">◀ −1</button>
                         <button class="wheel-btn" onclick="rotateWheel(1)">+1 ▶</button>
-                        <button class="wheel-btn" onclick="rotateWheel(-26)">Reset</button>
+                        <button class="wheel-btn" onclick="rotateWheel(-999)">Reset</button>
                     </div>
-                    <div class="wheel-readout" id="wheel-readout">A → A</div>
-                    <p class="wheel-label" id="wheel-offset-label">Shift: 0</p>
+                    <div class="wheel-readout" id="wheel-readout">Key letter: A</div>
+                    <div class="finale-divider" style="width:100%;"></div>
+                    <p class="wheel-label">Use this key setting to encode or decode a letter</p>
+                    <div class="wheel-controls" style="gap:10px; flex-wrap:wrap; justify-content:center;">
+                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Plain letter</span>
+                            <input type="text" maxlength="1" id="wheel-plain-input" class="input-box" style="width:60px; text-align:center; text-transform:uppercase;" oninput="wheelEncode()">
+                        </div>
+                        <div style="font-size:20px; color:var(--text-secondary); padding-top:18px;">→</div>
+                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Cipher letter</span>
+                            <input type="text" maxlength="1" id="wheel-cipher-output" class="input-box" style="width:60px; text-align:center;" readonly>
+                        </div>
+                    </div>
+                    <div class="wheel-controls" style="gap:10px; flex-wrap:wrap; justify-content:center;">
+                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Cipher letter</span>
+                            <input type="text" maxlength="1" id="wheel-cipher-input" class="input-box" style="width:60px; text-align:center; text-transform:uppercase;" oninput="wheelDecode()">
+                        </div>
+                        <div style="font-size:20px; color:var(--text-secondary); padding-top:18px;">→</div>
+                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Plain letter</span>
+                            <input type="text" maxlength="1" id="wheel-plain-output" class="input-box" style="width:60px; text-align:center;" readonly>
+                        </div>
+                    </div>
                 </div>`;
 
             const outerSVG = document.getElementById('wheel-outer');
@@ -1232,52 +1258,94 @@
             }
 
             function updateReadout() {
-                const shift = ((Math.round(innerRotation / (360 / 26)) % 26) + 26) % 26;
-                const plainChar = ALPHA[0];
-                const cipherChar = ALPHA[(shift) % 26];
-                document.getElementById('wheel-readout').textContent = `A → ${cipherChar}  ·  shift +${shift}`;
-                document.getElementById('wheel-offset-label').textContent = `Inner ring shifted by ${shift} position${shift !== 1 ? 's' : ''}`;
+                const step = 360 / 26;
+                keyShift = ((Math.round(innerRotation / step) % 26) + 26) % 26;
+                const keyLetter = ALPHA[keyShift];
+                document.getElementById('wheel-readout').textContent = `Key letter: ${keyLetter}`;
+                wheelEncode();
+                wheelDecode();
             }
 
+            // Vigenère: cipher = (plain + keyShift) mod 26
+            window.wheelEncode = function() {
+                const inp = document.getElementById('wheel-plain-input');
+                const out = document.getElementById('wheel-cipher-output');
+                if (!inp || !out) return;
+                const ch = (inp.value || "").toUpperCase().replace(/[^A-Z]/g, "");
+                inp.value = ch;
+                if (!ch) { out.value = ""; return; }
+                const plainIdx = ALPHA.indexOf(ch);
+                out.value = ALPHA[(plainIdx + keyShift) % 26];
+            };
+
+            // Vigenère decode: plain = (cipher - keyShift) mod 26
+            window.wheelDecode = function() {
+                const inp = document.getElementById('wheel-cipher-input');
+                const out = document.getElementById('wheel-plain-output');
+                if (!inp || !out) return;
+                const ch = (inp.value || "").toUpperCase().replace(/[^A-Z]/g, "");
+                inp.value = ch;
+                if (!ch) { out.value = ""; return; }
+                const cipherIdx = ALPHA.indexOf(ch);
+                out.value = ALPHA[((cipherIdx - keyShift) % 26 + 26) % 26];
+            };
+
             window.rotateWheel = function(steps) {
-                if (steps === -26) { innerRotation = 0; }
+                if (steps === -999) { innerRotation = 0; }
                 else { innerRotation += steps * (360 / 26); }
+                innerSVG.style.transition = "transform 0.15s ease";
                 innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
                 updateReadout();
             };
 
-            // Drag to rotate inner wheel
+            // Drag to rotate inner wheel — mouse + touch support
             const wrap = document.getElementById('wheel-svg-wrap');
             let dragging = false, lastAngle = 0;
-            wrap.addEventListener('mousedown', (e) => {
+
+            function getAngleFromEvent(clientX, clientY) {
+                const rect = wrap.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                return Math.atan2(clientY - cy, clientX - cx) * 180 / Math.PI;
+            }
+
+            function dragStart(clientX, clientY) {
                 dragging = true;
-                const rect = wrap.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                lastAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
-            });
-            window.addEventListener('mousemove', (e) => {
+                lastAngle = getAngleFromEvent(clientX, clientY);
+            }
+            function dragMove(clientX, clientY) {
                 if (!dragging) return;
-                const rect = wrap.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+                const angle = getAngleFromEvent(clientX, clientY);
                 innerRotation += angle - lastAngle;
                 lastAngle = angle;
                 innerSVG.style.transition = "none";
                 innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
                 updateReadout();
-            });
-            window.addEventListener('mouseup', () => {
+            }
+            function dragEnd() {
                 if (!dragging) return;
                 dragging = false;
-                // Snap to nearest letter position
                 const step = 360 / 26;
                 innerRotation = Math.round(innerRotation / step) * step;
                 innerSVG.style.transition = "transform 0.15s ease";
                 innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
                 updateReadout();
-            });
+            }
+
+            wrap.addEventListener('mousedown', (e) => dragStart(e.clientX, e.clientY));
+            window.addEventListener('mousemove', (e) => dragMove(e.clientX, e.clientY));
+            window.addEventListener('mouseup', dragEnd);
+
+            wrap.addEventListener('touchstart', (e) => {
+                const t = e.touches[0];
+                dragStart(t.clientX, t.clientY);
+            }, { passive: true });
+            window.addEventListener('touchmove', (e) => {
+                if (!dragging) return;
+                const t = e.touches[0];
+                dragMove(t.clientX, t.clientY);
+            }, { passive: true });
+            window.addEventListener('touchend', dragEnd);
 
             drawOuter();
             drawInner();

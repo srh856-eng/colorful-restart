@@ -228,7 +228,7 @@
 
         // Dynamically processes and calculates customized percentage values based on team cohort orders
         function calculateWeightedProgress(cohortNum, currentStage, isCompleted) {
-            if (isCompleted || currentStage >= 7) return 100;
+            if (isCompleted) return 100;
             if (currentStage === 1) return 0;
 
             let percentageSum = WEIGHTS["IDENTITY"]; // 10% awarded immediately for finishing registration
@@ -237,7 +237,8 @@
             if (!sequence) return percentageSum;
 
             // Add up weights for every individual puzzle solved prior to entering the current stage
-            const completedCount = currentStage - 2;
+            // (currentStage 7 / finale not-yet-completed naturally sums all 5 quest weights = 90)
+            const completedCount = Math.min(currentStage - 2, sequence.length);
             for (let i = 0; i < completedCount; i++) {
                 const puzzleKey = sequence[i];
                 if (WEIGHTS[puzzleKey]) {
@@ -245,8 +246,8 @@
                 }
             }
 
-            // Bound rounding safely to the closest 5% rule as requested
-            return Math.round(percentageSum / 5) * 5;
+            // Round to the nearest 10% as requested
+            return Math.round(percentageSum / 10) * 10;
         }
 
         // ── WINNER WATCHER ──
