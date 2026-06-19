@@ -27,11 +27,38 @@ const TOTAL_STAGES = 7;
 const MAX_HINTS    = 2;
 
 const PUZZLE_DATA = {
-  CW: { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? What is the unscrambled word?", answer: "BEAUTIFUL", lettersDropped: 2 },
-  BP: { heading: "Quest BP", description: "Are you good at additions? Find the marked locations — but watch out for decoys.", prompt: "What is the total of the numbers you found?", answer: "5698", lettersDropped: 2 },
-  MR: { heading: "Quest MR", description: "Pablo the penguin is missing. Find where every other office member was, and Pablo will be in the last remaining cell. Pablo left a passcode hidden in that room.", prompt: "Enter Pablo's passcode", answer: "PABLOLOVESYOU", lettersDropped: 2 },
-  LR: { heading: "Quest LR", description: "Sam is the new intern at the Protective department. He walked to HR, then was sent to IT. His route traced a letter — can you find it?", prompt: "What letter did Sam's route trace?", answer: "L", lettersDropped: 1 },
-  FR: { heading: "Quest FR", description: "Head to the pantries and read the facts. Some have something odd hidden inside — be careful, not all of them do.", prompt: "Unscramble the odd letters you found", answer: "EARTH", lettersDropped: 2 }
+  CW: { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? What is the unscrambled word?", answer: "BEAUTIFUL" },
+  BP: { heading: "Quest BP", description: "Are you good at additions? Find the marked locations — but watch out for decoys.", prompt: "What is the total of the numbers you found?", answer: "5698" },
+  MR: { heading: "Quest MR", description: "Pablo the penguin is missing. Find where every other office member was, and Pablo will be in the last remaining cell. Pablo left a passcode hidden in that room.", prompt: "Enter Pablo's passcode", answer: "PABLOLOVESYOU" },
+  LR: { heading: "Quest LR", description: "Sam is the new intern at the Protective department. He walked to HR, then was sent to IT. His route traced a letter — can you find it?", prompt: "What letter did Sam's route trace?", answer: "L" },
+  FR: { heading: "Quest FR", description: "Head to the pantries and read the facts. Some have something odd hidden inside — be careful, not all of them do.", prompt: "Unscramble the odd letters you found", answer: "EARTH" }
+};
+
+// ─────────────────────────────────────────────
+//  FIXED LETTER DROPS PER QUEST
+//  Final canonical order in vault: V S B K I K B
+//  These letters are always inserted into their
+//  fixed slot positions regardless of quest order.
+// ─────────────────────────────────────────────
+const CANONICAL_LETTERS = "VSBKIKB"; // The final vault word, always in this order
+
+// Letters each quest contributes, keyed by puzzle code
+const QUEST_LETTERS = {
+  CW: "BI",  // positions 4,5 in canonical (I at index 4, B at index 6... see slot map below)
+  BP: "K",   // position 3
+  FR: "K",   // position 3... see slot map
+  MR: "VS",  // positions 0,1
+  LR: "B"    // position 2
+};
+
+// Each quest maps to specific slot indices in the canonical 7-letter string "VSBKIKB"
+// V=0, S=1, B=2, K=3, I=4, K=5, B=6
+const QUEST_SLOT_MAP = {
+  MR: [0, 1],  // V, S
+  LR: [2],     // B
+  BP: [3],     // K
+  CW: [4, 6],  // I, B  (slots 4 and 6)
+  FR: [5]      // K
 };
 
 const CROSSWORD_CLUES = {
@@ -96,6 +123,29 @@ function normalise(str) {
 }
 
 // ─────────────────────────────────────────────
+//  LETTER VAULT BUILDER
+//  Rebuilds the canonical 7-slot string from the
+//  set of completed quest keys, filling slots in
+//  their fixed positions regardless of quest order.
+// ─────────────────────────────────────────────
+function buildVaultLetters(completedQuestKeys) {
+  // Start with 7 empty slots
+  const slots = Array(7).fill("");
+
+  for (const questKey of completedQuestKeys) {
+    const slotIndices = QUEST_SLOT_MAP[questKey];
+    if (!slotIndices) continue;
+    const letters = CANONICAL_LETTERS;
+    for (const idx of slotIndices) {
+      slots[idx] = letters[idx];
+    }
+  }
+
+  // Return the vault as a string of filled letters only (blanks kept as space for slot rendering)
+  return slots.join("");
+}
+
+// ─────────────────────────────────────────────
 //  HTTP ENDPOINTS
 // ─────────────────────────────────────────────
 
@@ -116,12 +166,13 @@ exports.getGameState = onRequest((req, res) => {
 
       if (!state) {
         state = {
-          teamName:     teamInfo.name,
-          currentStage: 1,
-          hintsUsed:    0,
-          letters:      "",
-          isCompleted:  false,
-          lastActive:   Date.now()
+          teamName:          teamInfo.name,
+          currentStage:      1,
+          hintsUsed:         0,
+          letters:           "       ", // 7 empty slots
+          completedQuests:   [],
+          isCompleted:       false,
+          lastActive:        Date.now()
         };
         await teamRef.set(state);
       } else {
@@ -129,13 +180,22 @@ exports.getGameState = onRequest((req, res) => {
         state.lastActive = Date.now();
       }
 
+      // Check if another team has already won
+      const winnerSnap = await db.ref("gameData/winner").get();
+      const winnerData = winnerSnap.val();
+      const gameWon = !!winnerData;
+      const thisTeamWon = gameWon && winnerData.token === token;
+
       const result = {
-        teamName:     state.teamName,
-        currentStage: state.currentStage,
-        hintsUsed:    state.hintsUsed,
-        letters:      state.letters  || "",
-        isCompleted:  state.isCompleted || false,
-        totalStages:  TOTAL_STAGES
+        teamName:      state.teamName,
+        currentStage:  state.currentStage,
+        hintsUsed:     state.hintsUsed,
+        letters:       state.letters || "       ",
+        isCompleted:   state.isCompleted || false,
+        totalStages:   TOTAL_STAGES,
+        gameWon:       gameWon,
+        winnerName:    winnerData ? winnerData.name : null,
+        thisTeamWon:   thisTeamWon
       };
 
       if (state.currentStage === 1) {
@@ -145,7 +205,7 @@ exports.getGameState = onRequest((req, res) => {
       } else {
         const puzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
         if (!puzzle) return res.status(500).json({ error: { message: "Puzzle setup mismatch." } });
-        
+
         result.viewType    = puzzle.key;
         result.heading     = puzzle.heading;
         result.description = puzzle.description;
@@ -211,14 +271,19 @@ exports.submitStageAnswer = onRequest((req, res) => {
         return res.status(200).json({ result: { correct: false } });
       }
 
-      const droppedLetters = puzzle.answer.substring(0, puzzle.lettersDropped).toUpperCase();
-      const updatedLetters = (state.letters || "") + droppedLetters;
+      // Record this quest as completed and rebuild vault letters canonically
+      const completedQuests = Array.isArray(state.completedQuests) ? [...state.completedQuests] : [];
+      if (!completedQuests.includes(puzzle.key)) {
+        completedQuests.push(puzzle.key);
+      }
+      const updatedLetters = buildVaultLetters(completedQuests);
       const nextStage = state.currentStage + 1;
 
       await teamRef.update({
-        currentStage: nextStage,
-        letters: updatedLetters,
-        lastActive: Date.now()
+        currentStage:    nextStage,
+        letters:         updatedLetters,
+        completedQuests: completedQuests,
+        lastActive:      Date.now()
       });
 
       const ANIMATIONS = { CW: "Brilliant", BP: "Smart", MR: "Marvellous", LR: "Beautiful", FR: "Colourful" };
@@ -242,27 +307,23 @@ exports.requestHint = onRequest((req, res) => {
       let hintText = "";
       let finalHintCount = 0;
 
-      // 🛑 FIXED: Uses an atomic database transaction block to eliminate race conditions
+      // Uses an atomic database transaction block to eliminate race conditions
       const transactionResult = await teamRef.transaction((currentState) => {
-        if (!currentState) return currentState; // Let it abort if path does not exist
-        
-        // Block processing if the locked value has hit or exceeded the ceiling metrics
+        if (!currentState) return currentState;
+
         if ((currentState.hintsUsed || 0) >= MAX_HINTS) {
-          return; // Abort transaction cleanly without writing data
+          return; // Abort transaction cleanly
         }
-        
-        // Execute isolated arithmetic inside the locked database memory ring
+
         currentState.hintsUsed = (currentState.hintsUsed || 0) + 1;
         currentState.lastActive = Date.now();
         return currentState;
       });
 
-      // If the transaction returns clear (meaning it was aborted because hints were filled)
       if (!transactionResult.committed) {
         return res.status(200).json({ result: { success: false, message: "Out of hints." } });
       }
 
-      // Re-read safe metrics calculated inside the synchronized tracking block
       const updatedState = transactionResult.snapshot.val();
       finalHintCount = updatedState.hintsUsed;
 
@@ -275,12 +336,12 @@ exports.requestHint = onRequest((req, res) => {
         hintText = puzzle ? HINTS[puzzle.key] : "No hint available.";
       }
 
-      return res.status(200).json({ 
-        result: { 
-          success: true, 
-          hint: hintText, 
-          remaining: Math.max(0, MAX_HINTS - finalHintCount) 
-        } 
+      return res.status(200).json({
+        result: {
+          success: true,
+          hint: hintText,
+          remaining: Math.max(0, MAX_HINTS - finalHintCount)
+        }
       });
 
     } catch (err) {
@@ -309,12 +370,29 @@ exports.submitFinale = onRequest((req, res) => {
         return res.status(200).json({ result: { correct: false } });
       }
 
-      await teamRef.update({
-        isCompleted: true,
-        lastActive: Date.now()
+      // Check atomically whether a winner already exists
+      const winnerRef = db.ref("gameData/winner");
+      const winnerSnap = await winnerRef.get();
+
+      if (winnerSnap.exists()) {
+        // Someone else already won — mark this team complete but don't overwrite winner
+        await teamRef.update({ isCompleted: true, lastActive: Date.now() });
+        return res.status(200).json({ result: { correct: true, alreadyCompleted: false, winnerExists: true } });
+      }
+
+      // This team is the FIRST to finish — declare them winner
+      await winnerRef.set({
+        token:     token,
+        name:      teamInfo.name,
+        timestamp: Date.now()
       });
 
-      return res.status(200).json({ result: { correct: true } });
+      await teamRef.update({
+        isCompleted: true,
+        lastActive:  Date.now()
+      });
+
+      return res.status(200).json({ result: { correct: true, isWinner: true } });
     } catch (err) {
       return res.status(500).json({ error: { message: err.message } });
     }

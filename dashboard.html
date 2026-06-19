@@ -16,13 +16,14 @@
             --jotun-navy-mid: #00408A;
             --jotun-red: #C8102E;
             --jotun-green: #10B981;
+            --jotun-gold: #F0A500;
             --surface: #F4F7FC;
             --surface-2: #EBF0FA;
             --text-main: #1E293B;
             --text-sub: #64748B;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--surface); color: var(--text-main); padding: 30px; min-height: 100vh; }
+        body { background: var(--surface); color: var(--text-main); padding: 30px; min-height: 100vh; position: relative; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 3px solid var(--jotun-navy); padding-bottom: 15px; }
         h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 32px; color: var(--jotun-navy); letter-spacing: 0.5px; }
         
@@ -52,36 +53,115 @@
         .row-greyed { opacity: 0.4; background-color: #FAFAFA; filter: grayscale(40%); }
         .row-completed { background-color: rgba(16,185,129,0.02); }
         .time-cell { color: var(--text-sub); font-size: 13px; }
+
+        /* ── WINNER TAKEOVER ── */
+        .dashboard-content {
+            transition: filter 0.6s ease, opacity 0.6s ease;
+        }
+        .dashboard-content.faded {
+            filter: blur(5px) grayscale(50%);
+            opacity: 0.35;
+            pointer-events: none;
+            user-select: none;
+        }
+        .winner-takeover {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 18px;
+            background: radial-gradient(circle at center, rgba(0,45,114,0.08) 0%, rgba(244,247,252,0.4) 70%);
+        }
+        .winner-takeover.active { display: flex; }
+        .winner-crown {
+            font-size: 90px;
+            animation: crownDrop 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+            filter: drop-shadow(0 8px 24px rgba(240,165,0,0.4));
+        }
+        @keyframes crownDrop {
+            0% { transform: translateY(-60px) scale(0.5) rotate(-10deg); opacity: 0; }
+            60% { transform: translateY(8px) scale(1.1) rotate(4deg); }
+            100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+        }
+        .winner-eyebrow {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--jotun-gold);
+            animation: winnerFadeIn 0.6s ease 0.2s both;
+        }
+        .winner-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
+            color: var(--jotun-navy-deep);
+            text-align: center;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 30px rgba(0,45,114,0.15);
+            animation: winnerFadeIn 0.6s ease 0.35s both;
+            max-width: 90vw;
+        }
+        .winner-subtitle {
+            font-size: 16px;
+            color: var(--text-sub);
+            font-weight: 500;
+            animation: winnerFadeIn 0.6s ease 0.5s both;
+        }
+        @keyframes winnerFadeIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .winner-confetti-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 4999;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>An Inauguration to a Colorful Restart</h1>
-    </header>
+    <canvas id="winner-confetti-canvas" class="winner-confetti-canvas"></canvas>
 
-    <div class="stats-grid">
-        <div class="stat-card"><h3>Total Teams</h3><p id="stat-total">20</p></div>
-<!--
-        <div class="stat-card"><h3>Completed</h3><p id="stat-done">0</p></div>
-        <div class="stat-card"><h3>Active Hunting</h3><p id="stat-active">0</p></div>
--->
-        <div class="stat-card"><h3>Average Progress</h3><p id="stat-avg">0%</p></div>
+    <div class="winner-takeover" id="winner-takeover">
+        <div class="winner-crown">👑</div>
+        <div class="winner-eyebrow">Hunt Champion</div>
+        <div class="winner-name" id="winner-name-display"></div>
+        <div class="winner-subtitle">has claimed the treasure</div>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 8%;">Rank</th>
-                    <th style="width: 42%;">Team Identity</th>
-                    <th style="width: 35%;">Game Progress</th>
-                    <th style="width: 15%;">Last Activity</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-stream-target">
-            </tbody>
-        </table>
+    <div class="dashboard-content" id="dashboard-content">
+        <header>
+            <h1>An Inauguration to a Colorful Restart</h1>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card"><h3>Total Teams</h3><p id="stat-total">20</p></div>
+    <!--
+            <div class="stat-card"><h3>Completed</h3><p id="stat-done">0</p></div>
+            <div class="stat-card"><h3>Active Hunting</h3><p id="stat-active">0</p></div>
+    -->
+            <div class="stat-card"><h3>Average Progress</h3><p id="stat-avg">0%</p></div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 8%;">Rank</th>
+                        <th style="width: 42%;">Team Identity</th>
+                        <th style="width: 35%;">Game Progress</th>
+                        <th style="width: 15%;">Last Activity</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-stream-target">
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -137,6 +217,8 @@
         }
         const db = firebase.database();
 
+        let winnerShown = false;
+
         function getRankClass(idx) {
             if (idx === 0) return 'gold';
             if (idx === 1) return 'silver';
@@ -166,6 +248,27 @@
             // Bound rounding safely to the closest 5% rule as requested
             return Math.round(percentageSum / 5) * 5;
         }
+
+        // ── WINNER WATCHER ──
+        db.ref('gameData/winner').on('value', (snapshot) => {
+            const winnerData = snapshot.val();
+            const takeover = document.getElementById('winner-takeover');
+            const content = document.getElementById('dashboard-content');
+
+            if (winnerData && winnerData.name) {
+                document.getElementById('winner-name-display').innerText = winnerData.name;
+                takeover.classList.add('active');
+                content.classList.add('faded');
+                if (!winnerShown) {
+                    winnerShown = true;
+                    launchWinnerConfetti();
+                }
+            } else {
+                takeover.classList.remove('active');
+                content.classList.remove('faded');
+                winnerShown = false;
+            }
+        });
 
         db.ref('gameData/teams').on('value', (snapshot) => {
             try {
@@ -276,6 +379,57 @@
             if (activeEl) activeEl.innerText = active;
             if (avgEl) avgEl.innerText = `${avgProgress}%`;
         }
+
+        // ── CONFETTI ──
+        function launchWinnerConfetti() {
+            const canvas = document.getElementById('winner-confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const COLORS = ['#F0A500','#C8102E','#002D72','#10B981','#a855f7','#FFDF00'];
+            const pieces = Array.from({ length: 180 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                w: Math.random() * 10 + 5,
+                h: Math.random() * 5 + 3,
+                color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                angle: Math.random() * 360,
+                spin: (Math.random() - 0.5) * 4,
+                vx: (Math.random() - 0.5) * 3,
+                vy: Math.random() * 3 + 1.5
+            }));
+
+            let stopTime = Date.now() + 8000; // run for 8s then stop animating (overlay stays)
+
+            function frame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.angle += p.spin;
+                    if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+                    ctx.save();
+                    ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+                    ctx.rotate(p.angle * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+                if (Date.now() < stopTime) {
+                    requestAnimationFrame(frame);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            frame();
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('winner-confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
 </body>
 </html>

@@ -325,6 +325,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.25s ease;
         }
+        .modal-box.wide { max-width: 520px; }
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -420,6 +421,330 @@
             color: #B0BCDA;
             letter-spacing: 0.5px;
         }
+
+        /* ── GAME OVER FREEZE OVERLAY ── */
+        .freeze-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 10, 30, 0.88);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            flex-direction: column;
+            gap: 16px;
+            padding: 32px;
+        }
+        .freeze-overlay.active { display: flex; }
+        .freeze-icon {
+            font-size: 48px;
+            animation: freezePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        .freeze-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            color: white;
+            text-align: center;
+            letter-spacing: 1px;
+            animation: freezePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;
+        }
+        .freeze-subtitle {
+            font-size: 15px;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            max-width: 320px;
+            line-height: 1.6;
+            animation: freezePop 0.5s ease 0.25s both;
+        }
+        @keyframes freezePop {
+            from { transform: scale(0.8) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* ── VICTORY OVERLAY ── */
+        .victory-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--jotun-navy-deep);
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            flex-direction: column;
+            gap: 12px;
+            overflow: hidden;
+        }
+        .victory-overlay.active { display: flex; }
+        .victory-confetti-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .victory-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 32px;
+        }
+        .victory-trophy {
+            font-size: 72px;
+            animation: trophyBounce 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        @keyframes trophyBounce {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            70% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .victory-headline {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--jotun-gold);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 40px rgba(240,165,0,0.5);
+            animation: victoryFadeIn 0.6s ease 0.3s both;
+        }
+        .victory-team {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+            animation: victoryFadeIn 0.6s ease 0.5s both;
+        }
+        .victory-instruct {
+            font-size: 14px;
+            color: rgba(255,255,255,0.55);
+            margin-top: 8px;
+            animation: victoryFadeIn 0.6s ease 0.7s both;
+        }
+        @keyframes victoryFadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── FINALE TREASURE ROOM ── */
+        .finale-card {
+            position: relative;
+            overflow: hidden;
+            background: #0a0e1a;
+            border: 1px solid #1a2540;
+        }
+        .finale-cipher-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.07;
+            font-family: 'Barlow Condensed', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            color: #7ba7e0;
+            letter-spacing: 2px;
+            line-height: 1.4;
+            padding: 8px;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+        .finale-header-band {
+            background: linear-gradient(135deg, #0d1833 0%, #1a2d55 100%);
+            padding: 20px 24px 18px;
+            position: relative;
+            z-index: 1;
+            border-bottom: 1px solid rgba(240,165,0,0.2);
+        }
+        .finale-eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--jotun-gold);
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+        .finale-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #e8dfc0;
+            line-height: 1.1;
+        }
+        .finale-body {
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .finale-desc {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #8fa3c4;
+        }
+        .finale-key-phrase {
+            font-size: 17px;
+            font-weight: 600;
+            color: #e8dfc0;
+            letter-spacing: 0.5px;
+            text-align: center;
+            padding: 6px 0;
+        }
+        .finale-divider {
+            height: 1px;
+            background: rgba(240,165,0,0.15);
+            margin: 2px 0;
+        }
+
+        /* ── LETTER PILE ANIMATION ── */
+        .letter-pile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 0 4px;
+        }
+        .letter-tile {
+            width: 32px;
+            height: 36px;
+            border: 1.5px solid rgba(240,165,0,0.4);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--jotun-gold);
+            background: rgba(240,165,0,0.08);
+            opacity: 0;
+            transform: translateY(-24px) scale(0.7);
+        }
+        .letter-tile.drop {
+            animation: letterDrop 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+        }
+        @keyframes letterDrop {
+            from { opacity: 0; transform: translateY(-24px) scale(0.7); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        }
+
+        /* ── FINALE INPUT THEME ── */
+        .finale-input {
+            background: rgba(255,255,255,0.05) !important;
+            border-color: rgba(240,165,0,0.3) !important;
+            color: #e8dfc0 !important;
+        }
+        .finale-input:focus {
+            border-color: var(--jotun-gold) !important;
+            box-shadow: 0 0 0 3px rgba(240,165,0,0.12) !important;
+        }
+        .finale-input::placeholder { color: rgba(200,200,200,0.25); }
+        .finale-prompt-label {
+            color: rgba(232,223,192,0.7) !important;
+        }
+        .btn-finale-primary {
+            background: linear-gradient(135deg, #8a5c00, #c48000);
+            color: #fff8e0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .btn-finale-primary:hover {
+            background: linear-gradient(135deg, #a06c00, #d99000);
+            transform: translateY(-1px);
+        }
+        .btn-finale-ghost {
+            background: rgba(255,255,255,0.05);
+            color: rgba(200,210,230,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-finale-ghost:hover {
+            background: rgba(255,255,255,0.1);
+            color: rgba(200,210,230,0.9);
+        }
+        .btn-finale-ghost:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+        .btn-finale-accent {
+            background: rgba(0,45,114,0.7);
+            color: #a8c0e8;
+            border: 1px solid rgba(100,150,220,0.25);
+        }
+        .btn-finale-accent:hover {
+            background: rgba(0,64,138,0.8);
+            color: #c0d4f0;
+            transform: translateY(-1px);
+        }
+
+        /* ── VIGENERE WHEEL MODAL ── */
+        .wheel-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 8px 0;
+        }
+        .wheel-svg-wrap {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            user-select: none;
+            cursor: grab;
+        }
+        .wheel-svg-wrap:active { cursor: grabbing; }
+        #wheel-outer, #wheel-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center center;
+        }
+        #wheel-outer { transform: translate(-50%, -50%); }
+        #wheel-inner { transform: translate(-50%, -50%) rotate(0deg); transition: transform 0.1s linear; }
+        .wheel-controls {
+            display: flex;
+            gap: 8px;
+        }
+        .wheel-btn {
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: var(--surface);
+            color: var(--jotun-navy);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .wheel-btn:hover { background: var(--jotun-navy); color: white; border-color: var(--jotun-navy); }
+        .wheel-readout {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--jotun-navy);
+            letter-spacing: 2px;
+            background: var(--surface-2);
+            padding: 6px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            min-width: 180px;
+            text-align: center;
+        }
+        .wheel-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -454,6 +779,7 @@
 
     <div class="footer-brand">JOTUN · HUNT 2026</div>
 
+    <!-- ── HINT MODAL ── -->
     <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -466,8 +792,9 @@
         </div>
     </div>
 
+    <!-- ── ACTION / ASSET MODAL ── -->
     <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-box wide" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <div class="modal-title" id="action-modal-title">Asset Viewer</div>
             </div>
@@ -478,6 +805,7 @@
         </div>
     </div>
 
+    <!-- ── CLUE MODAL ── -->
     <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -490,9 +818,28 @@
         </div>
     </div>
 
+    <!-- ── SPLASH ── -->
     <div id="splash-screen" class="splash-overlay">
         <div class="splash-text" id="splash-text"></div>
         <div class="splash-bar"></div>
+    </div>
+
+    <!-- ── VICTORY OVERLAY (winner team only) ── -->
+    <div id="victory-overlay" class="victory-overlay">
+        <canvas id="confetti-canvas" class="victory-confetti-canvas"></canvas>
+        <div class="victory-content">
+            <div class="victory-trophy">🏆</div>
+            <div class="victory-headline">VICTORY!</div>
+            <div class="victory-team" id="victory-team-name"></div>
+            <div class="victory-instruct">Report to the counter — you are the champions!</div>
+        </div>
+    </div>
+
+    <!-- ── FREEZE OVERLAY (all other teams when someone wins) ── -->
+    <div id="freeze-overlay" class="freeze-overlay">
+        <div class="freeze-icon">🔒</div>
+        <div class="freeze-title" id="freeze-title">The hunt is over.</div>
+        <div class="freeze-subtitle" id="freeze-subtitle"></div>
     </div>
 
     <div id="toast" class="toast"></div>
@@ -511,6 +858,7 @@
         const teamToken = urlParams.get('id');
 
         let localStateCache = null;
+        let gameFrozen = false;
 
         // ── API HELPER ──
         async function callCloudEndpoint(endpointName, payload) {
@@ -529,16 +877,24 @@
         // ── MAIN LOAD ──
         async function refreshViewEngine() {
             if (!teamToken) {
-                renderErrorState(
-                    "Link Invalid",
-                    "Your access link is missing a team token. Please use the link provided to you by the organizer."
-                );
+                renderErrorState("Link Invalid", "Your access link is missing a team token. Please use the link provided to you by the organizer.");
                 return;
             }
             setLoading();
             try {
                 const data = await callCloudEndpoint('getGameState', { token: teamToken });
                 localStateCache = data;
+
+                // Check winner state before rendering
+                if (data.gameWon) {
+                    if (data.thisTeamWon) {
+                        showVictory(data.teamName);
+                    } else {
+                        showFreeze(data.winnerName);
+                    }
+                    return;
+                }
+
                 renderUI(data);
             } catch (e) {
                 renderErrorState("Unable to Load", e.message);
@@ -594,10 +950,13 @@
             document.getElementById('progress-indicator').innerText =
                 `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
 
+            // Vault slots — letters array is 7 chars, blanks for unfilled
             const slots = document.getElementById('vault-slots').children;
+            const letters = data.letters || "       ";
             for (let i = 0; i < 7; i++) {
-                if (data.letters && data.letters[i]) {
-                    slots[i].innerText = data.letters[i];
+                const ch = letters[i];
+                if (ch && ch.trim() !== "") {
+                    slots[i].innerText = ch;
                     slots[i].classList.add('filled');
                 } else {
                     slots[i].innerText = "";
@@ -605,26 +964,13 @@
                 }
             }
 
+            // ── FINALE STAGE ──
             if (data.viewType === "FINALE") {
-                viewport.innerHTML = `
-                    <div class="card-header-band">
-                        <div class="stage-eyebrow">Final Stage</div>
-                        <div class="card-heading">Decode & Conquer</div>
-                    </div>
-                    <div class="card-body">
-                        <p class="desc-text">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
-                        <button class="btn btn-accent" onclick="openConfirmationAsset('FINAL_IMAGE')">View Final Cryptogram</button>
-                        <button class="btn btn-accent" onclick="openConfirmationAsset('VIGENERE_WHEEL')">View Vigenère Cipher Wheel</button>
-                        <div class="divider"></div>
-                        <label class="prompt-label">Enter the Final Word</label>
-                        <input type="text" id="answer-input" class="input-box" placeholder="Enter decoded word" autocomplete="off">
-                        <button class="btn btn-primary" onclick="triggerFinaleCheck()">Submit Final Answer</button>
-                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
-                    </div>`;
-                updateHintButtonLabel(data.hintsUsed);
+                renderFinale(data, viewport);
                 return;
             }
 
+            // ── REGULAR QUEST STAGES ──
             let actionHTML = '';
             if (data.viewType === "CW") {
                 actionHTML = `
@@ -651,6 +997,7 @@
                     <button class="btn btn-accent" onclick="openConfirmationAsset('MR_SKELETON')">View Room Grid</button>`;
             }
 
+            viewport.className = "main-card";
             viewport.innerHTML = `
                 <div class="card-header-band">
                     <div class="stage-eyebrow">Stage ${data.currentStage} of ${data.totalStages}</div>
@@ -665,6 +1012,57 @@
                     <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
                 </div>`;
             updateHintButtonLabel(data.hintsUsed);
+        }
+
+        // ── FINALE RENDER ──
+        function renderFinale(data, viewport) {
+            viewport.className = "main-card finale-card";
+
+            // Generate cipher background text — repeating Vigenère alphabet
+            const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let bgText = "";
+            for (let row = 0; row < 60; row++) {
+                const offset = row % 26;
+                for (let c = 0; c < 120; c++) {
+                    bgText += alpha[(c + offset) % 26];
+                    if (c < 119) bgText += " ";
+                }
+                bgText += "\n";
+            }
+
+            viewport.innerHTML = `
+                <div class="finale-cipher-bg" aria-hidden="true">${bgText}</div>
+                <div class="finale-header-band">
+                    <div class="finale-eyebrow">Final Stage · The Vault</div>
+                    <div class="finale-heading">The Hidden Treasure Room</div>
+                </div>
+                <div class="finale-body">
+                    <p class="finale-desc">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
+                    <p class="finale-key-phrase">The key is to protect.</p>
+                    <div class="letter-pile-container" id="letter-pile"></div>
+                    <div class="finale-divider"></div>
+                    <button class="btn btn-finale-accent" onclick="openVigenereWheel()">Open Vigenère Cipher Wheel</button>
+                    <div class="finale-divider"></div>
+                    <label class="prompt-label finale-prompt-label">Enter the Final Word</label>
+                    <input type="text" id="answer-input" class="input-box finale-input" placeholder="Enter decoded word" autocomplete="off">
+                    <button class="btn btn-finale-primary" onclick="triggerFinaleCheck()">Submit Final Answer</button>
+                    <button class="btn btn-finale-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
+                </div>`;
+
+            updateHintButtonLabel(data.hintsUsed, true);
+
+            // Animate the letter pile
+            const CANONICAL = "VSBKIKB";
+            const pile = document.getElementById('letter-pile');
+            if (pile) {
+                CANONICAL.split("").forEach((letter, i) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'letter-tile';
+                    tile.textContent = letter;
+                    pile.appendChild(tile);
+                    setTimeout(() => { tile.classList.add('drop'); }, 200 + i * 100);
+                });
+            }
         }
 
         // ── ACTIONS ──
@@ -692,40 +1090,43 @@
             } catch (e) { showToast(e.message, true); }
         }
 
-        // ── FIXED: Complete front-end request pipeline utilizing atomic server callbacks ──
         async function triggerHintRequest() {
             const btn = document.getElementById('hint-btn-anchor');
-            if (btn && btn.disabled) return; 
+            if (btn && btn.disabled) return;
             if (!confirm("Use one of your hints? You only have 2.")) return;
-            
-            if (btn) btn.disabled = true; // Instantly lock out malicious double clicks
-            
+
+            if (btn) btn.disabled = true;
+
             try {
                 const res = await callCloudEndpoint('requestHint', { token: teamToken });
                 if (res.success) {
                     document.getElementById('hint-modal-text').innerText = res.hint;
                     document.getElementById('hint-modal').style.display = "flex";
-                    
-                    // 🛑 FIXED: Update client-side parameters cleanly from the verified server response metric
-                    localStateCache.hintsUsed = 2 - res.remaining; 
+                    localStateCache.hintsUsed = 2 - res.remaining;
                     updateHintButtonLabel(localStateCache.hintsUsed);
                 } else {
                     showToast(res.message || "You've used all your hints.", true);
-                    updateHintButtonLabel(2); // Hard lock layout configuration to max configuration boundaries
+                    updateHintButtonLabel(2);
                 }
-            } catch (e) { 
-                showToast(e.message, true); 
+            } catch (e) {
+                showToast(e.message, true);
                 if (localStateCache) updateHintButtonLabel(localStateCache.hintsUsed);
             }
         }
 
         async function triggerFinaleCheck() {
+            if (gameFrozen) return;
             const finalWord = document.getElementById('answer-input').value;
             if (!finalWord.trim()) return;
             try {
                 const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord });
                 if (res.correct) {
-                    showSplash("VICTORY! Report to the counter.", 12000);
+                    if (res.isWinner) {
+                        showVictory(localStateCache.teamName);
+                    } else {
+                        // Another team already won, just freeze
+                        await refreshViewEngine();
+                    }
                 } else {
                     showToast("Incorrect. Check your cipher decoding.", true);
                 }
@@ -756,13 +1157,132 @@
             } else if (type === 'MR_SKELETON') {
                 title.innerText = "Room Grid";
                 body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,44px);gap:6px;justify-content:center;">${Array(9).fill('<div style="border:1.5px solid var(--border);height:44px;border-radius:4px;"></div>').join('')}</div>`;
-            } else if (type === 'VIGENERE_WHEEL') {
-                title.innerText = "Vigenère Cipher Wheel";
-                body.innerHTML = `<div style="width:120px;height:120px;border-radius:50%;margin:auto;border:4px double var(--jotun-navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--jotun-navy);">CIPHER<br>WHEEL</div>`;
-            } else {
-                title.innerText = "Final Clue";
-                body.innerHTML = `<div style="font-weight:700;color:var(--jotun-red);text-align:center;padding:20px;">[Final Clue Asset]</div>`;
             }
+            document.getElementById('action-modal').style.display = "flex";
+        }
+
+        // ── VIGENÈRE WHEEL ──
+        function openVigenereWheel() {
+            const title = document.getElementById('action-modal-title');
+            const body = document.getElementById('action-modal-body');
+            title.innerText = "Vigenère Cipher Wheel";
+
+            const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let innerRotation = 0; // degrees
+
+            body.innerHTML = `
+                <div class="wheel-wrap">
+                    <p class="wheel-label">Drag or use buttons to rotate the inner ring</p>
+                    <div class="wheel-svg-wrap" id="wheel-svg-wrap">
+                        <svg id="wheel-outer" width="260" height="260" viewBox="0 0 260 260"></svg>
+                        <svg id="wheel-inner" width="180" height="180" viewBox="0 0 180 180"></svg>
+                    </div>
+                    <div class="wheel-controls">
+                        <button class="wheel-btn" onclick="rotateWheel(-1)">◀ −1</button>
+                        <button class="wheel-btn" onclick="rotateWheel(1)">+1 ▶</button>
+                        <button class="wheel-btn" onclick="rotateWheel(-26)">Reset</button>
+                    </div>
+                    <div class="wheel-readout" id="wheel-readout">A → A</div>
+                    <p class="wheel-label" id="wheel-offset-label">Shift: 0</p>
+                </div>`;
+
+            const outerSVG = document.getElementById('wheel-outer');
+            const innerSVG = document.getElementById('wheel-inner');
+
+            function drawOuter() {
+                const cx = 130, cy = 130, r = 118, labelR = 100;
+                let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#001A45" stroke="#0f3580" stroke-width="2"/>
+                            <circle cx="${cx}" cy="${cy}" r="88" fill="none" stroke="#1a3a7a" stroke-width="1" stroke-dasharray="3,3"/>`;
+                for (let i = 0; i < 26; i++) {
+                    const angle = (i * 360 / 26 - 90) * Math.PI / 180;
+                    const lx = cx + labelR * Math.cos(angle);
+                    const ly = cy + labelR * Math.sin(angle);
+                    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
+                        font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="13"
+                        fill="#a8c0e8">${ALPHA[i]}</text>`;
+                    // tick mark
+                    const ix = cx + 88 * Math.cos(angle);
+                    const iy = cy + 88 * Math.sin(angle);
+                    const ox2 = cx + 94 * Math.cos(angle);
+                    const oy2 = cy + 94 * Math.sin(angle);
+                    html += `<line x1="${ix}" y1="${iy}" x2="${ox2}" y2="${oy2}" stroke="#2a4a8a" stroke-width="1.5"/>`;
+                }
+                // pointer arrow at top
+                html += `<polygon points="130,6 125,18 135,18" fill="#F0A500"/>`;
+                outerSVG.innerHTML = html;
+            }
+
+            function drawInner() {
+                const cx = 90, cy = 90, r = 78, labelR = 62;
+                let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#0d1f45" stroke="#2a4070" stroke-width="2"/>
+                            <circle cx="${cx}" cy="${cy}" r="50" fill="#081530" stroke="#1a3060" stroke-width="1"/>`;
+                for (let i = 0; i < 26; i++) {
+                    const angle = (i * 360 / 26 - 90) * Math.PI / 180;
+                    const lx = cx + labelR * Math.cos(angle);
+                    const ly = cy + labelR * Math.sin(angle);
+                    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
+                        font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="11"
+                        fill="#e8dfc0">${ALPHA[i]}</text>`;
+                }
+                // center label
+                html += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+                    font-family="Barlow Condensed, sans-serif" font-size="11" font-weight="600"
+                    fill="#4a6090">CIPHER</text>`;
+                innerSVG.innerHTML = html;
+            }
+
+            function updateReadout() {
+                const shift = ((Math.round(innerRotation / (360 / 26)) % 26) + 26) % 26;
+                const plainChar = ALPHA[0];
+                const cipherChar = ALPHA[(shift) % 26];
+                document.getElementById('wheel-readout').textContent = `A → ${cipherChar}  ·  shift +${shift}`;
+                document.getElementById('wheel-offset-label').textContent = `Inner ring shifted by ${shift} position${shift !== 1 ? 's' : ''}`;
+            }
+
+            window.rotateWheel = function(steps) {
+                if (steps === -26) { innerRotation = 0; }
+                else { innerRotation += steps * (360 / 26); }
+                innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
+                updateReadout();
+            };
+
+            // Drag to rotate inner wheel
+            const wrap = document.getElementById('wheel-svg-wrap');
+            let dragging = false, lastAngle = 0;
+            wrap.addEventListener('mousedown', (e) => {
+                dragging = true;
+                const rect = wrap.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                lastAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!dragging) return;
+                const rect = wrap.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * 180 / Math.PI;
+                innerRotation += angle - lastAngle;
+                lastAngle = angle;
+                innerSVG.style.transition = "none";
+                innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
+                updateReadout();
+            });
+            window.addEventListener('mouseup', () => {
+                if (!dragging) return;
+                dragging = false;
+                // Snap to nearest letter position
+                const step = 360 / 26;
+                innerRotation = Math.round(innerRotation / step) * step;
+                innerSVG.style.transition = "transform 0.15s ease";
+                innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
+                updateReadout();
+            });
+
+            drawOuter();
+            drawInner();
+            updateReadout();
+
             document.getElementById('action-modal').style.display = "flex";
         }
 
@@ -784,7 +1304,7 @@
             toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
         }
 
-        function updateHintButtonLabel(used) {
+        function updateHintButtonLabel(used, isFinale = false) {
             const btn = document.getElementById('hint-btn-anchor');
             if (!btn) return;
             const remaining = 2 - used;
@@ -795,6 +1315,60 @@
                 btn.innerText = `Request a Hint (${remaining} remaining)`;
                 btn.disabled = false;
             }
+        }
+
+        // ── WINNER / FREEZE ──
+        function showVictory(teamName) {
+            gameFrozen = true;
+            document.getElementById('victory-team-name').innerText = teamName;
+            document.getElementById('victory-overlay').classList.add('active');
+            launchConfetti();
+        }
+
+        function showFreeze(winnerName) {
+            gameFrozen = true;
+            document.getElementById('freeze-title').innerText = `The hunt is over.`;
+            document.getElementById('freeze-subtitle').innerText = `${winnerName} has found the treasure first. The game has ended. Well played!`;
+            document.getElementById('freeze-overlay').classList.add('active');
+        }
+
+        // ── CONFETTI ──
+        function launchConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const COLORS = ['#F0A500','#C8102E','#002D72','#ffffff','#10B981','#a855f7'];
+            const pieces = Array.from({ length: 160 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                w: Math.random() * 10 + 5,
+                h: Math.random() * 5 + 3,
+                color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                angle: Math.random() * 360,
+                spin: (Math.random() - 0.5) * 4,
+                vx: (Math.random() - 0.5) * 3,
+                vy: Math.random() * 3 + 1.5
+            }));
+
+            function frame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.angle += p.spin;
+                    if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+                    ctx.save();
+                    ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
+                    ctx.rotate(p.angle * Math.PI / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+                requestAnimationFrame(frame);
+            }
+            frame();
         }
 
         refreshViewEngine();
