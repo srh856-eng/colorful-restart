@@ -35,23 +35,23 @@ const PUZZLE_DATA = {
 };
 
 // ─────────────────────────────────────────────
-//  FIXED LETTER DROPS PER QUEST
-//  Final canonical order in vault: V S B K I K B
+//  FIXED LETTER DROPS PER QUEST 
+//  Final canonical order in vault: V S C K I K C
 //  These letters are always inserted into their
 //  fixed slot positions regardless of quest order.
 // ─────────────────────────────────────────────
-const CANONICAL_LETTERS = "VSBKIKB"; // The final vault word, always in this order
+const CANONICAL_LETTERS = "VSCKIKC"; // The final vault word, always in this order
 
 // Letters each quest contributes, keyed by puzzle code
 const QUEST_LETTERS = {
-  CW: "BI",  // positions 4,5 in canonical (I at index 4, B at index 6... see slot map below)
+  CW: "CI",  // positions 4,5 in canonical (I at index 4, B at index 6... see slot map below)
   BP: "K",   // position 3
   FR: "K",   // position 3... see slot map
   MR: "VS",  // positions 0,1
-  LR: "B"    // position 2
+  LR: "C"    // position 2
 };
 
-// Each quest maps to specific slot indices in the canonical 7-letter string "VSBKIKB"
+// Each quest maps to specific slot indices in the canonical 7-letter string "VSCKIKC"
 // V=0, S=1, B=2, K=3, I=4, K=5, B=6
 const QUEST_SLOT_MAP = {
   MR: [0, 1],  // V, S
