@@ -39,7 +39,7 @@ const PUZZLE_DATA = {
 //  These letters are always inserted into their
 //  fixed slot positions regardless of quest order.
 // ─────────────────────────────────────────────
-const CANONICAL_LETTERS = "VSCKIKC"; // The final vault word, always in this order
+const CANONICAL_LETTERS = "PRAGHEL"; // The final vault word, always in this order
 
 // Letters each quest contributes, keyed by puzzle code
 const QUEST_LETTERS = {
