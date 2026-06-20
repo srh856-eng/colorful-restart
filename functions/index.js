@@ -196,6 +196,28 @@ exports.getGameState = onRequest((req, res) => {
         thisTeamWon:   thisTeamWon
       };
 
+      // ── PROGRESS MATRIX FOR THE 4 ACTIVE QUESTS ──
+      let playerProgress = 10; 
+      if (state.isCompleted) {
+        playerProgress = 100;
+      } else if (state.currentStage === 1) {
+        playerProgress = 0;
+      } else {
+        const stageWeights = { "CW": 25, "BP": 20, "MR": 20, "LR": 25 };
+        const cohortSequence = COHORTS[teamInfo.cohort];
+        if (cohortSequence) {
+          const completedPuzzlesCount = Math.min(state.currentStage - 2, cohortSequence.length);
+          for (let i = 0; i < completedPuzzlesCount; i++) {
+            const puzzleKey = cohortSequence[i];
+            if (stageWeights[puzzleKey]) {
+              playerProgress += stageWeights[puzzleKey];
+            }
+          }
+        }
+      }
+      result.progress = playerProgress; 
+      // ──────────────────────────────────────────────
+
       if (state.currentStage === 1) {
         result.viewType = "IDENTITY";
       } else if (state.currentStage === TOTAL_STAGES) {
