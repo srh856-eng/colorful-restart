@@ -141,10 +141,6 @@
 
         <div class="stats-grid">
             <div class="stat-card"><h3>Total Teams</h3><p id="stat-total">20</p></div>
-    <!--
-            <div class="stat-card"><h3>Completed</h3><p id="stat-done">0</p></div>
-            <div class="stat-card"><h3>Active Hunting</h3><p id="stat-active">0</p></div>
-    -->
             <div class="stat-card"><h3>Average Progress</h3><p id="stat-avg">0%</p></div>
         </div>
 
@@ -236,8 +232,6 @@
             const sequence = COHORT_SEQUENCES[cohortNum];
             if (!sequence) return percentageSum;
 
-            // Add up weights for every individual puzzle solved prior to entering the current stage
-            // (currentStage 7 / finale not-yet-completed naturally sums all 5 quest weights = 90)
             const completedCount = Math.min(currentStage - 2, sequence.length);
             for (let i = 0; i < completedCount; i++) {
                 const puzzleKey = sequence[i];
@@ -246,7 +240,6 @@
                 }
             }
 
-            // Round to the nearest 10% as requested
             return Math.round(percentageSum / 10) * 10;
         }
 
@@ -285,6 +278,10 @@
 
                     if (match) {
                         const pct = calculateWeightedProgress(rosterInfo.cohort, match.currentStage || 1, match.isCompleted || false);
+                        
+                        // Mask the name with a generic placeholder if they are still on Stage 1 (entering identity)
+                        const dynamicLabel = (match.currentStage > 1) ? rosterInfo.name : `Team ${index + 1} (Joining...)`;
+
                         return {
                             token: token,
                             isRegistered: (match.currentStage > 1), 
@@ -293,10 +290,10 @@
                             isCompleted: match.isCompleted || false,
                             lastActive: match.lastActive || null,
                             progressPct: pct,
-                            displayLabel: rosterInfo.name
+                            displayLabel: dynamicLabel
                         };
                     } else {
-                        // Display uninitialized state using team placeholder positions safely
+                        // Display uninitialized state safely using standard layout values
                         return {
                             token: token,
                             isRegistered: false,
@@ -305,7 +302,7 @@
                             isCompleted: false,
                             lastActive: null,
                             progressPct: 0,
-                            displayLabel: `Team ${index + 1}`
+                            displayLabel: `Team ${index + 1} (Not Connected)`
                         };
                     }
                 });
@@ -401,7 +398,7 @@
                 vy: Math.random() * 3 + 1.5
             }));
 
-            let stopTime = Date.now() + 8000; // run for 8s then stop animating (overlay stays)
+            let stopTime = Date.now() + 8000;
 
             function frame() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
