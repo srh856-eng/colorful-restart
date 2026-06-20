@@ -23,7 +23,7 @@ const db = admin.database();
 // ─────────────────────────────────────────────
 //  CONSTANTS
 // ─────────────────────────────────────────────
-const TOTAL_STAGES = 7;
+const TOTAL_STAGES = 6;
 const MAX_HINTS    = 2;
 
 const PUZZLE_DATA = {
@@ -31,7 +31,6 @@ const PUZZLE_DATA = {
   BP: { heading: "Quest BP", description: "Are you good at additions? Find the marked locations — but watch out for decoys.", prompt: "What is the total of the numbers you found?", answer: "5698" },
   MR: { heading: "Quest MR", description: "Pablo the penguin is missing. Find where every other office member was, and Pablo will be in the last remaining cell. Pablo left a passcode hidden in that room.", prompt: "Enter Pablo's passcode", answer: "PABLOLOVESYOU" },
   LR: { heading: "Quest LR", description: "Sam is the new intern at the Protective department. He walked to HR, then was sent to IT. His route traced a letter — can you find it?", prompt: "What letter did Sam's route trace?", answer: "L" },
-  FR: { heading: "Quest FR", description: "Head to the pantries and read the facts. Some have something odd hidden inside — be careful, not all of them do.", prompt: "Unscramble the odd letters you found", answer: "EARTH" }
 };
 
 // ─────────────────────────────────────────────
@@ -44,21 +43,20 @@ const CANONICAL_LETTERS = "VSCKIKC"; // The final vault word, always in this ord
 
 // Letters each quest contributes, keyed by puzzle code
 const QUEST_LETTERS = {
-  CW: "CI",  // positions 4,5 in canonical (I at index 4, B at index 6... see slot map below)
-  BP: "K",   // position 3
-  FR: "K",   // position 3... see slot map
+  CW: "CI",  // positions 4,6 in canonical 
+  BP: "KK",   // position 3,5
   MR: "VS",  // positions 0,1
   LR: "C"    // position 2
 };
 
 // Each quest maps to specific slot indices in the canonical 7-letter string "VSCKIKC"
-// V=0, S=1, B=2, K=3, I=4, K=5, B=6
+// V=0, S=1, C=2, K=3, I=4, K=5, C=6
 const QUEST_SLOT_MAP = {
   MR: [0, 1],  // V, S
   LR: [2],     // B
-  BP: [3],     // K
+  BP: [3, 5],     // K, K
   CW: [4, 6],  // I, B  (slots 4 and 6)
-  FR: [5]      // K
+  
 };
 
 const CROSSWORD_CLUES = {
@@ -72,7 +70,7 @@ const HINTS = {
   BP:       "Go to the marked location on the blueprint. Look for the number. 2 out of 4 locations are decoys.",
   MR:       "The person in the tub occupies that column. Find the last unoccupied cell and go to that department to get Pablo's passcode.",
   LR:       "Sam goes 20 m straight from Protective, turns left at HR, and walks another 15 m. What letter does that path form?",
-  FR:       "Look carefully — only facts with an odd number have odd letters hidden inside them.",
+  
   FINALE:   "The Vigenère cipher is solved using a key. The key can be more than one word — spaces are ignored."
 };
 
@@ -100,11 +98,11 @@ const TEAM_ROSTER = {
 };
 
 const COHORTS = {
-  1: ["CW", "BP", "MR", "LR", "FR"],
-  2: ["BP", "CW", "LR", "FR", "MR"],
-  3: ["FR", "MR", "CW", "BP", "LR"],
-  4: ["MR", "LR", "FR", "CW", "BP"],
-  5: ["LR", "FR", "BP", "MR", "CW"]
+  1: ["CW", "BP", "MR", "LR"],
+  2: ["BP", "CW", "LR", "MR"],
+  3: ["MR", "CW", "BP", "LR"],
+  4: ["MR", "LR", "CW", "BP"],
+  5: ["LR", "BP", "MR", "CW"]
 };
 
 function getPuzzleForStage(cohortNum, stage) {

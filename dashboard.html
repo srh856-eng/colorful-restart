@@ -187,21 +187,20 @@
 
         // Exact puzzle sequences for each cohort from your backend configuration
         const COHORT_SEQUENCES = {
-          1: ["CW", "BP", "MR", "LR", "FR"],
-          2: ["BP", "CW", "LR", "FR", "MR"],
-          3: ["FR", "MR", "CW", "BP", "LR"],
-          4: ["MR", "LR", "FR", "CW", "BP"],
-          5: ["LR", "FR", "BP", "MR", "CW"]
+          1: ["CW", "BP", "MR", "LR"],
+          2: ["BP", "CW", "LR", "MR"],
+          3: ["MR", "CW", "BP", "LR"],
+          4: ["MR", "LR","CW", "BP"],
+          5: ["LR", "BP", "MR", "CW"]
         };
 
         // Custom puzzle weight distributions provided by you
         const WEIGHTS = {
           "IDENTITY": 10, // Team name entry
-          "CW": 20,       // Crossword
-          "BP": 15,       // Blueprint
-          "MR": 15,       // Murdle
-          "FR": 20,       // Frame / Pantry facts
-          "LR": 10        // Letter route
+          "CW": 25,       // Crossword
+          "BP": 20,       // Blueprint
+          "MR": 20,       // Murdle
+          "LR": 15        // Letter route
         };
 
         const firebaseConfig = {
