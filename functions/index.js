@@ -321,7 +321,7 @@ exports.requestHint = onRequest((req, res) => {
       const token = data.token;
       
       // 1. CAPTURE THE SPECIFIC CLUE SELECTOR SENT FROM THE PHONE
-      const crosswordClueId = data.crosswordClueId; 
+      const crosswordClueId = data.crosswordClueId || req.body.crosswordClueId;
       
       const teamInfo = resolveTeam(token);
 

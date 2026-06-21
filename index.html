@@ -1138,15 +1138,17 @@
 // This helper function talks directly to your backend server
 async function executeHintFetchFromServer(selectionParameter) {
     try {
+        // We explicitly force the data package to hold the clue identity parameter
         const res = await callCloudEndpoint('requestHint', { 
             token: teamToken, 
             crosswordClueId: selectionParameter 
         });
         
         if (res.success) {
+            // Close the choice selector popup cleanly
             closeModal('action-modal');
             
-            // Show the text hint inside your popup box
+            // Show the actual text hint inside your main hint modal box
             document.getElementById('hint-modal-text').innerText = res.hint;
             document.getElementById('hint-modal').style.display = "flex";
             
@@ -1158,6 +1160,7 @@ async function executeHintFetchFromServer(selectionParameter) {
         }
     } catch (e) {
         showToast(e.message, true);
+        if (localStateCache) updateHintButtonLabel(localStateCache.hintsUsed);
     }
 }
 
