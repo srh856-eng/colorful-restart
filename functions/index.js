@@ -71,7 +71,7 @@ const HINTS = {
   MR:       "The person in the tub occupies that column. Find the last unoccupied cell and go to that department to get Pablo's passcode.",
   LR:       "Sam goes 20 m straight from Protective, turns left at HR, and walks another 15 m. What letter does that path form?",
   
-  FINALE:   "The Vigenère cipher is solved using a key. The key can be more than one word — spaces are ignored."
+  FINALE:   "ROT13 is a simple substitution cipher that rotates each letter by 13 positions in the alphabet (A ↔ N, B ↔ O, etc.)."
 };
 
 const TEAM_ROSTER = {
@@ -319,6 +319,10 @@ exports.requestHint = onRequest((req, res) => {
     try {
       const data = req.body.data || {};
       const token = data.token;
+      
+      // 1. CAPTURE THE SPECIFIC CLUE SELECTOR SENT FROM THE PHONE
+      const crosswordClueId = data.crosswordClueId; 
+      
       const teamInfo = resolveTeam(token);
 
       if (!teamInfo) return res.status(401).json({ error: { message: "Access denied." } });
@@ -347,13 +351,38 @@ exports.requestHint = onRequest((req, res) => {
       const updatedState = transactionResult.snapshot.val();
       finalHintCount = updatedState.hintsUsed;
 
-      if (updatedState.currentStage === 1) {
-        hintText = HINTS.IDENTITY;
-      } else if (updatedState.currentStage === TOTAL_STAGES) {
-        hintText = HINTS.FINALE;
+      // 2. NEW CONTEXTUAL HINT BRANCHING BASED ON CURRENT VIEW TYPE
+      if (updatedState.viewType === "CW") {
+        if (crosswordClueId) {
+          // Provide customized hints depending on which crossword button they clicked
+          if (crosswordClueId === 'across_1') {
+            hintText = "Crossword 1 Across: Check the standard company brand manual header.";
+          } else if (crosswordClueId === 'across_5') {
+            hintText = "Crossword 5 Across: This color category has 5 letters and starts with G.";
+          } else if (crosswordClueId === 'down_2') {
+            hintText = "Crossword 2 Down: Look at the vertical column layout rules in your grid packet.";
+          } else if (crosswordClueId === 'down_3') {
+            hintText = "Crossword 3 Down: The base mixing compound standard used in our factories.";
+          } else {
+            hintText = "Crossword Helper: Focus on the primary overlapping cells.";
+          }
+        } else {
+          hintText = "Please select a specific clue number from the interface.";
+        }
+      } else if (updatedState.viewType === "MR") {
+        hintText = "Lockbox File Guide: The master matrix code sequence reading flows in reverse layout.";
+      } else if (updatedState.viewType === "BP") {
+        hintText = "Map Tracker Blueprint: Focus directly on the coordinate marked by the structural anchor.";
       } else {
-        const puzzle = getPuzzleForStage(teamInfo.cohort, updatedState.currentStage);
-        hintText = puzzle ? HINTS[puzzle.key] : "No hint available.";
+        // 3. FALLBACK TO STAGE-BASED HINTS IF NOT ON A SPECIAL SCREEN
+        if (updatedState.currentStage === 1) {
+          hintText = HINTS.IDENTITY;
+        } else if (updatedState.currentStage === TOTAL_STAGES) {
+          hintText = HINTS.FINALE;
+        } else {
+          const puzzle = getPuzzleForStage(teamInfo.cohort, updatedState.currentStage);
+          hintText = puzzle ? HINTS[puzzle.key] : "No hint available.";
+        }
       }
 
       return res.status(200).json({

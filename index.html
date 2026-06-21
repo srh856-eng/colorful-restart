@@ -689,66 +689,66 @@
             transform: translateY(-1px);
         }
 
-        /* ── VIGENERE WHEEL MODAL ── */
-        .wheel-wrap {
+       /* ── ROT13 LOOKUP TABLE GRID ── */
+        .rot13-container {
+            max-width: 100%;
+            margin: 8px 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            text-align: center;
+        }
+        .rot13-container h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--jotun-navy);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .rot13-table {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
-            padding: 8px 0;
-        }
-        .wheel-svg-wrap {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            user-select: none;
-            cursor: grab;
-        }
-        .wheel-svg-wrap:active { cursor: grabbing; }
-        #wheel-outer, #wheel-inner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform-origin: center center;
-        }
-        #wheel-outer { transform: translate(-50%, -50%); }
-        #wheel-inner { transform: translate(-50%, -50%) rotate(0deg); transition: transform 0.1s linear; }
-        .wheel-controls {
-            display: flex;
-            gap: 8px;
-        }
-        .wheel-btn {
-            padding: 7px 16px;
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            background: var(--surface);
-            color: var(--jotun-navy);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-        .wheel-btn:hover { background: var(--jotun-navy); color: white; border-color: var(--jotun-navy); }
-        .wheel-readout {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 18px;
+            font-family: 'Barlow Condensed', monospace;
             font-weight: 700;
-            color: var(--jotun-navy);
-            letter-spacing: 2px;
-            background: var(--surface-2);
-            padding: 6px 18px;
-            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            overflow-x: auto;
+        }
+        .rot13-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: white;
             border: 1px solid var(--border);
-            min-width: 180px;
+            border-radius: 6px;
+        }
+        .rot13-cell {
+            flex: 1;
+            padding: 8px 0;
             text-align: center;
         }
-        .wheel-label {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .rot13-cell:not(:last-child) {
+            border-right: 1px solid var(--surface-2);
+        }
+        .top-row {
+            background-color: rgba(0, 45, 114, 0.05);
+            color: var(--jotun-navy);
+        }
+        .bottom-row {
+            background-color: rgba(200, 16, 46, 0.04);
+            color: var(--jotun-red);
+        }
+        .rot13-arrows {
+            letter-spacing: 0.52rem;
+            padding-left: 0.3rem;
             color: var(--text-secondary);
-            text-align: center;
+            margin: 4px 0;
+            font-size: 12px;
+            user-select: none;
+        
         }
     </style>
 </head>
@@ -797,19 +797,21 @@
         </div>
     </div>
 
-    <!-- ── ACTION / ASSET MODAL ── -->
-    <div id="action-modal" class="modal" onclick="closeModal('action-modal')">
-        <div class="modal-box wide" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title" id="action-modal-title">Asset Viewer</div>
+   <!--  REPLACE WITH THIS: -->
+<!-- ── ACTION / ASSET MODAL ── -->
+<div id="action-modal" class="modal" onclick="closeModal('action-modal')">
+    <div class="modal-box wide" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title" id="action-modal-title">Decryption Matrix</div>
+        </div>
+        <div class="modal-body">
+            <div id="action-modal-body">
+                <!-- The table generation interface framework script injects here dynamically -->
             </div>
-            <div class="modal-body">
-                <div id="action-modal-body"></div>
-                <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close</button>
-            </div>
+            <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close Window</button>
         </div>
     </div>
-
+</div>
     <!-- ── CLUE MODAL ── -->
     <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
         <div class="modal-box" onclick="event.stopPropagation()">
@@ -1092,29 +1094,63 @@
             } catch (e) { showToast(e.message, true); }
         }
 
-        async function triggerHintRequest() {
-            const btn = document.getElementById('hint-btn-anchor');
-            if (btn && btn.disabled) return;
-            if (!confirm("Use one of your hints? You only have 2.")) return;
+   async function triggerHintRequest() {
+    const btn = document.getElementById('hint-btn-anchor');
+    if (btn && btn.disabled) return;
 
-            if (btn) btn.disabled = true;
-
-            try {
-                const res = await callCloudEndpoint('requestHint', { token: teamToken });
-                if (res.success) {
-                    document.getElementById('hint-modal-text').innerText = res.hint;
-                    document.getElementById('hint-modal').style.display = "flex";
-                    localStateCache.hintsUsed = 2 - res.remaining;
-                    updateHintButtonLabel(localStateCache.hintsUsed);
-                } else {
-                    showToast(res.message || "You've used all your hints.", true);
-                    updateHintButtonLabel(2);
-                }
-            } catch (e) {
-                showToast(e.message, true);
-                if (localStateCache) updateHintButtonLabel(localStateCache.hintsUsed);
-            }
+    // 1. Check if hints are exhausted locally first
+    if (localStateCache && localStateCache.hintsUsed >= 2) {
+        showToast("No hints remaining!", true);
+        if (btn) {
+            btn.innerText = "No hints remaining";
+            btn.disabled = true;
         }
+        return;
+    }
+
+    // 2. Identify what screen the team is looking at and route them
+    const currentScreen = localStateCache ? localStateCache.viewType : '';
+
+    if (currentScreen === "CW") {
+        OpenCrosswordHintSelectionPopup();
+    } 
+    else if (currentScreen === "MR") {
+        OpenLockboxHintConfirmationPopup();
+    } 
+    else if (currentScreen === "BP") {
+        OpenMapHintConfirmationPopup();
+    } 
+    else {
+        if (!confirm("Use one of your hints?")) return;
+        executeHintFetchFromServer(null);
+    }
+}
+
+// This helper function talks directly to your backend server
+async function executeHintFetchFromServer(selectionParameter) {
+    try {
+        const res = await callCloudEndpoint('requestHint', { 
+            token: teamToken, 
+            crosswordClueId: selectionParameter 
+        });
+        
+        if (res.success) {
+            closeModal('action-modal');
+            
+            // Show the text hint inside your popup box
+            document.getElementById('hint-modal-text').innerText = res.hint;
+            document.getElementById('hint-modal').style.display = "flex";
+            
+            localStateCache.hintsUsed = 2 - res.remaining;
+            updateHintButtonLabel(localStateCache.hintsUsed);
+        } else {
+            showToast(res.message || "You've used all your hints.", true);
+            updateHintButtonLabel(2);
+        }
+    } catch (e) {
+        showToast(e.message, true);
+    }
+}
 
         async function triggerFinaleCheck() {
             if (gameFrozen) return;
@@ -1438,7 +1474,50 @@
             }
             frame();
         }
+function OpenCrosswordHintSelectionPopup() {
+    const title = document.getElementById('action-modal-title');
+    const body = document.getElementById('action-modal-body');
+    
+    title.innerText = "Select Clue to Reveal Hint";
+    
+    body.innerHTML = `
+        <p class="desc-text" style="margin-bottom:12px;">Which specific clue does your team need assistance with?</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+                <strong style="font-size:12px; color:var(--jotun-navy);">ACROSS</strong>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_1')">1. Across Clue</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_5')">5. Across Clue</button>
+            </div>
+            <div>
+                <strong style="font-size:12px; color:var(--jotun-red);">DOWN</strong>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_2')">2. Down Clue</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_3')">3. Down Clue</button>
+            </div>
+        </div>`;
+    document.getElementById('action-modal').style.display = "flex";
+}
 
+function OpenLockboxHintConfirmationPopup() {
+    const title = document.getElementById('action-modal-title');
+    const body = document.getElementById('action-modal-body');
+    
+    title.innerText = "Confirm Lockbox Hint";
+    body.innerHTML = `
+        <p class="desc-text">Unlocking this lockbox strategy will deduct 1 hint from your remaining balance.</p>
+        <button class="btn btn-accent" style="margin-top:10px; width:100%;" onclick="executeHintFetchFromServer('lockbox')">Confirm and Reveal Hint</button>`;
+    document.getElementById('action-modal').style.display = "flex";
+}
+
+function OpenMapHintConfirmationPopup() {
+    const title = document.getElementById('action-modal-title');
+    const body = document.getElementById('action-modal-body');
+    
+    title.innerText = "Confirm Blueprint Hint";
+    body.innerHTML = `
+        <p class="desc-text">Do you want to extract tracking vector details for the layout map?</p>
+        <button class="btn btn-primary" style="margin-top:10px; width:100%;" onclick="executeHintFetchFromServer('blueprint')">Confirm and Reveal Hint</button>`;
+    document.getElementById('action-modal').style.display = "flex";
+}
         refreshViewEngine();
     </script>
 </body>
