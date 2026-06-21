@@ -1098,7 +1098,7 @@
     const btn = document.getElementById('hint-btn-anchor');
     if (btn && btn.disabled) return;
 
-    // 1. Check if hints are exhausted locally first
+    // 1. Check if hints are exhausted locally first before doing anything
     if (localStateCache && localStateCache.hintsUsed >= 2) {
         showToast("No hints remaining!", true);
         if (btn) {
@@ -1108,20 +1108,29 @@
         return;
     }
 
-    // 2. Identify what screen the team is looking at and route them
+    // 2. ACCIDENTAL CLICK GUARD: Ask before opening any menu or layout
+    if (!confirm("Are you sure you want to use a hint? You only have a total of 2 for the whole game.")) {
+        return; // Exit completely if they click 'Cancel'
+    }
+
+    // 3. Look at what screen the team is currently trapped on
     const currentScreen = localStateCache ? localStateCache.viewType : '';
 
+    // 4. Branch out depending on the active screen
     if (currentScreen === "CW") {
+        // Opens the Crossword grid selection popup
         OpenCrosswordHintSelectionPopup();
     } 
     else if (currentScreen === "MR") {
+        // Opens the Lockbox confirmation popup
         OpenLockboxHintConfirmationPopup();
     } 
     else if (currentScreen === "BP") {
+        // Opens the Map/Blueprint confirmation popup
         OpenMapHintConfirmationPopup();
     } 
     else {
-        if (!confirm("Use one of your hints?")) return;
+        // Fallback for general screens (already confirmed above, so we pass null directly)
         executeHintFetchFromServer(null);
     }
 }
@@ -1485,18 +1494,18 @@ function OpenCrosswordHintSelectionPopup() {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
                 <strong style="font-size:12px; color:var(--jotun-navy);">ACROSS</strong>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('across_3')">3</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('across_5')">5</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('across_6')">6</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('across_9')">9</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_3')">3</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_5')">5</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_6')">6</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_9')">9</button>
             </div>
             <div>
                 <strong style="font-size:12px; color:var(--jotun-red);">DOWN</strong>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('down_1')">1</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('down_2')">2</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('down_4')">4</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('down_7')">7</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:50%;" onclick="executeHintFetchFromServer('down_8')">8</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_1')">1</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_2')">2</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_4')">4</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_7')">7</button>
+                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_8')">8</button>
             </div>
         </div>`;
     document.getElementById('action-modal').style.display = "flex";
