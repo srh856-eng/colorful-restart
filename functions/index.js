@@ -352,47 +352,59 @@ exports.requestHint = onRequest((req, res) => {
       finalHintCount = updatedState.hintsUsed;
 
       // 2. NEW CONTEXTUAL HINT BRANCHING BASED ON CURRENT VIEW TYPE
-      if (updatedState.viewType === "CW") {
-        if (crosswordClueId) {
-          // Provide customized hints depending on which crossword button they clicked
-          if (crosswordClueId === 'across_1') {
-            hintText = "Crossword 1 Across: Check the standard company brand manual header.";
-          } else if (crosswordClueId === 'across_5') {
-            hintText = "Crossword 5 Across: This color category has 5 letters and starts with G.";
-          } else if (crosswordClueId === 'down_2') {
-            hintText = "Crossword 2 Down: Look at the vertical column layout rules in your grid packet.";
-          } else if (crosswordClueId === 'down_3') {
-            hintText = "Crossword 3 Down: The base mixing compound standard used in our factories.";
-          } else {
-            hintText = "Crossword Helper: Focus on the primary overlapping cells.";
-          }
-        } else {
-          hintText = "Please select a specific clue number from the interface.";
-        }
-      } else if (updatedState.viewType === "MR") {
-        hintText = "Lockbox File Guide: The master matrix code sequence reading flows in reverse layout.";
-      } else if (updatedState.viewType === "BP") {
-        hintText = "Map Tracker Blueprint: Focus directly on the coordinate marked by the structural anchor.";
-      } else {
-        // 3. FALLBACK TO STAGE-BASED HINTS IF NOT ON A SPECIAL SCREEN
-        if (updatedState.currentStage === 1) {
-          hintText = HINTS.IDENTITY;
-        } else if (updatedState.currentStage === TOTAL_STAGES) {
-          hintText = HINTS.FINALE;
-        } else {
-          const puzzle = getPuzzleForStage(teamInfo.cohort, updatedState.currentStage);
-          hintText = puzzle ? HINTS[puzzle.key] : "No hint available.";
-        }
-      }
+if (updatedState.viewType === "CW") {
+  if (crosswordClueId) {
+    // Provide customized hints depending on which crossword button they clicked
+    if (crosswordClueId === 'across_3') {
+      hintText = "Across 3 : Without us, our best products will be a secret.";
+    } else if (crosswordClueId === 'across_5') {
+      hintText = "Across 5 : We sell items that protect the seafarers.";
+    } else if (crosswordClueId === 'across_6') { 
+      hintText = "Across 6 : An area to Brainstorm.";
+    } else if (crosswordClueId === 'across_9') {
+      hintText = "Across 9 : We are also called as Frontline as we are the revenue generators.";
+    } else if (crosswordClueId === 'down_1') {
+      hintText = "Down 1 : Source, Onboard, Retain, Repeat.";
+    } else if (crosswordClueId === 'down_2') {
+      hintText = "Down 2 : Revenue, Profit, Budget, Variance.";
+    } else if (crosswordClueId === 'down_3') {
+      hintText = "Down 3 : Write your custom down 3 clue instruction here.";
+    } else if (crosswordClueId === 'down_4') {
+      hintText = "Down 4 : The most respected person in this office.";
+    } else if (crosswordClueId === 'down_7') {
+      hintText = "Down 7 : System down ? Call us!";
+    } else if (crosswordClueId === 'down_8') {
+      hintText = "Down 8 : People are very board.";
+    } else {
+      // Safe fallback trap if an unmapped button is clicked
+      hintText = "Crossword Helper: Focus on the primary overlapping cells.";
+    }
+  } else {
+    hintText = "Please select a specific clue number from the interface.";
+  }
+} else if (updatedState.viewType === "MR") {
+  hintText = "Lockbox File Guide: The master matrix code sequence reading flows in reverse layout.";
+} else if (updatedState.viewType === "BP") {
+  hintText = "Map Tracker Blueprint: Focus directly on the coordinate marked by the structural anchor.";
+} else {
+  // 3. FALLBACK TO STAGE-BASED HINTS IF NOT ON A SPECIAL SCREEN
+  if (updatedState.currentStage === 1) {
+    hintText = HINTS.IDENTITY;
+  } else if (updatedState.currentStage === TOTAL_STAGES) {
+    hintText = HINTS.FINALE;
+  } else {
+    const puzzle = getPuzzleForStage(teamInfo.cohort, updatedState.currentStage);
+    hintText = puzzle ? HINTS[puzzle.key] : "No hint available.";
+  }
+}
 
-      return res.status(200).json({
-        result: {
-          success: true,
-          hint: hintText,
-          remaining: Math.max(0, MAX_HINTS - finalHintCount)
-        }
-      });
-
+return res.status(200).json({
+  result: {
+    success: true,
+    hint: hintText,
+    remaining: Math.max(0, MAX_HINTS - finalHintCount)
+  }
+});
     } catch (err) {
       return res.status(500).json({ error: { message: err.message } });
     }
