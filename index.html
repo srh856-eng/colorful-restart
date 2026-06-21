@@ -1098,7 +1098,7 @@
     const btn = document.getElementById('hint-btn-anchor');
     if (btn && btn.disabled) return;
 
-    // 1. Check if hints are exhausted locally first before doing anything
+    // 1. Check if hints are exhausted locally first
     if (localStateCache && localStateCache.hintsUsed >= 2) {
         showToast("No hints remaining!", true);
         if (btn) {
@@ -1108,29 +1108,19 @@
         return;
     }
 
-    // 2. ACCIDENTAL CLICK GUARD: Ask before opening any menu or layout
-    if (!confirm("Are you sure you want to use a hint? You only have a total of 2 for the whole game.")) {
-        return; // Exit completely if they click 'Cancel'
+    // 2. ACCIDENTAL CLICK GUARD: Confirms for ALL puzzles
+    if (!confirm("Are you sure you want to request a hint? Balance will deduct.")) {
+        return; // Stops completely if they click "Cancel"
     }
 
-    // 3. Look at what screen the team is currently trapped on
     const currentScreen = localStateCache ? localStateCache.viewType : '';
 
-    // 4. Branch out depending on the active screen
+    // 3. Clean routing after they confirm
     if (currentScreen === "CW") {
-        // Opens the Crossword grid selection popup
+        // ONLY the Crossword opens the sub-menu buttons
         OpenCrosswordHintSelectionPopup();
-    } 
-    else if (currentScreen === "MR") {
-        // Opens the Lockbox confirmation popup
-        OpenLockboxHintConfirmationPopup();
-    } 
-    else if (currentScreen === "BP") {
-        // Opens the Map/Blueprint confirmation popup
-        OpenMapHintConfirmationPopup();
-    } 
-    else {
-        // Fallback for general screens (already confirmed above, so we pass null directly)
+    } else {
+        // Lockbox (MR), Blueprint (BP), and all others get text immediately
         executeHintFetchFromServer(null);
     }
 }
@@ -1511,28 +1501,6 @@ function OpenCrosswordHintSelectionPopup() {
                 <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_8')">8</button>
             </div>
         </div>`;
-    document.getElementById('action-modal').style.display = "flex";
-}
-
-function OpenLockboxHintConfirmationPopup() {
-    const title = document.getElementById('action-modal-title');
-    const body = document.getElementById('action-modal-body');
-    
-    title.innerText = "Confirm Lockbox Hint";
-    body.innerHTML = `
-        <p class="desc-text">Unlocking this lockbox strategy will deduct 1 hint from your remaining balance.</p>
-        <button class="btn btn-accent" style="margin-top:10px; width:100%;" onclick="executeHintFetchFromServer('lockbox')">Confirm and Reveal Hint</button>`;
-    document.getElementById('action-modal').style.display = "flex";
-}
-
-function OpenMapHintConfirmationPopup() {
-    const title = document.getElementById('action-modal-title');
-    const body = document.getElementById('action-modal-body');
-    
-    title.innerText = "Confirm Blueprint Hint";
-    body.innerHTML = `
-        <p class="desc-text">Do you want to extract tracking vector details for the layout map?</p>
-        <button class="btn btn-primary" style="margin-top:10px; width:100%;" onclick="executeHintFetchFromServer('blueprint')">Confirm and Reveal Hint</button>`;
     document.getElementById('action-modal').style.display = "flex";
 }
         refreshViewEngine();
