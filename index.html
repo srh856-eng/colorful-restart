@@ -19,1491 +19,621 @@
             --surface: #F6F8FC;
             --surface-2: #EEF2F9;
             --text-primary: #0D1B35;
-            --text-secondary: #4A5778;
-            --border: #D4DCF0;
-            --radius: 10px;
-            --shadow: 0 4px 24px rgba(0,45,114,0.10);
+            --text-secondary: #4A5D78;
+            --border: #D2DCeb;
+            --shadow: 0 10px 30px rgba(0,45,114,0.08);
+            --radius: 16px;
         }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: 'Inter', system-ui, sans-serif;
             background: var(--surface);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            padding: 16px;
         }
 
-        /* ── HEADER ── */
-        header {
-            display: none;
-            background: var(--jotun-navy);
-            padding: 0 24px;
-            height: 64px;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-        }
-        .header-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .jotun-logomark {
-            width: 36px;
-            height: 36px;
-            background: var(--jotun-red);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            color: white;
-            letter-spacing: -0.5px;
-            flex-shrink: 0;
-        }
-        .header-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 17px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.9);
-            letter-spacing: 0.5px;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .progress-pill {
-            font-size: 12px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.7);
-            background: rgba(255,255,255,0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-            letter-spacing: 0.5px;
-        }
-        .vault-container {
-            display: flex;
-            gap: 4px;
-        }
-        .vault-slot {
-            width: 28px;
-            height: 30px;
-            border: 1.5px dashed rgba(255,255,255,0.25);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 15px;
-            color: transparent;
-            background: rgba(0,0,0,0.2);
-            transition: all 0.25s ease;
-        }
-        .vault-slot.filled {
-            border-color: var(--jotun-gold);
-            background: rgba(240,165,0,0.15);
-            color: var(--jotun-gold);
-            animation: vaultPop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
-        }
-        @keyframes vaultPop {
-            0%   { transform: scale(0.3) rotate(-25deg) translateY(-14px); opacity: 0; box-shadow: 0 0 0 rgba(240,165,0,0); }
-            45%  { transform: scale(1.35) rotate(10deg) translateY(2px); opacity: 1; box-shadow: 0 0 18px rgba(240,165,0,0.8); }
-            65%  { transform: scale(0.92) rotate(-4deg) translateY(0); box-shadow: 0 0 10px rgba(240,165,0,0.5); }
-            85%  { transform: scale(1.08) rotate(2deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; box-shadow: 0 0 4px rgba(240,165,0,0.25); }
-        }
-
-        /* ── MAIN CARD ── */
-        .game-wrap {
-            flex: 1;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 32px 16px 48px;
-        }
-        .main-card {
+        .app-container {
             width: 100%;
             max-width: 480px;
-            background: white;
-            border-radius: 14px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-bottom: 40px;
         }
-        .card-header-band {
-            background: var(--jotun-navy);
-            padding: 20px 24px 18px;
+
+        /* Header Setup Layout */
+        header {
+            background: linear-gradient(135deg, var(--jotun-navy-deep), var(--jotun-navy));
+            padding: 24px;
+            border-radius: var(--radius);
+            color: var(--jotun-white);
+            box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
         }
-        .card-header-band::after {
+
+        header::after {
             content: '';
             position: absolute;
-            right: -20px;
-            top: -20px;
-            width: 100px;
-            height: 100px;
+            bottom: 0;
+            right: 0;
+            width: 80px;
+            height: 6px;
             background: var(--jotun-red);
-            opacity: 0.15;
-            border-radius: 50%;
         }
-        .stage-eyebrow {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 6px;
-        }
-        .card-heading {
+
+        .brand-sub {
             font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--jotun-gold);
+            margin-bottom: 4px;
+        }
+
+        .header-main-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .team-title {
             font-size: 26px;
             font-weight: 700;
-            color: white;
-            line-height: 1.1;
+            letter-spacing: -0.5px;
         }
-        .card-body {
-            padding: 22px 24px;
+
+        .stage-badge {
+            background: rgba(255,255,255,0.12);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Global Structural Cards */
+        .card {
+            background: var(--jotun-white);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(210,220,235,0.6);
+        }
+
+        .card-heading {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--jotun-navy);
+            margin-bottom: 12px;
             display: flex;
-            flex-direction: column;
-            gap: 14px;
+            align-items: center;
+            gap: 8px;
         }
+
         .desc-text {
             font-size: 14px;
-            line-height: 1.65;
+            line-height: 1.6;
             color: var(--text-secondary);
-        }
-        .prompt-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--jotun-navy);
-            letter-spacing: 0.2px;
-        }
-        .input-box {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-primary);
-            background: var(--surface);
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .input-box:focus {
-            border-color: var(--jotun-navy);
-            box-shadow: 0 0 0 3px rgba(0,45,114,0.08);
-            background: white;
-        }
-        .btn {
-            width: 100%;
-            padding: 13px 16px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.3px;
-        }
-        .btn-primary {
-            background: var(--jotun-navy);
-            color: white;
-        }
-        .btn-primary:hover { background: var(--jotun-navy-mid); transform: translateY(-1px); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-accent {
-            background: var(--jotun-red);
-            color: white;
-        }
-        .btn-accent:hover { background: var(--jotun-red-light); transform: translateY(-1px); }
-        .btn-ghost {
-            background: var(--surface-2);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-        .btn-ghost:hover { background: var(--surface); color: var(--text-primary); }
-        .btn-ghost:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
         }
 
-        /* ── CROSSWORD CLUES ── */
-        .cw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        /* Special Quest Component Structural Sub-grids */
+        .cw-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
         .cw-col-label {
             font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
             text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
             color: var(--text-secondary);
-            margin-bottom: 8px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--border);
         }
         .cw-clue-btn {
-            width: 100%;
-            text-align: left;
-            background: var(--surface);
+            background: var(--surface-2);
             border: 1px solid var(--border);
-            border-radius: 7px;
-            padding: 8px 10px;
+            padding: 10px;
+            border-radius: 8px;
             font-size: 12px;
-            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            text-align: left;
+            width: 100%;
+            margin-bottom: 6px;
             color: var(--text-primary);
             cursor: pointer;
-            margin-bottom: 5px;
-            transition: all 0.15s;
         }
-        .cw-clue-btn:hover { background: var(--jotun-navy); color: white; border-color: var(--jotun-navy); }
 
-        .divider { height: 1px; background: var(--border); margin: 2px 0; }
-
-        /* ── ERROR STATE ── */
-        .error-state {
-            text-align: center;
-            padding: 40px 24px;
-        }
-        .error-icon {
-            width: 56px;
-            height: 56px;
-            background: rgba(200,16,46,0.08);
-            border-radius: 50%;
+        /* Controls and Forms elements */
+        .input-group {
+            margin-top: 16px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--surface);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--jotun-navy);
+            background: var(--jotun-white);
+        }
+
+        /* Buttons layout configurations */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
             justify-content: center;
-            margin: 0 auto 16px;
+            align-items: center;
+            gap: 8px;
         }
-        .error-icon svg { color: var(--jotun-red); }
-        .error-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
-        .error-msg { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
 
-        /* ── LOADING STATE ── */
-        .loading-state {
-            text-align: center;
-            padding: 52px 24px;
+        .btn-primary {
+            background: var(--jotun-navy);
+            color: var(--jotun-white);
         }
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--border);
-            border-top-color: var(--jotun-navy);
-            border-radius: 50%;
-            margin: 0 auto 16px;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-label { font-size: 13px; color: var(--text-secondary); }
+        .btn-primary:active { background: var(--jotun-navy-deep); }
 
-        /* ── MODAL ── */
-        .modal {
-            display: none;
+        .btn-accent {
+            background: var(--jotun-red);
+            color: var(--jotun-white);
+        }
+        .btn-accent:active { background: var(--jotun-red-light); }
+
+        .btn-ghost {
+            background: var(--surface-2);
+            color: var(--jotun-navy);
+            border: 1px solid var(--border);
+        }
+
+        .btn:disabled {
+            background: #E2E8F0 !important;
+            color: #94A3B8 !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        /* Modals global layouts overlays */
+        .modal-overlay {
             position: fixed;
-            inset: 0;
-            background: rgba(0,20,50,0.55);
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(13,27,53,0.6);
             backdrop-filter: blur(4px);
-            align-items: center;
+            display: none;
             justify-content: center;
-            z-index: 1000;
+            align-items: center;
             padding: 20px;
+            z-index: 1000;
         }
+
         .modal-box {
-            background: white;
-            border-radius: 14px;
+            background: var(--jotun-white);
+            border-radius: var(--radius);
+            padding: 24px;
             width: 100%;
             max-width: 400px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.25s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .modal-box.wide { max-width: 520px; }
+
+        @keyframes modalPop {
+            from { transform: scale(0.9) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        /* Toasts setup containers */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1100;
+            width: calc(100% - 32px);
+            max-width: 400px;
+        }
+
+        .toast-msg {
+            background: #0F172A;
+            color: #FFFFFF;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.2s ease;
+        }
+        .toast-error { background: var(--jotun-red); }
+
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .modal-header {
-            background: var(--jotun-navy);
-            padding: 16px 20px;
-        }
-        .modal-title {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-        .modal-body {
-            padding: 20px;
+
+        /* Login Entry view elements layout styling */
+        #auth-screen {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-        }
-        .hint-text {
-            font-size: 14px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            background: var(--surface);
-            border-left: 3px solid var(--jotun-gold);
-            padding: 12px 14px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* ── SPLASH ── */
-        .splash-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--jotun-navy);
-            color: white;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            z-index: 2000;
+            min-height: 80vh;
+            width: 100%;
+            max-width: 400px;
         }
-        .splash-text {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 52px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+        .auth-logo-card {
             text-align: center;
-            animation: splashPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+            margin-bottom: 24px;
         }
-        .splash-bar {
-            width: 60px;
-            height: 4px;
-            background: var(--jotun-red);
-            border-radius: 2px;
-            margin-top: 16px;
-            animation: barGrow 0.4s ease 0.3s both;
-        }
-        @keyframes splashPop {
-            from { transform: scale(0.7); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes barGrow {
-            from { width: 0; }
-            to { width: 60px; }
-        }
-
-        /* ── TOAST ── */
-        .toast {
-            position: fixed;
-            bottom: 28px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--text-primary);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 3000;
-            transition: transform 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
-            white-space: nowrap;
-        }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.error { background: var(--jotun-red); }
-
-        /* ── FOOTER BRAND ── */
-        .footer-brand {
-            text-align: center;
-            padding: 20px;
-            font-size: 11px;
-            color: #B0BCDA;
-            letter-spacing: 0.5px;
-        }
-
-        /* ── GAME OVER FREEZE OVERLAY ── */
-        .freeze-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 10, 30, 0.88);
-            backdrop-filter: blur(8px);
-            align-items: center;
-            justify-content: center;
-            z-index: 4000;
-            flex-direction: column;
-            gap: 16px;
-            padding: 32px;
-        }
-        .freeze-overlay.active { display: flex; }
-        .freeze-icon {
-            font-size: 48px;
-            animation: freezePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
-        }
-        .freeze-title {
+        .auth-logo-text {
             font-family: 'Barlow Condensed', sans-serif;
             font-size: 38px;
             font-weight: 800;
-            color: white;
-            text-align: center;
-            letter-spacing: 1px;
-            animation: freezePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) 0.1s both;
-        }
-        .freeze-subtitle {
-            font-size: 15px;
-            color: rgba(255,255,255,0.6);
-            text-align: center;
-            max-width: 320px;
-            line-height: 1.6;
-            animation: freezePop 0.5s ease 0.25s both;
-        }
-        @keyframes freezePop {
-            from { transform: scale(0.8) translateY(20px); opacity: 0; }
-            to { transform: scale(1) translateY(0); opacity: 1; }
-        }
-
-        /* ── VICTORY OVERLAY ── */
-        .victory-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: var(--jotun-navy-deep);
-            align-items: center;
-            justify-content: center;
-            z-index: 4000;
-            flex-direction: column;
-            gap: 12px;
-            overflow: hidden;
-        }
-        .victory-overlay.active { display: flex; }
-        .victory-confetti-canvas {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-        }
-        .victory-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            padding: 32px;
-        }
-        .victory-trophy {
-            font-size: 72px;
-            animation: trophyBounce 0.8s cubic-bezier(0.175,0.885,0.32,1.275);
-        }
-        @keyframes trophyBounce {
-            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
-            70% { transform: scale(1.2) rotate(5deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        .victory-headline {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 56px;
-            font-weight: 800;
-            color: var(--jotun-gold);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 0 0 40px rgba(240,165,0,0.5);
-            animation: victoryFadeIn 0.6s ease 0.3s both;
-        }
-        .victory-team {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: white;
-            letter-spacing: 1px;
-            animation: victoryFadeIn 0.6s ease 0.5s both;
-        }
-        .victory-instruct {
-            font-size: 14px;
-            color: rgba(255,255,255,0.55);
-            margin-top: 8px;
-            animation: victoryFadeIn 0.6s ease 0.7s both;
-        }
-        @keyframes victoryFadeIn {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── FINALE TREASURE ROOM ── */
-        .finale-card {
-            position: relative;
-            overflow: hidden;
-            background: #0a0e1a;
-            border: 1px solid #1a2540;
-        }
-        .finale-cipher-bg {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.07;
-            font-family: 'Barlow Condensed', monospace;
-            font-size: 9px;
-            font-weight: 600;
-            color: #7ba7e0;
-            letter-spacing: 2px;
-            line-height: 1.4;
-            padding: 8px;
-            word-break: break-all;
-            white-space: pre-wrap;
-        }
-        .finale-header-band {
-            background: linear-gradient(135deg, #0d1833 0%, #1a2d55 100%);
-            padding: 20px 24px 18px;
-            position: relative;
-            z-index: 1;
-            border-bottom: 1px solid rgba(240,165,0,0.2);
-        }
-        .finale-eyebrow {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--jotun-gold);
-            margin-bottom: 6px;
-            opacity: 0.8;
-        }
-        .finale-heading {
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: #e8dfc0;
-            line-height: 1.1;
-        }
-        .finale-body {
-            padding: 22px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            position: relative;
-            z-index: 1;
-        }
-        .finale-desc {
-            font-size: 14px;
-            line-height: 1.7;
-            color: #8fa3c4;
-        }
-        .finale-key-phrase {
-            font-size: 17px;
-            font-weight: 600;
-            color: #e8dfc0;
-            letter-spacing: 0.5px;
-            text-align: center;
-            padding: 6px 0;
-        }
-        .finale-divider {
-            height: 1px;
-            background: rgba(240,165,0,0.15);
-            margin: 2px 0;
-        }
-
-        /* ── LETTER PILE ANIMATION ── */
-        .letter-pile-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            padding: 10px 0 4px;
-            position: relative;
-        }
-        .letter-tile {
-            width: 32px;
-            height: 36px;
-            border: 1.5px solid rgba(240,165,0,0.4);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--jotun-gold);
-            background: rgba(240,165,0,0.08);
-            opacity: 0;
-            transform: translate(140px, -90px) rotate(60deg) scale(0.4);
-        }
-        .letter-tile.drop {
-            animation: letterFlyIn 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
-        }
-        @keyframes letterFlyIn {
-            0%   { opacity: 0; transform: translate(140px, -90px) rotate(60deg) scale(0.4); box-shadow: 0 0 0 rgba(240,165,0,0); }
-            55%  { opacity: 1; transform: translate(-6px, 6px) rotate(-8deg) scale(1.15); box-shadow: 0 0 16px rgba(240,165,0,0.7); }
-            75%  { transform: translate(2px, -2px) rotate(4deg) scale(0.95); }
-            100% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); box-shadow: 0 0 4px rgba(240,165,0,0.2); }
-        }
-
-        /* ── FINALE INPUT THEME ── */
-        .finale-input {
-            background: rgba(255,255,255,0.05) !important;
-            border-color: rgba(240,165,0,0.3) !important;
-            color: #e8dfc0 !important;
-        }
-        .finale-input:focus {
-            border-color: var(--jotun-gold) !important;
-            box-shadow: 0 0 0 3px rgba(240,165,0,0.12) !important;
-        }
-        .finale-input::placeholder { color: rgba(200,200,200,0.25); }
-        .finale-prompt-label {
-            color: rgba(232,223,192,0.7) !important;
-        }
-        .btn-finale-primary {
-            background: linear-gradient(135deg, #8a5c00, #c48000);
-            color: #fff8e0;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .btn-finale-primary:hover {
-            background: linear-gradient(135deg, #a06c00, #d99000);
-            transform: translateY(-1px);
-        }
-        .btn-finale-ghost {
-            background: rgba(255,255,255,0.05);
-            color: rgba(200,210,230,0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .btn-finale-ghost:hover {
-            background: rgba(255,255,255,0.1);
-            color: rgba(200,210,230,0.9);
-        }
-        .btn-finale-ghost:disabled {
-            opacity: 0.35;
-            cursor: not-allowed;
-        }
-        .btn-finale-accent {
-            background: rgba(0,45,114,0.7);
-            color: #a8c0e8;
-            border: 1px solid rgba(100,150,220,0.25);
-        }
-        .btn-finale-accent:hover {
-            background: rgba(0,64,138,0.8);
-            color: #c0d4f0;
-            transform: translateY(-1px);
-        }
-
-       /* ── ROT13 LOOKUP TABLE GRID ── */
-        .rot13-container {
-            max-width: 100%;
-            margin: 8px 0;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px;
-            text-align: center;
-        }
-        .rot13-container h3 {
-            font-size: 13px;
-            font-weight: 600;
             color: var(--jotun-navy);
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
             text-transform: uppercase;
+            letter-spacing: -1px;
         }
-        .rot13-table {
+        .auth-logo-text span { color: var(--jotun-red); }
+
+        /* Crown Winner Module layout components design structures */
+        .winner-announcement {
+            background: linear-gradient(135deg, #FFFDF5, #FFF9E6);
+            border: 2px solid var(--jotun-gold);
+            text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: 'Barlow Condensed', monospace;
-            font-weight: 700;
-            font-size: 16px;
-            width: 100%;
-            overflow-x: auto;
+            gap: 8px;
         }
-        .rot13-row {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 6px;
+        .crown-icon { font-size: 32px; animation: pulseCrown 2s infinite ease-in-out; }
+        @keyframes pulseCrown {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
         }
-        .rot13-cell {
-            flex: 1;
-            padding: 8px 0;
-            text-align: center;
-        }
-        .rot13-cell:not(:last-child) {
-            border-right: 1px solid var(--surface-2);
-        }
-        .top-row {
-            background-color: rgba(0, 45, 114, 0.05);
-            color: var(--jotun-navy);
-        }
-        .bottom-row {
-            background-color: rgba(200, 16, 46, 0.04);
-            color: var(--jotun-red);
-        }
-        .rot13-arrows {
-            letter-spacing: 0.52rem;
-            padding-left: 0.3rem;
-            color: var(--text-secondary);
-            margin: 4px 0;
-            font-size: 12px;
-            user-select: none;
-        
-        }
+
+        #game-screen { display: none; }
     </style>
 </head>
 <body>
 
-    <header id="app-header">
-        <div class="header-brand">
-            <div class="jotun-logomark">J</div>
-            <span class="header-title">JOTUN HUNT 2026</span>
-        </div>
-        <div class="header-right">
-            <span class="progress-pill" id="progress-indicator">0%</span>
-            <div class="vault-container" id="vault-slots">
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-                <div class="vault-slot"></div>
-            </div>
-        </div>
-    </header>
+    <div id="toast-container"></div>
 
-    <div class="game-wrap">
-        <div class="main-card" id="game-viewport">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p class="loading-label">Loading your quest…</p>
+    <div id="auth-screen">
+        <div class="auth-logo-card">
+            <h1 class="auth-logo-text">JOTUN<span>HUNT</span></h1>
+            <p class="desc-text" style="margin-top:4px; font-size:12px; font-weight:500; letter-spacing:1px; text-transform:uppercase;">Operations Dashboard 2026</p>
+        </div>
+        <div class="card" style="display:flex; flex-direction:column; gap:16px;">
+            <div style="text-align:center;">
+                <h3 style="font-size:18px; font-weight:700; color:var(--jotun-navy);">Enter Mission Code</h3>
+                <p class="desc-text" style="margin-top:4px;">Provide your unit's access authorization sequence token string details.</p>
             </div>
+            <div class="input-group" style="margin-top:4px;">
+                <input type="text" id="group-token-input" placeholder="e.g. RED74" style="text-align:center; letter-spacing:2px; font-family:'Barlow Condensed', sans-serif; font-size:22px;">
+            </div>
+            <button class="btn btn-primary" onclick="attemptAuthenticationInit()">Authenticate Unit</button>
         </div>
     </div>
 
-    <div class="footer-brand">JOTUN · HUNT 2026</div>
+    <div id="game-screen" class="app-container">
+        
+        <div id="global-winner-card" class="card winner-announcement" style="display:none;">
+            <div class="crown-icon">👑</div>
+            <div>
+                <h4 style="font-size:16px; font-weight:700; color:#78350F;" id="global-winner-text">Team Unlocked Victory!</h4>
+                <p style="font-size:12px; color:#92400E; margin-top:2px;">The primary sequence allocation tracking run is officially closed.</p>
+            </div>
+        </div>
 
-    <!-- ── HINT MODAL ── -->
-    <div id="hint-modal" class="modal" onclick="closeModal('hint-modal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title">💡 Hint</div>
+        <header>
+            <div class="brand-sub">Jotun Corporate Scavenger Hunt</div>
+            <div class="header-main-row">
+                <div class="team-title" id="display-team-name">Loading...</div>
+                <div class="stage-badge" id="display-stage-label">Stage -/-</div>
             </div>
-            <div class="modal-body">
-                <p id="hint-modal-text" class="hint-text"></p>
-                <button class="btn btn-primary" onclick="closeModal('hint-modal')">Got it</button>
+        </header>
+
+        <div class="card">
+            <h3 class="card-heading" id="display-puzzle-title">---</h3>
+            <p class="desc-text" id="display-puzzle-desc">---</p>
+            
+            <div id="dynamic-action-panel"></div>
+        </div>
+
+        <div class="card" id="submission-card-frame">
+            <div class="input-group" style="margin-top:0;">
+                <label class="input-label" id="display-puzzle-prompt">Enter solution key:</label>
+                <input type="text" id="puzzle-answer-input" placeholder="Type response value...">
             </div>
+            <div class="action-row">
+                <button class="btn btn-ghost" id="hint-btn-anchor" style="flex:1;" onclick="triggerHintRequest()">Hints (-)</button>
+                <button class="btn btn-primary" id="submit-btn-anchor" style="flex:2;" onclick="processAnswerSubmission()">Submit Code</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="action-modal">
+        <div class="modal-box">
+            <h3 style="font-size:18px; font-weight:700; color:var(--jotun-navy); margin-bottom:8px;" id="action-modal-title">Select Option</h3>
+            <div id="action-modal-body" style="min-height:60px;"></div>
+            <button class="btn btn-ghost" style="margin-top:14px; padding:10px; font-size:13px;" onclick="closeModal('action-modal')">Close Window</button>
         </div>
     </div>
 
-   <!--  REPLACE WITH THIS: -->
-<!-- ── ACTION / ASSET MODAL ── -->
-<div id="action-modal" class="modal" onclick="closeModal('action-modal')">
-    <div class="modal-box wide" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <div class="modal-title" id="action-modal-title">Decryption Matrix</div>
-        </div>
-        <div class="modal-body">
-            <div id="action-modal-body">
-                <!-- The table generation interface framework script injects here dynamically -->
-            </div>
-            <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close Window</button>
+    <div class="modal-overlay" id="hint-modal">
+        <div class="modal-box" style="border-top: 4px solid var(--jotun-gold);">
+            <h3 style="font-size:16px; font-weight:700; color:var(--jotun-navy); display:flex; align-items:center; gap:6px;">
+                <span style="color:var(--jotun-gold);">💡</span> Mission Dispatch Hint
+            </h3>
+            <p class="desc-text" id="hint-modal-text" style="margin-top:12px; background:var(--surface); padding:14px; border-radius:8px; font-weight:500; color:var(--text-primary); border:1px solid var(--border);"></p>
+            <button class="btn btn-primary" style="margin-top:16px; padding:12px; font-size:14px;" onclick="closeModal('hint-modal')">Acknowledged</button>
         </div>
     </div>
-</div>
-    <!-- ── CLUE MODAL ── -->
-    <div id="clue-modal" class="modal" onclick="closeModal('clue-modal')">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <div class="modal-title" id="clue-modal-title">Clue</div>
-            </div>
-            <div class="modal-body">
-                <p id="clue-modal-text" class="hint-text"></p>
-                <button class="btn btn-primary" onclick="closeModal('clue-modal')">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── SPLASH ── -->
-    <div id="splash-screen" class="splash-overlay">
-        <div class="splash-text" id="splash-text"></div>
-        <div class="splash-bar"></div>
-    </div>
-
-    <!-- ── VICTORY OVERLAY (winner team only) ── -->
-    <div id="victory-overlay" class="victory-overlay">
-        <canvas id="confetti-canvas" class="victory-confetti-canvas"></canvas>
-        <div class="victory-content">
-            <div class="victory-trophy">🏆</div>
-            <div class="victory-headline">VICTORY!</div>
-            <div class="victory-team" id="victory-team-name"></div>
-            <div class="victory-instruct">Report to the counter — you are the champions!</div>
-        </div>
-    </div>
-
-    <!-- ── FREEZE OVERLAY (all other teams when someone wins) ── -->
-    <div id="freeze-overlay" class="freeze-overlay">
-        <div class="freeze-icon">🔒</div>
-        <div class="freeze-title" id="freeze-title">The hunt is over.</div>
-        <div class="freeze-subtitle" id="freeze-subtitle"></div>
-    </div>
-
-    <div id="toast" class="toast"></div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAsX-ExampLEKeySpAcE2026_Fix",
-            authDomain: "jotunhunt2026.firebaseapp.com",
-            projectId: "jotunhunt2026"
-        };
-        firebase.initializeApp(firebaseConfig);
+        // Set Cloud Functions Regional location execution address mapping root configuration pointer URL layout hooks
+        const CLOUD_API_ROOT = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
 
-        const CLOUD_FUNCTIONS_BASE_URL = "https://asia-southeast1-jotunhunt2026.cloudfunctions.net";
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const teamToken = urlParams.get('id');
-
+        let teamToken = "";
         let localStateCache = null;
-        let gameFrozen = false;
+        let activePenaltyInterval = null;
 
-        // ── API HELPER ──
-        async function callCloudEndpoint(endpointName, payload) {
-            const response = await fetch(`${CLOUD_FUNCTIONS_BASE_URL}/${endpointName}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ data: payload })
-            });
-            const json = await response.json();
-            if (!response.ok || json.error) {
-                throw new Error(json.error?.message || "Something went wrong. Please try again.");
+        // Automatically restore user state if session configuration details are available inside device memory log spaces
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('jotun_hunt_token');
+            if (savedToken) {
+                teamToken = savedToken;
+                document.getElementById('group-token-input').value = savedToken;
+                synchronizeWorkspaceState();
             }
-            return json.result;
-        }
-
-        // ── MAIN LOAD ──
-        async function refreshViewEngine() {
-            if (!teamToken) {
-                renderErrorState("Link Invalid", "Your access link is missing a team token. Please use the link provided to you by the organizer.");
-                return;
-            }
-            setLoading();
-            try {
-                const data = await callCloudEndpoint('getGameState', { token: teamToken });
-                localStateCache = data;
-
-                // Check winner state before rendering
-                if (data.gameWon) {
-                    if (data.thisTeamWon) {
-                        showVictory(data.teamName);
-                    } else {
-                        showFreeze(data.winnerName);
-                    }
-                    return;
-                }
-
-                renderUI(data);
-            } catch (e) {
-                renderErrorState("Unable to Load", e.message);
-            }
-        }
-
-        function setLoading() {
-            document.getElementById('game-viewport').innerHTML = `
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p class="loading-label">Loading your quest…</p>
-                </div>`;
-        }
-
-        function renderErrorState(title, msg) {
-            document.getElementById('game-viewport').innerHTML = `
-                <div class="error-state">
-                    <div class="error-icon">
-                        <svg width="24" height="24" fill="none" stroke="#C8102E" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="1" fill="#C8102E" stroke="none"/>
-                        </svg>
-                    </div>
-                    <p class="error-title">${title}</p>
-                    <p class="error-msg">${msg}</p>
-                </div>`;
-        }
-
-        // ── RENDER ──
-        function renderUI(data) {
-            const viewport = document.getElementById('game-viewport');
-            const header = document.getElementById('app-header');
-
-            if (data.currentStage === 1) {
-                header.style.display = "none";
-                viewport.innerHTML = `
-                    <div class="card-header-band">
-                        <div class="stage-eyebrow">Welcome</div>
-                        <div class="card-heading">Identify Your Team</div>
-                    </div>
-                    <div class="card-body">
-                        <p class="desc-text">Enter your officially registered team name to begin. It must match exactly.</p>
-                        <div class="divider"></div>
-                        <label class="prompt-label">Team Name</label>
-                        <input type="text" id="identity-input" class="input-box" placeholder="" autocomplete="off">
-                        <button class="btn btn-primary" onclick="triggerIdentityCheck()">Begin the Hunt →</button>
-                        <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint (2 remaining)</button>
-                    </div>`;
-                updateHintButtonLabel(data.hintsUsed);
-                return;
-            }
-
-            header.style.display = "flex";
-            document.getElementById('progress-indicator').innerText =
-                `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
-
-            // Vault slots — letters array is 7 chars, blanks for unfilled
-            const slots = document.getElementById('vault-slots').children;
-            const letters = data.letters || "       ";
-            for (let i = 0; i < 7; i++) {
-                const ch = letters[i];
-                if (ch && ch.trim() !== "") {
-                    slots[i].innerText = ch;
-                    slots[i].classList.add('filled');
-                } else {
-                    slots[i].innerText = "";
-                    slots[i].classList.remove('filled');
-                }
-            }
-
-            // ── FINALE STAGE ──
-            if (data.viewType === "FINALE") {
-                renderFinale(data, viewport);
-                return;
-            }
-
-            // ── REGULAR QUEST STAGES ──
-            let actionHTML = '';
-            if (data.viewType === "CW") {
-                actionHTML = `
-                    <div class="cw-grid">
-                        <div>
-                            <div class="cw-col-label">Across</div>
-                            ${Object.entries(data.crosswordClues.across).map(([num, clue]) =>
-                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Across')">${num}. View clue</button>`
-                            ).join('')}
-                        </div>
-                        <div>
-                            <div class="cw-col-label">Down</div>
-                            ${Object.entries(data.crosswordClues.down).map(([num, clue]) =>
-                                `<button class="cw-clue-btn" onclick="showClue(${num}, '${clue.replace(/'/g,"\\'")}', 'Down')">${num}. View clue</button>`
-                            ).join('')}
-                        </div>
-                    </div>`;
-            } else if (data.viewType === "BP") {
-                actionHTML = '';
-            } else if (data.viewType === "MR") {
-                actionHTML = '';
-            }
-
-            viewport.className = "main-card";
-            viewport.innerHTML = `
-                <div class="card-header-band">
-                    <div class="stage-eyebrow">Stage ${data.currentStage} of ${data.totalStages}</div>
-                    <div class="card-heading">${data.heading}</div>
-                </div>
-                <div class="card-body">
-                    <p class="desc-text">${data.description}</p>
-                    ${actionHTML ? `<div class="divider"></div>${actionHTML}<div class="divider"></div>` : ''}
-                    <label class="prompt-label">${data.prompt}</label>
-                    <input type="text" id="answer-input" class="input-box" placeholder="Your answer" autocomplete="off">
-                    <button class="btn btn-primary" onclick="triggerAnswerSubmission()">Submit Answer</button>
-                    <button class="btn btn-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
-                </div>`;
-            updateHintButtonLabel(data.hintsUsed);
-        }
-
-        // ── FINALE RENDER ──
-        function renderFinale(data, viewport) {
-            viewport.className = "main-card finale-card";
-
-            // Generate cipher background text — repeating Vigenère alphabet
-            const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            let bgText = "";
-            for (let row = 0; row < 60; row++) {
-                const offset = row % 26;
-                for (let c = 0; c < 120; c++) {
-                    bgText += alpha[(c + offset) % 26];
-                    if (c < 119) bgText += " ";
-                }
-                bgText += "\n";
-            }
-
-            viewport.innerHTML = `
-                <div class="finale-cipher-bg" aria-hidden="true">${bgText}</div>
-                <div class="finale-header-band">
-                    <div class="finale-eyebrow">Final Stage · The Vault</div>
-                    <div class="finale-heading">The Hidden Treasure Room</div>
-                </div>
-                <div class="finale-body">
-                    <p class="finale-desc">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
-                    <p class="finale-key-phrase">The key is to protect.</p>
-                    <div class="letter-pile-container" id="letter-pile"></div>
-                    <div class="finale-divider"></div>
-                    <button class="btn btn-finale-accent" onclick="openVigenereWheel()">Open Vigenère Cipher Wheel</button>
-                    <div class="finale-divider"></div>
-                    <label class="prompt-label finale-prompt-label">Enter the Final Word</label>
-                    <input type="text" id="answer-input" class="input-box finale-input" placeholder="Enter decoded word" autocomplete="off">
-                    <button class="btn btn-finale-primary" onclick="triggerFinaleCheck()">Submit Final Answer</button>
-                    <button class="btn btn-finale-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
-                </div>`;
-
-            updateHintButtonLabel(data.hintsUsed, true);
-
-            // Animate the letter pile
-            const CANONICAL = "PRAGHEL";
-            const pile = document.getElementById('letter-pile');
-            if (pile) {
-                CANONICAL.split("").forEach((letter, i) => {
-                    const tile = document.createElement('div');
-                    tile.className = 'letter-tile';
-                    tile.textContent = letter;
-                    pile.appendChild(tile);
-                    setTimeout(() => { tile.classList.add('drop'); }, 200 + i * 100);
-                });
-            }
-        }
-
-        // ── ACTIONS ──
-        async function triggerIdentityCheck() {
-            const inputVal = document.getElementById('identity-input').value;
-            if (!inputVal.trim()) return;
-            try {
-                await callCloudEndpoint('verifyIdentity', { token: teamToken, inputName: inputVal });
-                showSplash(`Welcome, ${inputVal}!`, 1800);
-                setTimeout(refreshViewEngine, 1800);
-            } catch (e) { showToast(e.message, true); }
-        }
-
-        async function triggerAnswerSubmission() {
-            const ans = document.getElementById('answer-input').value;
-            if (!ans.trim()) return;
-            try {
-                const res = await callCloudEndpoint('submitStageAnswer', { token: teamToken, answer: ans });
-                if (res.correct) {
-                    showSplash(res.animationType + '!', 2000);
-                    setTimeout(refreshViewEngine, 2000);
-                } else {
-                    showToast("That's not quite right. Try again.", true);
-                }
-            } catch (e) { showToast(e.message, true); }
-        }
-
-   async function triggerHintRequest() {
-    const btn = document.getElementById('hint-btn-anchor');
-    if (btn && btn.disabled) return;
-
-    // 1. Check if hints are exhausted locally first
-    if (localStateCache && localStateCache.hintsUsed >= 2) {
-        showToast("No hints remaining!", true);
-        if (btn) {
-            btn.innerText = "No hints remaining";
-            btn.disabled = true;
-        }
-        return;
-    }
-
-    // 2. ACCIDENTAL CLICK GUARD: Confirms for ALL puzzles
-    if (!confirm("Are you sure you want to request a hint? Balance will deduct.")) {
-        return; // Stops completely if they click "Cancel"
-    }
-
-    const currentScreen = localStateCache ? localStateCache.viewType : '';
-
-    // 3. Clean routing after they confirm
-    if (currentScreen === "CW") {
-        // ONLY the Crossword opens the sub-menu buttons
-        OpenCrosswordHintSelectionPopup();
-    } else {
-        // Lockbox (MR), Blueprint (BP), and all others get text immediately
-        executeHintFetchFromServer(null);
-    }
-}
-
-// This helper function talks directly to your backend server
-async function executeHintFetchFromServer(selectionParameter) {
-    try {
-        // We explicitly force the data package to hold the clue identity parameter
-        const res = await callCloudEndpoint('requestHint', { 
-            token: teamToken, 
-            crosswordClueId: selectionParameter 
         });
-        
-        if (res.success) {
-            // Close the choice selector popup cleanly
-            closeModal('action-modal');
-            
-            // Show the actual text hint inside your main hint modal box
-            document.getElementById('hint-modal-text').innerText = res.hint;
-            document.getElementById('hint-modal').style.display = "flex";
-            
-            localStateCache.hintsUsed = 2 - res.remaining;
-            updateHintButtonLabel(localStateCache.hintsUsed);
-        } else {
-            showToast(res.message || "You've used all your hints.", true);
-            updateHintButtonLabel(2);
-        }
-    } catch (e) {
-        showToast(e.message, true);
-        if (localStateCache) updateHintButtonLabel(localStateCache.hintsUsed);
-    }
-}
 
-        async function triggerFinaleCheck() {
-            if (gameFrozen) return;
-            const finalWord = document.getElementById('answer-input').value;
-            if (!finalWord.trim()) return;
+        async function callCloudEndpoint(endpointName, payloadData = {}) {
+            const destinationUrl = `${CLOUD_API_ROOT}/${endpointName}`;
+            const packetResponse = await fetch(destinationUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: payloadData })
+            });
+            if (!packetResponse.ok) {
+                const errorData = await packetResponse.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `Network tracking node request aborted: status line code ${packetResponse.status}`);
+            }
+            const structuralOutputData = await packetResponse.json();
+            return structuralOutputData.result;
+        }
+
+        function showToast(messageStringText, errorContextFlag = false) {
+            const targetContainer = document.getElementById('toast-container');
+            const toastFrame = document.createElement('div');
+            toastFrame.className = `toast-msg ${errorContextFlag ? 'toast-error' : ''}`;
+            toastFrame.innerText = messageStringText;
+            targetContainer.appendChild(toastFrame);
+            setTimeout(() => {
+                toastFrame.style.opacity = '0';
+                toastFrame.style.transform = 'translateY(-10px)';
+                toastFrame.style.transition = 'all 0.3s ease';
+                setTimeout(() => toastFrame.remove(), 300);
+            }, 4000);
+        }
+
+        function closeModal(modalElementIdString) {
+            document.getElementById(modalElementIdString).style.display = "none";
+        }
+
+        function attemptAuthenticationInit() {
+            const rawInputFieldString = document.getElementById('group-token-input').value;
+            if (!rawInputFieldString || rawInputFieldString.trim() === "") {
+                showToast("Provide your assigned code token string.", true);
+                return;
+            }
+            teamToken = rawInputFieldString.trim().toUpperCase();
+            synchronizeWorkspaceState();
+        }
+
+        async function synchronizeWorkspaceState() {
             try {
-                const res = await callCloudEndpoint('submitFinale', { token: teamToken, finalWord });
-                if (res.correct) {
-                    if (res.isWinner) {
-                        showVictory(localStateCache.teamName);
-                    } else {
-                        // Another team already won, just freeze
-                        await refreshViewEngine();
-                    }
+                const dataStateSnapshot = await callCloudEndpoint('getGameState', { token: teamToken });
+                localStateCache = dataStateSnapshot;
+                
+                // Cache configuration parameter tokens inside browser persistence memory frames
+                localStorage.setItem('jotun_hunt_token', teamToken);
+
+                // UI Layout swap visibility
+                document.getElementById('auth-screen').style.display = "none";
+                document.getElementById('game-screen').style.display = "flex";
+
+                // Header data elements update render pipeline loops execution values
+                document.getElementById('display-team-name').innerText = dataStateSnapshot.teamName;
+                document.getElementById('display-stage-label').innerText = `Stage ${dataStateSnapshot.currentStage} / 6`;
+                
+                // Card details mappings rendering tracking configuration assignments updates
+                document.getElementById('display-puzzle-title').innerText = dataStateSnapshot.heading;
+                document.getElementById('display-puzzle-desc').innerText = dataStateSnapshot.description;
+                document.getElementById('display-puzzle-prompt').innerText = dataStateSnapshot.prompt;
+
+                updateHintButtonLabel(dataStateSnapshot.hintsUsed);
+                document.getElementById('puzzle-answer-input').value = "";
+
+                // Evaluate structural penalty intervals based on returned server locks state logs
+                handlePenaltyCountdownState(dataStateSnapshot.penaltyUntil || 0);
+
+                // Handle winner badge display tracking allocations dynamically
+                const winnerFrame = document.getElementById('global-winner-card');
+                if (dataStateSnapshot.globalWinner) {
+                    document.getElementById('global-winner-text').innerText = `${dataStateSnapshot.globalWinner.name} Won the Hunt!`;
+                    winnerFrame.style.display = "flex";
                 } else {
-                    showToast("Incorrect. Check your cipher decoding.", true);
+                    winnerFrame.style.display = "none";
                 }
-            } catch (e) { showToast(e.message, true); }
-        }
 
-        function showClue(num, clue, direction) {
-            document.getElementById('clue-modal-title').innerText = `${direction} ${num}`;
-            document.getElementById('clue-modal-text').innerText = clue;
-            document.getElementById('clue-modal').style.display = "flex";
-        }
-
-        function openConfirmationAsset(type) {
-            if (!confirm("Open this asset?")) return;
-            const body = document.getElementById('action-modal-body');
-            const title = document.getElementById('action-modal-title');
-            body.innerHTML = '';
-
-            if (type === 'CW_SKELETON') {
-                title.innerText = "Crossword Grid";
-                body.innerHTML = `<div style="border:2px dashed var(--jotun-navy);padding:24px;text-align:center;font-weight:600;color:var(--text-secondary);border-radius:8px;">[Crossword Grid Layout]</div>`;
-            } else if (type === 'BP_IMAGE') {
-                title.innerText = "Floor Blueprint";
-                body.innerHTML = `<div style="background:var(--jotun-navy);color:white;padding:32px;text-align:center;font-family:monospace;border-radius:8px;font-size:13px;">[HTML Blueprint Matrix Map]</div>`;
-            } else if (type === 'MR_RULES') {
-                title.innerText = "Case File Rules";
-                body.innerHTML = `<div class="hint-text">1. No two workers can occupy the same room cell.<br><br>2. Entry points must remain unobstructed.</div>`;
-            } else if (type === 'MR_SKELETON') {
-                title.innerText = "Room Grid";
-                body.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,44px);gap:6px;justify-content:center;">${Array(9).fill('<div style="border:1.5px solid var(--border);height:44px;border-radius:4px;"></div>').join('')}</div>`;
-            }
-            document.getElementById('action-modal').style.display = "flex";
-        }
-
-        // ── VIGENÈRE WHEEL ──
-        function openVigenereWheel() {
-            const title = document.getElementById('action-modal-title');
-            const body = document.getElementById('action-modal-body');
-            title.innerText = "Vigenère Cipher Wheel";
-
-            const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            let innerRotation = 0; // degrees
-            let keyShift = 0; // 0-25, A=0
-
-            body.innerHTML = `
-                <div class="wheel-wrap">
-                    <p class="wheel-label">Rotate the inner ring so its <strong>A</strong> lines up with your key letter on the outer ring</p>
-                    <div class="wheel-svg-wrap" id="wheel-svg-wrap">
-                        <svg id="wheel-outer" width="260" height="260" viewBox="0 0 260 260"></svg>
-                        <svg id="wheel-inner" width="180" height="180" viewBox="0 0 180 180"></svg>
-                    </div>
-                    <div class="wheel-controls">
-                        <button class="wheel-btn" onclick="rotateWheel(-1)">◀ −1</button>
-                        <button class="wheel-btn" onclick="rotateWheel(1)">+1 ▶</button>
-                        <button class="wheel-btn" onclick="rotateWheel(-999)">Reset</button>
-                    </div>
-                    <div class="wheel-readout" id="wheel-readout">Key letter: A</div>
-                    <div class="finale-divider" style="width:100%;"></div>
-                    <p class="wheel-label">Use this key setting to encode or decode a letter</p>
-                    <div class="wheel-controls" style="gap:10px; flex-wrap:wrap; justify-content:center;">
-                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Plain letter</span>
-                            <input type="text" maxlength="1" id="wheel-plain-input" class="input-box" style="width:60px; text-align:center; text-transform:uppercase;" oninput="wheelEncode()">
-                        </div>
-                        <div style="font-size:20px; color:var(--text-secondary); padding-top:18px;">→</div>
-                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Cipher letter</span>
-                            <input type="text" maxlength="1" id="wheel-cipher-output" class="input-box" style="width:60px; text-align:center;" readonly>
-                        </div>
-                    </div>
-                    <div class="wheel-controls" style="gap:10px; flex-wrap:wrap; justify-content:center;">
-                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Cipher letter</span>
-                            <input type="text" maxlength="1" id="wheel-cipher-input" class="input-box" style="width:60px; text-align:center; text-transform:uppercase;" oninput="wheelDecode()">
-                        </div>
-                        <div style="font-size:20px; color:var(--text-secondary); padding-top:18px;">→</div>
-                        <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-                            <span class="wheel-label" style="text-transform:none; letter-spacing:0;">Plain letter</span>
-                            <input type="text" maxlength="1" id="wheel-plain-output" class="input-box" style="width:60px; text-align:center;" readonly>
-                        </div>
-                    </div>
-                </div>`;
-
-            const outerSVG = document.getElementById('wheel-outer');
-            const innerSVG = document.getElementById('wheel-inner');
-
-            function drawOuter() {
-                const cx = 130, cy = 130, r = 118, labelR = 100;
-                let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#001A45" stroke="#0f3580" stroke-width="2"/>
-                            <circle cx="${cx}" cy="${cy}" r="88" fill="none" stroke="#1a3a7a" stroke-width="1" stroke-dasharray="3,3"/>`;
-                for (let i = 0; i < 26; i++) {
-                    const angle = (i * 360 / 26 - 90) * Math.PI / 180;
-                    const lx = cx + labelR * Math.cos(angle);
-                    const ly = cy + labelR * Math.sin(angle);
-                    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
-                        font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="13"
-                        fill="#a8c0e8">${ALPHA[i]}</text>`;
-                    // tick mark
-                    const ix = cx + 88 * Math.cos(angle);
-                    const iy = cy + 88 * Math.sin(angle);
-                    const ox2 = cx + 94 * Math.cos(angle);
-                    const oy2 = cy + 94 * Math.sin(angle);
-                    html += `<line x1="${ix}" y1="${iy}" x2="${ox2}" y2="${oy2}" stroke="#2a4a8a" stroke-width="1.5"/>`;
+                // Inject dynamic layout panels safely specifically if crossword processing is active
+                const injectionContainer = document.getElementById('dynamic-action-panel');
+                injectionContainer.innerHTML = ""; // Clear existing elements frame mappings structure updates
+                
+                if (dataStateSnapshot.viewType === "CW" && dataStateSnapshot.crosswordClues) {
+                    let crossHTML = `
+                        <div class="cw-grid">
+                            <div>
+                                <div class="cw-col-label" style="color:var(--jotun-navy);">Across</div>
+                                ${Object.entries(dataStateSnapshot.crosswordClues.across).map(([num, text]) => 
+                                    `<button class="cw-clue-btn" onclick="executeHintFetchFromServer('across_' + ${num})">${num}. Check Clue Hint</button>`
+                                ).join('')}
+                            </div>
+                            <div>
+                                <div class="cw-col-label" style="color:var(--jotun-red);">Down</div>
+                                ${Object.entries(dataStateSnapshot.crosswordClues.down).map(([num, text]) => 
+                                    `<button class="cw-clue-btn" onclick="executeHintFetchFromServer('down_' + ${num})">${num}. Check Clue Hint</button>`
+                                ).join('')}
+                            </div>
+                        </div>`;
+                    injectionContainer.innerHTML = crossHTML;
                 }
-                // pointer arrow at top
-                html += `<polygon points="130,6 125,18 135,18" fill="#F0A500"/>`;
-                outerSVG.innerHTML = html;
-            }
 
-            function drawInner() {
-                const cx = 90, cy = 90, r = 78, labelR = 62;
-                let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#0d1f45" stroke="#2a4070" stroke-width="2"/>
-                            <circle cx="${cx}" cy="${cy}" r="50" fill="#081530" stroke="#1a3060" stroke-width="1"/>`;
-                for (let i = 0; i < 26; i++) {
-                    const angle = (i * 360 / 26 - 90) * Math.PI / 180;
-                    const lx = cx + labelR * Math.cos(angle);
-                    const ly = cy + labelR * Math.sin(angle);
-                    html += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
-                        font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="11"
-                        fill="#e8dfc0">${ALPHA[i]}</text>`;
+                // If stage 6 processing is active and completed, turn off the control entry layout card completely
+                if (dataStateSnapshot.viewType === "FI" && dataStateSnapshot.isCompleted) {
+                    document.getElementById('submission-card-frame').innerHTML = `
+                        <div style="text-align:center; padding:10px; color:var(--jotun-navy); font-weight:700;">
+                            🎉 Mission Accomplished! Your unit has successfully completed all tracking parameters cleanly.
+                        </div>`;
                 }
-                // center label
-                html += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
-                    font-family="Barlow Condensed, sans-serif" font-size="11" font-weight="600"
-                    fill="#4a6090">CIPHER</text>`;
-                innerSVG.innerHTML = html;
+
+            } catch (err) {
+                showToast(err.message || "Failed synchronization with database networks cluster maps logging systems.", true);
+                localStorage.removeItem('jotun_hunt_token');
             }
-
-            function updateReadout() {
-                const step = 360 / 26;
-                keyShift = ((Math.round(innerRotation / step) % 26) + 26) % 26;
-                const keyLetter = ALPHA[keyShift];
-                document.getElementById('wheel-readout').textContent = `Key letter: ${keyLetter}`;
-                wheelEncode();
-                wheelDecode();
-            }
-
-            // Vigenère: cipher = (plain + keyShift) mod 26
-            window.wheelEncode = function() {
-                const inp = document.getElementById('wheel-plain-input');
-                const out = document.getElementById('wheel-cipher-output');
-                if (!inp || !out) return;
-                const ch = (inp.value || "").toUpperCase().replace(/[^A-Z]/g, "");
-                inp.value = ch;
-                if (!ch) { out.value = ""; return; }
-                const plainIdx = ALPHA.indexOf(ch);
-                out.value = ALPHA[(plainIdx + keyShift) % 26];
-            };
-
-            // Vigenère decode: plain = (cipher - keyShift) mod 26
-            window.wheelDecode = function() {
-                const inp = document.getElementById('wheel-cipher-input');
-                const out = document.getElementById('wheel-plain-output');
-                if (!inp || !out) return;
-                const ch = (inp.value || "").toUpperCase().replace(/[^A-Z]/g, "");
-                inp.value = ch;
-                if (!ch) { out.value = ""; return; }
-                const cipherIdx = ALPHA.indexOf(ch);
-                out.value = ALPHA[((cipherIdx - keyShift) % 26 + 26) % 26];
-            };
-
-            window.rotateWheel = function(steps) {
-                if (steps === -999) { innerRotation = 0; }
-                else { innerRotation += steps * (360 / 26); }
-                innerSVG.style.transition = "transform 0.15s ease";
-                innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
-                updateReadout();
-            };
-
-            // Drag to rotate inner wheel — mouse + touch support
-            const wrap = document.getElementById('wheel-svg-wrap');
-            let dragging = false, lastAngle = 0;
-
-            function getAngleFromEvent(clientX, clientY) {
-                const rect = wrap.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                return Math.atan2(clientY - cy, clientX - cx) * 180 / Math.PI;
-            }
-
-            function dragStart(clientX, clientY) {
-                dragging = true;
-                lastAngle = getAngleFromEvent(clientX, clientY);
-            }
-            function dragMove(clientX, clientY) {
-                if (!dragging) return;
-                const angle = getAngleFromEvent(clientX, clientY);
-                innerRotation += angle - lastAngle;
-                lastAngle = angle;
-                innerSVG.style.transition = "none";
-                innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
-                updateReadout();
-            }
-            function dragEnd() {
-                if (!dragging) return;
-                dragging = false;
-                const step = 360 / 26;
-                innerRotation = Math.round(innerRotation / step) * step;
-                innerSVG.style.transition = "transform 0.15s ease";
-                innerSVG.style.transform = `translate(-50%, -50%) rotate(${innerRotation}deg)`;
-                updateReadout();
-            }
-
-            wrap.addEventListener('mousedown', (e) => dragStart(e.clientX, e.clientY));
-            window.addEventListener('mousemove', (e) => dragMove(e.clientX, e.clientY));
-            window.addEventListener('mouseup', dragEnd);
-
-            wrap.addEventListener('touchstart', (e) => {
-                const t = e.touches[0];
-                dragStart(t.clientX, t.clientY);
-            }, { passive: true });
-            window.addEventListener('touchmove', (e) => {
-                if (!dragging) return;
-                const t = e.touches[0];
-                dragMove(t.clientX, t.clientY);
-            }, { passive: true });
-            window.addEventListener('touchend', dragEnd);
-
-            drawOuter();
-            drawInner();
-            updateReadout();
-
-            document.getElementById('action-modal').style.display = "flex";
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = "none"; }
-
-        function showSplash(text, duration) {
-            document.getElementById('splash-text').innerText = text;
-            document.getElementById('splash-screen').style.display = "flex";
-            setTimeout(() => { document.getElementById('splash-screen').style.display = "none"; }, duration);
-        }
-
-        let toastTimer;
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = 'toast' + (isError ? ' error' : '');
-            clearTimeout(toastTimer);
-            requestAnimationFrame(() => { t.classList.add('show'); });
-            toastTimer = setTimeout(() => { t.classList.remove('show'); }, 3500);
-        }
-
-        function updateHintButtonLabel(used, isFinale = false) {
-            const btn = document.getElementById('hint-btn-anchor');
-            if (!btn) return;
-            const remaining = 2 - used;
-            if (remaining <= 0) {
-                btn.innerText = "No hints remaining";
-                btn.disabled = true;
+        function updateHintButtonLabel(hintsUsedCountNumberValue) {
+            const labelAnchor = document.getElementById('hint-btn-anchor');
+            if (!labelAnchor) return;
+            const remainingBalancesCount = Math.max(0, 2 - hintsUsedCountNumberValue);
+            labelAnchor.innerText = `Hints (${remainingBalancesCount} Left)`;
+            if (remainingBalancesCount <= 0) {
+                labelAnchor.disabled = true;
+                labelAnchor.innerText = "No hints left";
             } else {
-                btn.innerText = `Request a Hint (${remaining} remaining)`;
-                btn.disabled = false;
+                // Keep default tracking states unless locked explicitly by a penalty countdown chain link
+                if (!activePenaltyInterval) labelAnchor.disabled = false;
             }
         }
 
-        // ── WINNER / FREEZE ──
-        function showVictory(teamName) {
-            gameFrozen = true;
-            document.getElementById('victory-team-name').innerText = teamName;
-            document.getElementById('victory-overlay').classList.add('active');
-            launchConfetti();
-        }
-
-        function showFreeze(winnerName) {
-            gameFrozen = true;
-            document.getElementById('freeze-title').innerText = `The hunt is over.`;
-            document.getElementById('freeze-subtitle').innerText = `${winnerName} has found the treasure first. The game has ended. Well played!`;
-            document.getElementById('freeze-overlay').classList.add('active');
-        }
-
-        // ── CONFETTI ──
-        function launchConfetti() {
-            const canvas = document.getElementById('confetti-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const COLORS = ['#F0A500','#C8102E','#002D72','#ffffff','#10B981','#a855f7'];
-            const pieces = Array.from({ length: 160 }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height - canvas.height,
-                w: Math.random() * 10 + 5,
-                h: Math.random() * 5 + 3,
-                color: COLORS[Math.floor(Math.random() * COLORS.length)],
-                angle: Math.random() * 360,
-                spin: (Math.random() - 0.5) * 4,
-                vx: (Math.random() - 0.5) * 3,
-                vy: Math.random() * 3 + 1.5
-            }));
-
-            function frame() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                pieces.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.angle += p.spin;
-                    if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
-                    ctx.save();
-                    ctx.translate(p.x + p.w / 2, p.y + p.h / 2);
-                    ctx.rotate(p.angle * Math.PI / 180);
-                    ctx.fillStyle = p.color;
-                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-                    ctx.restore();
-                });
-                requestAnimationFrame(frame);
+        function handlePenaltyCountdownState(expiryTimestampValueUnixMs) {
+            // Clear existing recursive interval countdown tasks if running
+            if (activePenaltyInterval) {
+                clearInterval(activePenaltyInterval);
+                activePenaltyInterval = null;
             }
-            frame();
+
+            const now = Date.now();
+            if (expiryTimestampValueUnixMs && expiryTimestampValueUnixMs > now) {
+                startPenaltyTimer(expiryTimestampValueUnixMs);
+            } else {
+                // Ensure UI assets resume default state layouts safely
+                const submitBtn = document.getElementById('submit-btn-anchor');
+                const hintBtn = document.getElementById('hint-btn-anchor');
+                const answerInput = document.getElementById('puzzle-answer-input');
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Code";
+                submitBtn.style.background = "var(--jotun-navy)";
+                answerInput.disabled = false;
+                
+                if (localStateCache && localStateCache.hintsUsed < 2) {
+                    hintBtn.disabled = false;
+                }
+            }
         }
-function OpenCrosswordHintSelectionPopup() {
-    const title = document.getElementById('action-modal-title');
-    const body = document.getElementById('action-modal-body');
-    
-    title.innerText = "Select Clue to Reveal Hint";
-    
-    body.innerHTML = `
-        <p class="desc-text" style="margin-bottom:12px;">Which specific clue does your team need assistance with?</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div>
-                <strong style="font-size:12px; color:var(--jotun-navy);">ACROSS</strong>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_3')">3</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_5')">5</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_6')">6</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('across_9')">9</button>
-            </div>
-            <div>
-                <strong style="font-size:12px; color:var(--jotun-red);">DOWN</strong>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_1')">1</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_2')">2</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_4')">4</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_7')">7</button>
-                <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_8')">8</button>
-            </div>
-        </div>`;
-    document.getElementById('action-modal').style.display = "flex";
-}
-        refreshViewEngine();
-    </script>
-</body>
-</html>
+
+        function startPenaltyTimer(expiryTimestampValueUnixMs) {
+            const submitBtn = document.getElementById('submit-btn-anchor');
+            const hintBtn = document.getElementById('hint-btn-anchor');
+            const answerInput = document.getElementById('puzzle-answer-input');
+
+            // Force lockdown on control elements immediately
+            submitBtn.disabled = true;
+            hintBtn.disabled = true;
+            answerInput.disabled = true;
+            submitBtn.style.background = "#94A3B8";
+
+            function runTick() {
+                const currentTime = Date.now();
+                const deltaSecondsRemaining = Math.ceil((expiryTimestampValueUnixMs - currentTime) / 1000);
+
+                if (deltaSecondsRemaining <= 0) {
+                    clearInterval(activePenaltyInterval);
+                    activePenaltyInterval = null;
+                    
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit Code";
+                    submitBtn.style.background = "var(--jotun-navy)";
+                    answerInput.disabled = false;
+                    
+                    if (localStateCache && localStateCache.hintsUsed < 2) {
+                        hintBtn.disabled = false;
+                    }
+                    showToast("Lockout lifted. You can try again!");
+                } else {
+                    submitBtn.innerText = `Locked (${deltaSecondsRemaining}s)`;
+                }
+            }
+
+            runTick(); // Trigger first frame evaluation instantly
+            activePenaltyInterval = setInterval(runTick, 1000);
+        }
+
+        async function processAnswerSubmission() {
+            const submitBtn = document.getElementById('submit-btn-anchor');
+            if (submitBtn && submitBtn.disabled) return;
+
+            const inputField = document.getElementById('puzzle-answer-input');
+            const rawValue = inputField.value;
+
+            if (!rawValue || rawValue.trim() ===
