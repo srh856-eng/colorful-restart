@@ -25,6 +25,7 @@ const db = admin.database();
 // ─────────────────────────────────────────────
 const TOTAL_STAGES = 6;
 const MAX_HINTS    = 2;
+const WRONG_ANSWER_PENALTY_MS = 30 * 1000;
 
 const PUZZLE_DATA = {
   CW: { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? What is the unscrambled word?", answer: "BEAUTIFUL" },
@@ -120,6 +121,17 @@ function normalise(str) {
   return (str || "").trim().toUpperCase();
 }
 
+function getPenaltyRemainingSeconds(state) {
+  const penaltyUntil = Number(state && state.penaltyUntil) || 0;
+  return Math.max(0, Math.ceil((penaltyUntil - Date.now()) / 1000));
+}
+
+function applyWrongAnswerPenalty(currentState) {
+  const now = Date.now();
+  const currentPenaltyUntil = Number(currentState && currentState.penaltyUntil) || 0;
+  return Math.max(now, currentPenaltyUntil) + WRONG_ANSWER_PENALTY_MS;
+}
+
 // ─────────────────────────────────────────────
 //  LETTER VAULT BUILDER
 //  Rebuilds the canonical 7-slot string from the
@@ -170,7 +182,8 @@ exports.getGameState = onRequest((req, res) => {
           letters:           "       ", // 7 empty slots
           completedQuests:   [],
           isCompleted:       false,
-          lastActive:        Date.now()
+          lastActive:        Date.now(),
+          penaltyUntil:      0
         };
         await teamRef.set(state);
       } else {
@@ -184,6 +197,8 @@ exports.getGameState = onRequest((req, res) => {
       const gameWon = !!winnerData;
       const thisTeamWon = gameWon && winnerData.token === token;
 
+      const penaltyRemainingSeconds = getPenaltyRemainingSeconds(state);
+
       const result = {
         teamName:      state.teamName,
         currentStage:  state.currentStage,
@@ -193,7 +208,9 @@ exports.getGameState = onRequest((req, res) => {
         totalStages:   TOTAL_STAGES,
         gameWon:       gameWon,
         winnerName:    winnerData ? winnerData.name : null,
-        thisTeamWon:   thisTeamWon
+        thisTeamWon:   thisTeamWon,
+        penaltyUntil:  state.penaltyUntil || 0,
+        penaltyRemainingSeconds
       };
 
       // ── PROGRESS MATRIX FOR THE 4 ACTIVE QUESTS ──
@@ -284,11 +301,31 @@ exports.submitStageAnswer = onRequest((req, res) => {
       if (!state) return res.status(404).json({ error: { message: "State not found." } });
       if (state.isCompleted) return res.status(409).json({ error: { message: "Hunt completed." } });
 
+      const penaltyRemainingSeconds = getPenaltyRemainingSeconds(state);
+      if (penaltyRemainingSeconds > 0) {
+        return res.status(200).json({
+          result: {
+            correct: false,
+            penaltyActive: true,
+            penaltyRemainingSeconds
+          }
+        });
+      }
+
       const puzzle = getPuzzleForStage(teamInfo.cohort, state.currentStage);
       if (!puzzle) return res.status(500).json({ error: { message: "Puzzle configuration error." } });
 
       if (normalise(answer) !== puzzle.answer) {
-        return res.status(200).json({ result: { correct: false } });
+        const penaltyUntil = applyWrongAnswerPenalty(state);
+        await teamRef.update({ penaltyUntil, lastActive: Date.now() });
+        return res.status(200).json({
+          result: {
+            correct: false,
+            penaltyApplied: true,
+            penaltyUntil,
+            penaltyRemainingSeconds: Math.ceil((penaltyUntil - Date.now()) / 1000)
+          }
+        });
       }
 
       // Record this quest as completed and rebuild vault letters canonically
@@ -303,7 +340,8 @@ exports.submitStageAnswer = onRequest((req, res) => {
         currentStage:    nextStage,
         letters:         updatedLetters,
         completedQuests: completedQuests,
-        lastActive:      Date.now()
+        lastActive:      Date.now(),
+        penaltyUntil:    0
       });
 
       const ANIMATIONS = { CW: "Vibrant", BP: "Flawless Finish", MR: "True Colour", LR: "Premium Coat", FR: "Pure Pigment" };
@@ -443,8 +481,28 @@ exports.submitFinale = onRequest((req, res) => {
       if (!state) return res.status(404).json({ error: { message: "State not found." } });
       if (state.isCompleted) return res.status(200).json({ result: { correct: true, alreadyCompleted: true } });
 
+      const penaltyRemainingSeconds = getPenaltyRemainingSeconds(state);
+      if (penaltyRemainingSeconds > 0) {
+        return res.status(200).json({
+          result: {
+            correct: false,
+            penaltyActive: true,
+            penaltyRemainingSeconds
+          }
+        });
+      }
+
       if (normalise(finalWord) !== "CENTURY") {
-        return res.status(200).json({ result: { correct: false } });
+        const penaltyUntil = applyWrongAnswerPenalty(state);
+        await teamRef.update({ penaltyUntil, lastActive: Date.now() });
+        return res.status(200).json({
+          result: {
+            correct: false,
+            penaltyApplied: true,
+            penaltyUntil,
+            penaltyRemainingSeconds: Math.ceil((penaltyUntil - Date.now()) / 1000)
+          }
+        });
       }
 
       // Check atomically whether a winner already exists
@@ -453,7 +511,7 @@ exports.submitFinale = onRequest((req, res) => {
 
       if (winnerSnap.exists()) {
         // Someone else already won — mark this team complete but don't overwrite winner
-        await teamRef.update({ isCompleted: true, lastActive: Date.now() });
+        await teamRef.update({ isCompleted: true, lastActive: Date.now(), penaltyUntil: 0 });
         return res.status(200).json({ result: { correct: true, alreadyCompleted: false, winnerExists: true } });
       }
 
@@ -466,7 +524,8 @@ exports.submitFinale = onRequest((req, res) => {
 
       await teamRef.update({
         isCompleted: true,
-        lastActive:  Date.now()
+        lastActive:  Date.now(),
+        penaltyUntil: 0
       });
 
       return res.status(200).json({ result: { correct: true, isWinner: true } });

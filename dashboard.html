@@ -121,17 +121,183 @@
             z-index: 4999;
             pointer-events: none;
         }
+
+
+        /* ── JOTUN LIVE RACE DASHBOARD REFRESH ── */
+        body {
+            padding: 34px;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(200,16,46,0.18), transparent 26%),
+                radial-gradient(circle at 88% 16%, rgba(240,165,0,0.23), transparent 26%),
+                radial-gradient(circle at 50% 100%, rgba(0,45,114,0.20), transparent 34%),
+                linear-gradient(135deg, #f7f9ff 0%, #edf3ff 50%, #fff8ed 100%);
+            overflow-x: hidden;
+        }
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 280px;
+            height: 280px;
+            border-radius: 42% 58% 67% 33% / 43% 37% 63% 57%;
+            pointer-events: none;
+            opacity: 0.13;
+            z-index: -1;
+            animation: dashBlob 14s ease-in-out infinite;
+        }
+        body::before { background: var(--jotun-navy); left: -100px; top: 160px; }
+        body::after { background: var(--jotun-red); right: -115px; bottom: 90px; animation-delay: -6s; }
+        @keyframes dashBlob {
+            0%,100% { transform: translate3d(0,0,0) scale(1) rotate(0deg); }
+            50% { transform: translate3d(24px,-18px,0) scale(1.08) rotate(12deg); }
+        }
+        header {
+            border: 0;
+            padding: 28px 30px;
+            border-radius: 28px;
+            color: white;
+            background:
+                radial-gradient(circle at 90% 0%, rgba(240,165,0,0.48), transparent 28%),
+                radial-gradient(circle at 0% 100%, rgba(200,16,46,0.34), transparent 32%),
+                linear-gradient(135deg, #001A45, #002D72 58%, #00408A);
+            box-shadow: 0 22px 60px rgba(0,45,114,0.20);
+        }
+        h1 { color: white; font-size: 44px; letter-spacing: 1px; }
+        header::after {
+            content: 'LIVE RACE CONTROL';
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            color: rgba(255,255,255,0.66);
+        }
+        .stats-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+        .stat-card {
+            background: rgba(255,255,255,0.84);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.75);
+            border-radius: 24px;
+            box-shadow: 0 16px 44px rgba(0,45,114,0.11);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            right: -25px;
+            top: -28px;
+            border-radius: 50%;
+            background: rgba(240,165,0,0.18);
+        }
+        .stat-card p { font-family: 'Barlow Condensed', sans-serif; font-size: 44px; }
+        .table-container {
+            border-radius: 28px;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.72);
+            box-shadow: 0 24px 70px rgba(0,45,114,0.14);
+            overflow-x: auto;
+        }
+        table { min-width: 860px; }
+        th {
+            background: linear-gradient(135deg, #001A45, #002D72);
+            padding: 20px 22px;
+        }
+        td { padding: 20px 22px; font-size: 17px; }
+        tr { transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease; }
+        tbody tr:hover { background: rgba(0,45,114,0.035); transform: scale(1.003); }
+        .rank-wrap { display:flex; align-items:center; gap:9px; }
+        .rank-num {
+            width: 36px;
+            height: 36px;
+            font-size: 14px;
+            box-shadow: inset 0 0 0 1px rgba(0,45,114,0.08);
+        }
+        .rank-delta { font-size: 12px; font-weight: 900; min-width: 24px; }
+        .rank-delta.up { color: var(--jotun-green); }
+        .rank-delta.down { color: var(--jotun-red); }
+        .rank-delta.same { color: var(--text-sub); }
+        .team-line { display:flex; align-items:center; gap:10px; }
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--jotun-green);
+            box-shadow: 0 0 0 0 rgba(16,185,129,0.45);
+            animation: livePulse 1.6s ease-in-out infinite;
+            flex: 0 0 auto;
+        }
+        .live-dot.idle { background: #CBD5E1; animation: none; box-shadow: none; }
+        @keyframes livePulse {
+            0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.45); }
+            70% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        }
+        .progress-wrapper { max-width: 420px; flex-direction: column; align-items: stretch; gap: 8px; }
+        .progress-topline { display:flex; align-items:center; gap:12px; }
+        .progress-track {
+            height: 13px;
+            border-radius: 100px;
+            background: #E5ECF8;
+            box-shadow: inset 0 1px 3px rgba(0,45,114,0.12);
+        }
+        .progress-bar {
+            border-radius: 100px;
+            background: linear-gradient(90deg, #C8102E, #F0A500, #002D72);
+            box-shadow: 0 0 18px rgba(0,45,114,0.18);
+        }
+        .progress-bar.finished { background: linear-gradient(90deg, #10B981, #F0A500); }
+        .race-track {
+            position: relative;
+            height: 18px;
+            border-radius: 100px;
+            background: repeating-linear-gradient(90deg, rgba(0,45,114,0.08) 0 10px, rgba(0,45,114,0.03) 10px 20px);
+            overflow: hidden;
+        }
+        .race-marker {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 15px;
+            transition: left 0.45s ease;
+        }
+        .row-completed { background: rgba(16,185,129,0.055); }
+        .row-greyed { opacity: 0.48; filter: grayscale(30%); }
+        .time-cell { font-size: 14px; font-weight: 700; }
+        .winner-takeover {
+            background:
+                radial-gradient(circle at 26% 22%, rgba(240,165,0,0.42), transparent 28%),
+                radial-gradient(circle at 76% 72%, rgba(200,16,46,0.45), transparent 30%),
+                linear-gradient(135deg, rgba(0,26,69,0.94), rgba(0,45,114,0.90));
+        }
+        .winner-crown { font-size: 112px; }
+        .winner-eyebrow { color: #fff; letter-spacing: 4px; }
+        .winner-name { color: var(--jotun-gold); font-size: 82px; text-shadow: 0 0 44px rgba(240,165,0,0.35); }
+        .winner-subtitle { color: rgba(255,255,255,0.78); font-weight: 700; }
+        @media (min-width: 1200px) {
+            body.projector-mode td { font-size: 19px; }
+            body.projector-mode th { font-size: 15px; }
+            body.projector-mode .stat-card p { font-size: 52px; }
+        }
+        @media (max-width: 760px) {
+            body { padding: 16px; }
+            header { padding: 22px; align-items:flex-start; flex-direction: column; gap: 8px; }
+            h1 { font-size: 34px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .stat-card { padding: 16px; }
+        }
+
     </style>
 </head>
-<body>
+<body class="projector-mode">
 
     <canvas id="winner-confetti-canvas" class="winner-confetti-canvas"></canvas>
 
     <div class="winner-takeover" id="winner-takeover">
         <div class="winner-crown">👑</div>
-        <div class="winner-eyebrow">Hunt Champion</div>
+        <div class="winner-eyebrow">Treasure Found</div>
         <div class="winner-name" id="winner-name-display"></div>
-        <div class="winner-subtitle">has claimed the treasure</div>
+        <div class="winner-subtitle">The Color of Victory</div>
     </div>
 
     <div class="dashboard-content" id="dashboard-content">
@@ -213,6 +379,16 @@
         const db = firebase.database();
 
         let winnerShown = false;
+        let previousRanks = {};
+        let currentWinnerToken = null;
+        let progressFirstSeen = {};
+
+
+        function rememberProgressPoint(token, progressPct) {
+            const key = `${token}:${progressPct}`;
+            if (!progressFirstSeen[key]) progressFirstSeen[key] = Date.now();
+            return progressFirstSeen[key];
+        }
 
         function getRankClass(idx) {
             if (idx === 0) return 'gold';
@@ -249,6 +425,7 @@
             const content = document.getElementById('dashboard-content');
 
             if (winnerData && winnerData.name) {
+                currentWinnerToken = winnerData.token || null;
                 document.getElementById('winner-name-display').innerText = winnerData.name;
                 takeover.classList.add('active');
                 content.classList.add('faded');
@@ -260,6 +437,7 @@
                 takeover.classList.remove('active');
                 content.classList.remove('faded');
                 winnerShown = false;
+                currentWinnerToken = null;
             }
         });
 
@@ -289,6 +467,7 @@
                             isCompleted: match.isCompleted || false,
                             lastActive: match.lastActive || null,
                             progressPct: pct,
+                            progressFirstSeen: rememberProgressPoint(token, pct),
                             displayLabel: dynamicLabel
                         };
                     } else {
@@ -301,6 +480,7 @@
                             isCompleted: false,
                             lastActive: null,
                             progressPct: 0,
+                            progressFirstSeen: rememberProgressPoint(token, 0),
                             displayLabel: `Team ${index + 1} (Not Connected)`
                         };
                     }
@@ -311,7 +491,7 @@
                     if (b.progressPct !== a.progressPct) {
                         return b.progressPct - a.progressPct;
                     }
-                    return (b.lastActive || 0) - (a.lastActive || 0);
+                    return (a.progressFirstSeen || Infinity) - (b.progressFirstSeen || Infinity);
                 });
 
                 updateGlobalAnalytics(fullLineup);
@@ -334,25 +514,49 @@
 
                     const isDoneClass = team.isCompleted ? "finished" : "";
 
+                    const oldRank = previousRanks[team.token];
+                    let deltaClass = "same";
+                    let deltaText = "—";
+                    if (oldRank) {
+                        const change = oldRank - (idx + 1);
+                        if (change > 0) { deltaClass = "up"; deltaText = `▲${change}`; }
+                        else if (change < 0) { deltaClass = "down"; deltaText = `▼${Math.abs(change)}`; }
+                    }
+                    const recentlyActive = team.lastActive && (Date.now() - team.lastActive) < 60000;
+                    const markerLeft = Math.max(2, Math.min(98, team.progressPct));
+                    const winnerAttr = currentWinnerToken && currentWinnerToken === team.token ? ' data-winner="true"' : '';
+
                     return `
-                        <tr class="${rowModifier}">
+                        <tr class="${rowModifier}" data-team-token="${team.token}"${winnerAttr}>
                             <td>
-                                <div class="rank-num ${rankClass}">${idx + 1}</div>
+                                <div class="rank-wrap">
+                                    <div class="rank-num ${rankClass}">${idx + 1}</div>
+                                    <span class="rank-delta ${deltaClass}">${deltaText}</span>
+                                </div>
                             </td>
                             <td>
-                                <span class="team-name">${team.displayLabel}</span>
+                                <div class="team-line"><span class="live-dot ${recentlyActive ? '' : 'idle'}"></span><span class="team-name">${team.displayLabel}</span></div>
                             </td>
                             <td>
                                 <div class="progress-wrapper">
-                                    <div class="progress-track">
-                                        <div class="progress-bar ${isDoneClass}" style="width: ${team.progressPct}%;"></div>
+                                    <div class="progress-topline">
+                                        <div class="progress-track">
+                                            <div class="progress-bar ${isDoneClass}" style="width: ${team.progressPct}%;"></div>
+                                        </div>
+                                        <div class="progress-text">${team.progressPct}%</div>
                                     </div>
-                                    <div class="progress-text">${team.progressPct}%</div>
+                                    <div class="race-track"><span class="race-marker" style="left:${markerLeft}%">🎨</span></div>
                                 </div>
                             </td>
                             <td class="time-cell">${timeStr}</td>
                         </tr>`;
                 }).join('');
+
+                previousRanks = Object.fromEntries(fullLineup.map((team, idx) => [team.token, idx + 1]));
+                if (currentWinnerToken) {
+                    const winnerRow = document.querySelector(`tr[data-team-token="${currentWinnerToken}"]`);
+                    if (winnerRow) winnerRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
 
             } catch (err) {
                 console.error("Dashboard metric rendering engine crash:", err);
@@ -361,19 +565,13 @@
 
         function updateGlobalAnalytics(lineup) {
             const total = 20;
-            const done = lineup.filter(t => t.isCompleted).length;
-            const active = lineup.filter(t => t.isRegistered && !t.isCompleted).length;
             const totalSum = lineup.reduce((sum, t) => sum + t.progressPct, 0);
             const avgProgress = (totalSum / total).toFixed(0);
 
             const totalEl = document.getElementById('stat-total');
-            const doneEl = document.getElementById('stat-done');
-            const activeEl = document.getElementById('stat-active');
             const avgEl = document.getElementById('stat-avg');
 
             if (totalEl) totalEl.innerText = total;
-            if (doneEl) doneEl.innerText = done;
-            if (activeEl) activeEl.innerText = active;
             if (avgEl) avgEl.innerText = `${avgProgress}%`;
         }
 
@@ -385,7 +583,7 @@
             canvas.height = window.innerHeight;
 
             const COLORS = ['#F0A500','#C8102E','#002D72','#10B981','#a855f7','#FFDF00'];
-            const pieces = Array.from({ length: 180 }, () => ({
+            const pieces = Array.from({ length: 260 }, () => ({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height - canvas.height,
                 w: Math.random() * 10 + 5,
