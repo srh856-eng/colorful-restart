@@ -479,6 +479,9 @@ exports.submitFinale = onRequest((req, res) => {
       const state    = snapshot.val();
 
       if (!state) return res.status(404).json({ error: { message: "State not found." } });
+      if (state.currentStage !== TOTAL_STAGES) {
+        return res.status(403).json({ error: { message: "Final vault is locked." } });
+      }
       if (state.isCompleted) return res.status(200).json({ result: { correct: true, alreadyCompleted: true } });
 
       const penaltyRemainingSeconds = getPenaltyRemainingSeconds(state);

@@ -751,117 +751,176 @@
        /* ── ROT13 LOOKUP TABLE GRID ── */
         .rot13-container {
             max-width: 100%;
-            margin: 8px 0 4px;
-            background:
-                radial-gradient(circle at 50% 0%, rgba(255, 223, 118, 0.20), transparent 48%),
-                linear-gradient(145deg, rgba(50, 25, 7, 0.92), rgba(9, 10, 18, 0.92));
-            border: 1.6px solid rgba(255, 216, 91, 0.72);
+            margin: 10px 0 4px;
+            background: linear-gradient(145deg, #fff8dc 0%, #ffe199 52%, #f6b332 100%);
+            border: 2px solid #6b3b05;
             border-radius: 18px;
-            padding: 16px;
+            padding: 14px;
             text-align: center;
-            box-shadow: inset 0 0 36px rgba(255, 174, 26, 0.12), 0 12px 34px rgba(0,0,0,0.28);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35), inset 0 2px 0 rgba(255,255,255,0.75);
         }
         .rot13-container h3 {
             font-family: 'Barlow Condensed', sans-serif;
-            font-size: 21px;
+            font-size: 22px;
             font-weight: 900;
-            color: #fff3b6;
-            margin-bottom: 7px;
-            letter-spacing: 1.2px;
+            color: #2a1600;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            text-shadow: 0 0 18px rgba(255, 208, 77, 0.52);
-        }
-        .rot13-help {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #ffe9a7;
-            margin-bottom: 13px;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.65);
         }
         .rot13-table {
             width: 100%;
             overflow-x: auto;
-            padding-bottom: 3px;
+            padding: 2px 0 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .rot13-table-inner {
+            min-width: 520px;
         }
         .rot13-row {
             display: grid;
-            grid-template-columns: repeat(13, minmax(30px, 1fr));
-            min-width: 390px;
-            border-radius: 11px;
+            grid-template-columns: repeat(13, 1fr);
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid rgba(255, 231, 128, 0.34);
+            border: 2px solid rgba(42, 22, 0, 0.42);
             font-family: 'Barlow Condensed', monospace;
             font-weight: 900;
-            font-size: 19px;
-            letter-spacing: 0.7px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+            font-size: 24px;
+            letter-spacing: 0.5px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
         }
-        .rot13-row + .rot13-row { margin-top: 7px; }
+        .rot13-row + .rot13-row { margin-top: 8px; }
         .rot13-cell {
-            padding: 10px 0;
+            padding: 12px 0;
             text-align: center;
-            border-right: 1px solid rgba(255,255,255,0.16);
+            border-right: 1px solid rgba(255,255,255,0.30);
         }
         .rot13-cell:last-child { border-right: none; }
         .top-row {
-            background: linear-gradient(180deg, #fff4bd 0%, #f6b82c 100%);
-            color: #241403;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+            background: linear-gradient(180deg, #ffffff 0%, #fff2bf 100%);
+            color: #111827;
+            text-shadow: none;
         }
         .bottom-row {
-            background: linear-gradient(180deg, #2b66d9 0%, #002d72 100%);
+            background: linear-gradient(180deg, #082c6d 0%, #001a45 100%);
             color: #ffffff;
-            text-shadow: 0 1px 8px rgba(0,0,0,0.42);
-        }
-        .rot13-pair-labels {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 11px;
-            font-size: 12px;
-            color: #fff0ad;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 800;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.75);
         }
         .rot13-arrow-row {
-            color: #ffe177;
-            font-size: 13px;
-            letter-spacing: 0.36rem;
-            padding-left: 0.25rem;
-            margin: 5px 0;
+            display: grid;
+            grid-template-columns: repeat(13, 1fr);
+            color: #2a1600;
+            font-size: 17px;
+            font-weight: 900;
+            margin: 7px 0;
             user-select: none;
             white-space: nowrap;
-            overflow: hidden;
-            text-shadow: 0 0 10px rgba(255, 214, 80, 0.58);
         }
-        .finale-mini-steps {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 9px;
-        }
-        .finale-step {
-            background: linear-gradient(145deg, rgba(255, 230, 130, 0.14), rgba(255,255,255,0.05));
-            border: 1px solid rgba(255, 222, 102, 0.32);
-            border-radius: 13px;
-            padding: 11px;
-            font-size: 12.5px;
-            line-height: 1.5;
-            color: #fff0bd;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
-        }
-        .finale-step strong {
-            display: block;
-            color: #ffe070;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-size: 16px;
-            letter-spacing: 0.5px;
-            margin-bottom: 3px;
-            text-shadow: 0 0 12px rgba(255, 214, 80, 0.35);
+        .rot13-scroll-note {
+            display: none;
+            margin-top: 8px;
+            color: #3b2104;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
         }
         @media (max-width: 520px) {
-            .finale-mini-steps { grid-template-columns: 1fr; }
             .finale-heading { font-size: 30px; }
-            .rot13-row { min-width: 364px; font-size: 18px; }
+            .rot13-container { padding: 12px; }
+            .rot13-table-inner { min-width: 560px; }
+            .rot13-row { font-size: 23px; }
+            .rot13-scroll-note { display: block; }
+        }
+
+
+        /* ── VAULT DECODER MODAL — PHONE-FRIENDLY ROT13 ── */
+        .vault-decoder-card {
+            background:
+                radial-gradient(circle at 50% -20%, rgba(255, 215, 92, 0.24), transparent 35%),
+                linear-gradient(160deg, #1A1408 0%, #2b1a08 48%, #0c0904 100%);
+            border: 2px solid #D4AF37;
+            border-radius: 18px;
+            padding: 16px 12px 18px;
+            box-shadow: inset 0 0 28px rgba(255, 215, 0, 0.10), 0 16px 36px rgba(0,0,0,0.28);
+            text-align: center;
+            width: 100%;
+        }
+        .vault-decoder-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: #FFE89A;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            text-shadow: 0 0 18px rgba(255, 216, 82, 0.38);
+        }
+        .vault-map-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin: 10px auto 16px;
+            max-width: 420px;
+        }
+        .vault-map-row {
+            display: grid;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+        }
+        .vault-map-row.seven { grid-template-columns: repeat(7, minmax(30px, 1fr)); }
+        .vault-map-row.six { grid-template-columns: repeat(6, minmax(30px, 1fr)); max-width: 360px; margin-left: auto; margin-right: auto; }
+        .vault-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #fff4b8 0%, #FFD700 46%, #b87509 100%);
+            color: #1a1003;
+            border: 1.5px solid rgba(255, 244, 194, 0.88);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            box-shadow: inset 0 2px 0 rgba(255,255,255,0.58), 0 8px 18px rgba(0,0,0,0.20);
+        }
+        .vault-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 24px;
+            color: #FFF4C2;
+            font-size: 22px;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 0 12px rgba(255, 244, 194, 0.55);
+        }
+        .decoder-modal .modal-box {
+            max-width: 520px;
+            border: 1.5px solid rgba(212,175,55,0.70);
+            background: #1A1408;
+        }
+        .decoder-modal .modal-header {
+            background: linear-gradient(135deg, #3a1d07, #8b5a12 52%, #1A1408);
+            border-bottom: 1px solid rgba(255,232,154,0.30);
+        }
+        .decoder-modal .modal-title { color: #FFE89A; }
+        .decoder-modal .modal-body { background: #1A1408; }
+        .decoder-modal .btn-ghost {
+            background: linear-gradient(135deg, #FFE27B, #D89A15);
+            color: #1A1003;
+            border: 1px solid rgba(255,244,194,0.75);
+            font-weight: 900;
+        }
+        @media (max-width: 520px) {
+            .decoder-modal { padding: 12px; }
+            .decoder-modal .modal-box { max-width: none; width: 100%; }
+            .vault-decoder-card { padding: 14px 9px 16px; }
+            .vault-decoder-title { font-size: 25px; }
+            .vault-map-row { gap: 4px; }
+            .vault-letter { min-height: 35px; font-size: 21px; border-radius: 9px; }
+            .vault-arrow { min-height: 20px; font-size: 18px; }
         }
 
 
@@ -1112,7 +1171,7 @@
             <div id="action-modal-body">
                 <!-- The table generation interface framework script injects here dynamically -->
             </div>
-            <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close Window</button>
+            <button class="btn btn-ghost" onclick="closeModal('action-modal')">Close</button>
         </div>
     </div>
 </div>
@@ -1346,35 +1405,17 @@
                 <div class="finale-cipher-bg" aria-hidden="true">${bgText}</div>
                 <div class="finale-header-band">
                     <div class="finale-eyebrow">Final Stage · The Vault</div>
-                    <div class="finale-heading">The Hidden Treasure Room</div>
+                    <div class="finale-heading">🏆 THE HIDDEN TREASURE ROOM</div>
                 </div>
                 <div class="finale-body">
-                    <p class="finale-desc">You've collected all the letters. Unscramble them, then use the ROT13 table below to decode the final word.</p>
-                    <p class="finale-key-phrase">The key is hidden in the colour shift.</p>
+                    <p class="finale-desc">You've collected all the vault letters. Unscramble them, then use the decoder only if your team needs the ROT13 letter swap.</p>
                     <div class="letter-pile-container" id="letter-pile"></div>
-                    <div class="finale-mini-steps">
-                        <div class="finale-step"><strong>Step 1</strong>Find each letter in either row.</div>
-                        <div class="finale-step"><strong>Step 2</strong>Swap it with the letter directly above or below.</div>
-                    </div>
-                    <div class="rot13-container" aria-label="ROT13 cipher table">
-                        <h3>ROT13 Colour Shift Table</h3>
-                        <p class="rot13-help">Top letters convert to bottom letters. Bottom letters convert back to top letters.</p>
-                        <div class="rot13-table">
-                            <div class="rot13-row top-row">
-                                ${"ABCDEFGHIJKLM".split("").map(ch => `<span class="rot13-cell">${ch}</span>`).join("")}
-                            </div>
-                            <div class="rot13-arrow-row">↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓</div>
-                            <div class="rot13-row bottom-row">
-                                ${"NOPQRSTUVWXYZ".split("").map(ch => `<span class="rot13-cell">${ch}</span>`).join("")}
-                            </div>
-                        </div>
-                        <div class="rot13-pair-labels"><span>A ↔ N</span><span>M ↔ Z</span></div>
-                    </div>
+                    <button class="btn btn-finale-accent" onclick="openVaultDecoder()">🗝️ VAULT DECODER</button>
                     <div class="finale-divider"></div>
                     <label class="prompt-label finale-prompt-label">Enter the Final Word</label>
                     <input type="text" id="answer-input" class="input-box finale-input" placeholder="Enter decoded word" autocomplete="off">
                     <div class="penalty-panel" id="penalty-panel"><span>Wrong answer penalty active</span><strong class="penalty-count" id="penalty-count">00:30</strong></div>
-                    <button class="btn btn-finale-primary" id="answer-submit-btn" onclick="triggerFinaleCheck()">Submit Final Answer</button>
+                    <button class="btn btn-finale-primary" id="answer-submit-btn" onclick="triggerFinaleCheck()">🗝️ UNLOCK THE VAULT</button>
                     <button class="btn btn-finale-ghost" id="hint-btn-anchor" onclick="triggerHintRequest()">Request a Hint</button>
                 </div>`;
 
@@ -1770,7 +1811,45 @@ async function executeHintFetchFromServer(selectionParameter) {
             document.getElementById('action-modal').style.display = "flex";
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+        function openVaultDecoder() {
+            const modal = document.getElementById('action-modal');
+            const title = document.getElementById('action-modal-title');
+            const body = document.getElementById('action-modal-body');
+            title.innerText = "🗝️ VAULT DECODER";
+            modal.classList.add('decoder-modal');
+            body.innerHTML = `
+                <div class="vault-decoder-card" aria-label="ROT13 vault decoder">
+                    <div class="vault-decoder-title">VAULT DECODER</div>
+
+                    <div class="vault-map-block">
+                        <div class="vault-map-row seven">
+                            ${"ABCDEFG".split("").map(ch => `<span class="vault-letter">${ch}</span>`).join("")}
+                        </div>
+                        <div class="vault-map-row seven">
+                            ${Array(7).fill("↕").map(ch => `<span class="vault-arrow">${ch}</span>`).join("")}
+                        </div>
+                        <div class="vault-map-row seven">
+                            ${"NOPQRST".split("").map(ch => `<span class="vault-letter">${ch}</span>`).join("")}
+                        </div>
+                    </div>
+
+                    <div class="vault-map-block">
+                        <div class="vault-map-row six">
+                            ${"HIJKLM".split("").map(ch => `<span class="vault-letter">${ch}</span>`).join("")}
+                        </div>
+                        <div class="vault-map-row six">
+                            ${Array(6).fill("↕").map(ch => `<span class="vault-arrow">${ch}</span>`).join("")}
+                        </div>
+                        <div class="vault-map-row six">
+                            ${"UVWXYZ".split("").map(ch => `<span class="vault-letter">${ch}</span>`).join("")}
+                        </div>
+                    </div>
+                </div>`;
+            modal.style.display = "flex";
+        }
+
+        function closeModal(id) { const modal = document.getElementById(id); modal.style.display = "none"; if (id === "action-modal") modal.classList.remove("decoder-modal"); }
 
         function showSplash(text, duration) {
             document.getElementById('splash-text').innerText = text;
