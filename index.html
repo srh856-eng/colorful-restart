@@ -692,63 +692,105 @@
        /* ── ROT13 LOOKUP TABLE GRID ── */
         .rot13-container {
             max-width: 100%;
-            margin: 8px 0;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            margin: 8px 0 4px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(240,165,0,0.08));
+            border: 1px solid rgba(240,165,0,0.25);
+            border-radius: 16px;
             padding: 14px;
             text-align: center;
+            box-shadow: inset 0 0 28px rgba(240,165,0,0.05);
         }
         .rot13-container h3 {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--jotun-navy);
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #e8dfc0;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
+        .rot13-help {
+            font-size: 12px;
+            line-height: 1.55;
+            color: rgba(232,223,192,0.68);
+            margin-bottom: 12px;
+        }
         .rot13-table {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: 'Barlow Condensed', monospace;
-            font-weight: 700;
-            font-size: 16px;
             width: 100%;
             overflow-x: auto;
+            padding-bottom: 2px;
         }
         .rot13-row {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 6px;
+            display: grid;
+            grid-template-columns: repeat(13, minmax(28px, 1fr));
+            min-width: 390px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+            font-family: 'Barlow Condensed', monospace;
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: 0.5px;
         }
+        .rot13-row + .rot13-row { margin-top: 6px; }
         .rot13-cell {
-            flex: 1;
-            padding: 8px 0;
+            padding: 9px 0;
             text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.08);
         }
-        .rot13-cell:not(:last-child) {
-            border-right: 1px solid var(--surface-2);
-        }
+        .rot13-cell:last-child { border-right: none; }
         .top-row {
-            background-color: rgba(0, 45, 114, 0.05);
-            color: var(--jotun-navy);
+            background: rgba(0,45,114,0.55);
+            color: #b8d5ff;
         }
         .bottom-row {
-            background-color: rgba(200, 16, 46, 0.04);
-            color: var(--jotun-red);
+            background: rgba(200,16,46,0.20);
+            color: #ffd7a8;
         }
-        .rot13-arrows {
-            letter-spacing: 0.52rem;
-            padding-left: 0.3rem;
-            color: var(--text-secondary);
-            margin: 4px 0;
+        .rot13-pair-labels {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 11px;
+            color: rgba(232,223,192,0.55);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .rot13-arrow-row {
+            color: rgba(240,165,0,0.75);
             font-size: 12px;
+            letter-spacing: 0.36rem;
+            padding-left: 0.25rem;
+            margin: 4px 0;
             user-select: none;
-        
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .finale-mini-steps {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .finale-step {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 12px;
+            line-height: 1.45;
+            color: rgba(232,223,192,0.72);
+        }
+        .finale-step strong {
+            display: block;
+            color: var(--jotun-gold);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 15px;
+            letter-spacing: 0.4px;
+            margin-bottom: 3px;
+        }
+        @media (max-width: 520px) {
+            .finale-mini-steps { grid-template-columns: 1fr; }
         }
 
 
@@ -1217,7 +1259,7 @@
         function renderFinale(data, viewport) {
             viewport.className = "main-card finale-card";
 
-            // Generate cipher background text — repeating Vigenère alphabet
+            // Generate cipher background text — repeating ROT13 alphabet haze
             const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             let bgText = "";
             for (let row = 0; row < 24; row++) {
@@ -1236,11 +1278,27 @@
                     <div class="finale-heading">The Hidden Treasure Room</div>
                 </div>
                 <div class="finale-body">
-                    <p class="finale-desc">You've collected all the letters. Unscramble them and decode the final word using the Vigenère cipher.</p>
-                    <p class="finale-key-phrase">The key is to protect.</p>
+                    <p class="finale-desc">You've collected all the letters. Unscramble them, then use the ROT13 table below to decode the final word.</p>
+                    <p class="finale-key-phrase">The key is hidden in the colour shift.</p>
                     <div class="letter-pile-container" id="letter-pile"></div>
-                    <div class="finale-divider"></div>
-                    <button class="btn btn-finale-accent" onclick="openVigenereWheel()">Open Vigenère Cipher Wheel</button>
+                    <div class="finale-mini-steps">
+                        <div class="finale-step"><strong>Step 1</strong>Find each letter in either row.</div>
+                        <div class="finale-step"><strong>Step 2</strong>Swap it with the letter directly above or below.</div>
+                    </div>
+                    <div class="rot13-container" aria-label="ROT13 cipher table">
+                        <h3>ROT13 Colour Shift Table</h3>
+                        <p class="rot13-help">Top letters convert to bottom letters. Bottom letters convert back to top letters.</p>
+                        <div class="rot13-table">
+                            <div class="rot13-row top-row">
+                                ${"ABCDEFGHIJKLM".split("").map(ch => `<span class="rot13-cell">${ch}</span>`).join("")}
+                            </div>
+                            <div class="rot13-arrow-row">↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓</div>
+                            <div class="rot13-row bottom-row">
+                                ${"NOPQRSTUVWXYZ".split("").map(ch => `<span class="rot13-cell">${ch}</span>`).join("")}
+                            </div>
+                        </div>
+                        <div class="rot13-pair-labels"><span>A ↔ N</span><span>M ↔ Z</span></div>
+                    </div>
                     <div class="finale-divider"></div>
                     <label class="prompt-label finale-prompt-label">Enter the Final Word</label>
                     <input type="text" id="answer-input" class="input-box finale-input" placeholder="Enter decoded word" autocomplete="off">
