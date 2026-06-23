@@ -1364,7 +1364,7 @@
                 actionHTML = '';
           } else if (data.viewType === "MR") {
                  actionHTML = `
-           <button class="btn btn-accent" onclick="openMRPuzzleClues()">
+           <button class="btn btn-accent" onclick="Clues()">
             🧩 Puzzle Clues
            </button>
            `;
@@ -1978,14 +1978,11 @@ function openMRPuzzleClues() {
     title.innerText = "🧩 Puzzle Clues";
 
     body.innerHTML = `
-        <img 
-            src="/images/a7f3k9.jpg"
+        <img
+            src="https://jotunhunt2026.web.app/images/a7f3k9.jpg?v=4"
             alt="MR Puzzle Clues"
-            style="width:100%; height:auto; border-radius:14px; display:block;"
+            style="width:100%;max-width:900px;height:auto;border-radius:14px;display:block;margin:0 auto;"
         >
-        <button class="btn btn-ghost" onclick="closeModal('action-modal')">
-            Close
-        </button>
     `;
 
     document.getElementById('action-modal').style.display = "flex";
