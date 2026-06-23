@@ -1231,6 +1231,8 @@
         let gameFrozen = false;
         let penaltyTimer = null;
         let penaltyRemaining = 0;
+        let winnerWatchTimer = null;
+        let winnerCheckInFlight = false;
 
         // ── API HELPER ──
         async function callCloudEndpoint(endpointName, payload) {
@@ -1319,8 +1321,11 @@
             }
 
             header.style.display = "flex";
-            document.getElementById('progress-indicator').innerText =
-                `${Math.round(((data.currentStage - 1) / data.totalStages) * 100)}%`;
+            const displayProgress = Number.isFinite(Number(data.progressPct))
+    ? Number(data.progressPct)
+    : Math.round(((data.currentStage - 1) / data.totalStages) * 100);
+
+document.getElementById('progress-indicator').innerText = `${displayProgress}%`;
 
             // Vault slots — letters array is 7 chars, blanks for unfilled
             const slots = document.getElementById('vault-slots').children;
@@ -1985,7 +1990,37 @@ function openMRPuzzleClues() {
 
     document.getElementById('action-modal').style.display = "flex";
 }
+function startWinnerWatcher() {
+    if (winnerWatchTimer || !teamToken) return;
+
+    winnerWatchTimer = setInterval(checkWinnerStatusQuietly, 8000);
+}
+
+async function checkWinnerStatusQuietly() {
+    if (!teamToken || gameFrozen || winnerCheckInFlight) return;
+
+    winnerCheckInFlight = true;
+
+    try {
+        const data = await callCloudEndpoint('getGameState', { token: teamToken });
+
+        if (data.gameWon) {
+            localStateCache = data;
+
+            if (data.thisTeamWon) {
+                showVictory(data.teamName);
+            } else {
+                showFreeze(data.winnerName);
+            }
+        }
+    } catch (e) {
+        console.warn("Winner check skipped:", e.message);
+    } finally {
+        winnerCheckInFlight = false;
+    }
+}
         refreshViewEngine();
+      startWinnerWatcher();
     </script>
 </body>
 </html>
