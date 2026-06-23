@@ -1363,12 +1363,12 @@
             } else if (data.viewType === "BP") {
                 actionHTML = '';
           } else if (data.viewType === "MR") {
-                 actionHTML = `
-           <button class="btn btn-accent" onclick="Clues()">
+    actionHTML = `
+        <button class="btn btn-accent" onclick="openMRPuzzleClues()">
             🧩 Puzzle Clues
-           </button>
-           `;
-               }
+        </button>
+    `;
+}
  
             viewport.className = "main-card";
             viewport.innerHTML = `
@@ -1977,13 +1977,11 @@ function openMRPuzzleClues() {
 
     title.innerText = "🧩 Puzzle Clues";
 
-    body.innerHTML = `
-        <img
-            src="https://jotunhunt2026.web.app/images/a7f3k9.jpg?v=4"
-            alt="MR Puzzle Clues"
-            style="width:100%;max-width:900px;height:auto;border-radius:14px;display:block;margin:0 auto;"
-        >
-    `;
+    body.innerHTML =
+        '<img ' +
+        'src="https://jotunhunt2026.web.app/images/a7f3k9.jpg?v=6" ' +
+        'alt="MR Puzzle Clues" ' +
+        'style="width:100%;max-width:900px;height:auto;border-radius:14px;display:block;margin:0 auto;">';
 
     document.getElementById('action-modal').style.display = "flex";
 }
