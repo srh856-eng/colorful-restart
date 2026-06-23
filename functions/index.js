@@ -28,10 +28,10 @@ const MAX_HINTS    = 2;
 const WRONG_ANSWER_PENALTY_MS = 30 * 1000;
 
 const PUZZLE_DATA = {
-  CW: { heading: "Quest CW", description: "Solve the crossword clues to find your path forward.", prompt: "Did you solve the crossword? What is the unscrambled word?", answer: "BEAUTIFUL" },
-  BP: { heading: "Quest BP", description: "Are you good at additions? Find the marked locations — but watch out for decoys.", prompt: "What is the total of the numbers you found?", answer: "5698" },
+  CW: { heading: "Quest CW", description: "The penguins left clues all over the office.Every clue points somewhere. Every answer reveals something.", prompt: "What secret did the crossword uncover?", answer: "BEAUTIFUL" },
+  BP: { heading: "Quest BP", description: "The penguins marked four spots. Trust them at your own risk", prompt: "What is the product ?", answer: "5698" },
   MR: { heading: "Quest MR", description: "Pablo the penguin is missing. Find where every other office member was, and Pablo will be in the last remaining cell. Pablo left a passcode hidden in that room.", prompt: "Enter Pablo's passcode", answer: "PABLOLOVESYOU" },
-  LR: { heading: "Quest LR", description: "Sam is the new intern at the Protective department. He walked to HR, then was sent to IT. His route traced a letter — can you find it?", prompt: "What letter did Sam's route trace?", answer: "L" },
+  LR: { heading: "Quest LR", description: "Sam, the new intern in Protective, noticed his computer wasn't working. He first went to HR, but they sent him to IT. A curious penguin noticed some pattern in his journey.", prompt: "What letter did Sam's route trace?", answer: "L" },
 };
 
 // ─────────────────────────────────────────────
@@ -61,18 +61,18 @@ const QUEST_SLOT_MAP = {
 };
 
 const CROSSWORD_CLUES = {
-  across: { 3: "Spread the Word", 5: "Protectors of the ship", 6: "Think Tank #3", 9: "Looks for good pitch but doesn't play baseball. Always tries to hit the target but isn't a shooter. Who are we?" },
+  across: { 3: "Spread the Word", 5: "Protectors of the ship", 6: "The official talking zone #3.", 9: "Looks for good pitch but doesn't play baseball. Always tries to hit the target but isn't a shooter. Who are we?" },
   down: { 1: "Selection committee", 2: "People of the money", 4: "Report to the captain penguin", 7: "Backbone of the digital era", 8: "Room is bored or people are bored?" }
 };
 
 const HINTS = {
-  IDENTITY: "Jersey numbers 1–10 play on the ground floor and jersey numbers 11–20 play on the first floor.",
-  CW:       "Find the physical location through the clue and solve the riddle there. Pick the circled letters and unscramble them for the answer.",
-  BP:       "Go to the marked location on the blueprint. Look for the number. 2 out of 4 locations are decoys.",
-  MR:       "The person in the tub occupies that column. Find the last unoccupied cell and go to that department to get Pablo's passcode.",
+  IDENTITY: "Here by mistake ? Why waste a hint ? Its very easy just find the penguin wearing your jersey number and fetch team name from his jersey.",
+  CW:       "Crossword clues points to departments. Find questions there, fill crossword, pick the circled letters and unscramble them for the answer.",
+  BP:       "Go to the marked location on the blueprint. You will get numbers from 2 out of the 4 locations. Multiply and Wallah!",
+  MR:       "The person in the tub occupies the entire column and the person in carpet occupies that entire row. Find the last unoccupied cell and go to that room to get Pablo's passcode.",
   LR:       "Sam goes 20 m straight from Protective, turns left at HR, and walks another 15 m. What letter does that path form?",
   
-  FINALE:   "ROT13 is a simple substitution cipher that rotates each letter by 13 positions in the alphabet (A ↔ N, B ↔ O, etc.)."
+  FINALE:   "Habeebi, You've won! Just use the Decoder and switch letters of your letterpile, top with bottom and bottom with top."
 };
 
 const TEAM_ROSTER = {
@@ -130,6 +130,35 @@ function applyWrongAnswerPenalty(currentState) {
   const now = Date.now();
   const currentPenaltyUntil = Number(currentState && currentState.penaltyUntil) || 0;
   return Math.max(now, currentPenaltyUntil) + WRONG_ANSWER_PENALTY_MS;
+}
+
+function calculateWeightedProgress(cohortNum, currentStage, isCompleted) {
+  if (isCompleted) return 100;
+  if (!currentStage || currentStage === 1) return 0;
+
+  const weights = {
+    IDENTITY: 10,
+    CW: 25,
+    BP: 20,
+    MR: 20,
+    LR: 15
+  };
+
+  let percentageSum = weights.IDENTITY;
+
+  const sequence = COHORTS[cohortNum];
+  if (!sequence) return percentageSum;
+
+  const completedCount = Math.min(currentStage - 2, sequence.length);
+
+  for (let i = 0; i < completedCount; i++) {
+    const puzzleKey = sequence[i];
+    if (weights[puzzleKey]) {
+      percentageSum += weights[puzzleKey];
+    }
+  }
+
+  return Math.round(percentageSum / 10) * 10;
 }
 
 // ─────────────────────────────────────────────
@@ -213,26 +242,16 @@ exports.getGameState = onRequest((req, res) => {
         penaltyRemainingSeconds
       };
 
-      // ── PROGRESS MATRIX FOR THE 4 ACTIVE QUESTS ──
-      let playerProgress = 10; 
-      if (state.isCompleted) {
-        playerProgress = 100;
-      } else if (state.currentStage === 1) {
-        playerProgress = 0;
-      } else {
-        const stageWeights = { "CW": 25, "BP": 20, "MR": 20, "LR": 25 };
-        const cohortSequence = COHORTS[teamInfo.cohort];
-        if (cohortSequence) {
-          const completedPuzzlesCount = Math.min(state.currentStage - 2, cohortSequence.length);
-          for (let i = 0; i < completedPuzzlesCount; i++) {
-            const puzzleKey = cohortSequence[i];
-            if (stageWeights[puzzleKey]) {
-              playerProgress += stageWeights[puzzleKey];
-            }
-          }
-        }
-      }
-      result.progress = playerProgress; 
+      // ── SHARED WEIGHTED PROGRESS (MATCHES DASHBOARD) ──
+      const playerProgress = calculateWeightedProgress(
+        teamInfo.cohort,
+        state.currentStage || 1,
+        state.isCompleted || false
+      );
+
+      // Keep both names so old and new frontends can read the same value.
+      result.progress = playerProgress;
+      result.progressPct = playerProgress;
       // ──────────────────────────────────────────────
 
       if (state.currentStage === 1) {
