@@ -1362,10 +1362,14 @@
                     </div>`;
             } else if (data.viewType === "BP") {
                 actionHTML = '';
-            } else if (data.viewType === "MR") {
-                actionHTML = '';
-            }
-
+          } else if (data.viewType === "MR") {
+                 actionHTML = `
+           <button class="btn btn-accent" onclick="openMRPuzzleClues()">
+            🧩 Puzzle Clues
+           </button>
+           `;
+               }
+ 
             viewport.className = "main-card";
             viewport.innerHTML = `
                 <div class="card-header-band">
@@ -1965,6 +1969,25 @@ function OpenCrosswordHintSelectionPopup() {
                 <button class="btn btn-ghost" style="margin-top:6px; padding:8px; width:100%;" onclick="executeHintFetchFromServer('down_8')">8</button>
             </div>
         </div>`;
+    document.getElementById('action-modal').style.display = "flex";
+}
+function openMRPuzzleClues() {
+    const title = document.getElementById('action-modal-title');
+    const body = document.getElementById('action-modal-body');
+
+    title.innerText = "🧩 Puzzle Clues";
+
+    body.innerHTML = `
+        <img 
+            src="/images/a7f3k9.jpg"
+            alt="MR Puzzle Clues"
+            style="width:100%; height:auto; border-radius:14px; display:block;"
+        >
+        <button class="btn btn-ghost" onclick="closeModal('action-modal')">
+            Close
+        </button>
+    `;
+
     document.getElementById('action-modal').style.display = "flex";
 }
         refreshViewEngine();
